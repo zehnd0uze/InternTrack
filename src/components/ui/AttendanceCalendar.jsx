@@ -14,6 +14,31 @@ const formatThaiTime = (dt) => {
   return format(new Date(dt), 'HH:mm', { locale: th })
 }
 
+// Thai Public Holidays
+const FIXED_HOLIDAYS = {
+  '01-01': 'วันขึ้นปีใหม่',
+  '04-06': 'วันจักรี',
+  '04-13': 'วันสงกรานต์',
+  '04-14': 'วันสงกรานต์',
+  '04-15': 'วันสงกรานต์',
+  '05-01': 'วันแรงงานแห่งชาติ',
+  '05-04': 'วันฉัตรมงคล',
+  '06-03': 'วันเฉลิมฯ พระราชินี',
+  '07-28': 'วันเฉลิมฯ รัชกาลที่ 10',
+  '08-12': 'วันแม่แห่งชาติ',
+  '10-13': 'วันนวมินทรมหาราช',
+  '10-23': 'วันปิยมหาราช',
+  '12-05': 'วันพ่อแห่งชาติ',
+  '12-10': 'วันรัฐธรรมนูญ',
+  '12-31': 'วันสิ้นปี'
+}
+
+const LUNAR_HOLIDAYS_2026 = {
+  '2026-03-03': 'วันมาฆบูชา',
+  '2026-07-20': 'วันอาสาฬหบูชา',
+  '2026-07-21': 'วันเข้าพรรษา'
+}
+
 export default function AttendanceCalendar() {
   const { user } = useAuth()
   const [currentDate, setCurrentDate] = useState(new Date())
@@ -97,9 +122,11 @@ export default function AttendanceCalendar() {
       <div className="grid grid-cols-7 auto-rows-[100px] sm:auto-rows-[120px] bg-gray-200 gap-[1px]">
         {days.map((day, i) => {
           const dateStr = format(day, 'yyyy-MM-dd')
+          const mmdd = dateStr.substring(5)
           const record = attendanceMap[dateStr]
           const isToday = isSameDay(day, new Date())
           const isCurrentMonth = isSameMonth(day, monthStart)
+          const holiday = LUNAR_HOLIDAYS_2026[dateStr] || FIXED_HOLIDAYS[mmdd]
 
           return (
             <div 
@@ -109,14 +136,21 @@ export default function AttendanceCalendar() {
               `}
             >
               <div className="flex justify-between items-start">
-                <span className={`text-sm font-medium w-7 h-7 flex items-center justify-center rounded-full
-                  ${isToday ? 'bg-primary-500 text-white shadow-sm' : 'text-gray-700'}
-                `}>
-                  {format(day, 'd')}
-                </span>
+                <div className="flex items-center gap-1.5 overflow-hidden">
+                  <span className={`text-sm font-medium w-7 h-7 flex items-center justify-center rounded-full shrink-0
+                    ${isToday ? 'bg-primary-500 text-white shadow-sm' : 'text-gray-700'}
+                  `}>
+                    {format(day, 'd')}
+                  </span>
+                  {holiday && (
+                    <span className="text-[10px] font-medium text-danger bg-danger/10 px-1.5 py-0.5 rounded truncate" title={holiday}>
+                      {holiday}
+                    </span>
+                  )}
+                </div>
                 {record && (
-                  <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${record.check_out ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>
-                    {record.check_out ? 'เสร็จสิ้น' : 'กำลังทำงาน'}
+                  <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full shrink-0 ${record.check_out ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>
+                    {record.check_out ? 'เสร็จสิ้น' : 'ทำงาน'}
                   </span>
                 )}
               </div>
