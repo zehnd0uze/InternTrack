@@ -8,6 +8,7 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { SkeletonCard, SkeletonTable } from '../../components/ui/Skeleton'
 import ConfirmModal from '../../components/ui/ConfirmModal'
+import AttendanceCalendar from '../../components/ui/AttendanceCalendar'
 import { format as formatDate } from 'date-fns'
 
 // ---- Helpers ----
@@ -57,6 +58,8 @@ export default function StudentDashboard() {
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
   const ROWS = 10
+
+  const [viewMode, setViewMode] = useState('list') // 'list' or 'calendar'
 
   const [clockOutModal, setClockOutModal] = useState(false)
   const [clockLoading, setClockLoading] = useState(false)
@@ -494,103 +497,132 @@ export default function StudentDashboard() {
             <Calendar size={18} className="text-primary-700" />
             <h2 className="font-semibold text-gray-900">ประวัติการเข้างาน</h2>
           </div>
-          {/* Date Filter */}
-          <div className="flex flex-wrap gap-2">
-            <div>
-              <label className="text-xs text-gray-500 block mb-1">ตั้งแต่</label>
-              <input
-                type="date"
-                value={dateFrom}
-                onChange={e => { setDateFrom(e.target.value); setHistoryPage(1) }}
-                className="input text-xs py-1.5 w-36"
-              />
-            </div>
-            <div>
-              <label className="text-xs text-gray-500 block mb-1">ถึง</label>
-              <input
-                type="date"
-                value={dateTo}
-                onChange={e => { setDateTo(e.target.value); setHistoryPage(1) }}
-                className="input text-xs py-1.5 w-36"
-              />
-            </div>
-            {(dateFrom || dateTo) && (
+          
+          <div className="flex flex-wrap items-center gap-4">
+            {/* View Toggle */}
+            <div className="flex bg-gray-100 p-1 rounded-lg">
               <button
-                onClick={() => { setDateFrom(''); setDateTo(''); setHistoryPage(1) }}
-                className="btn-ghost btn-sm self-end"
+                onClick={() => setViewMode('list')}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${viewMode === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
               >
-                ล้าง
+                รายการ
               </button>
+              <button
+                onClick={() => setViewMode('calendar')}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${viewMode === 'calendar' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+              >
+                ปฏิทิน
+              </button>
+            </div>
+
+            {/* Date Filter (Only in list view) */}
+            {viewMode === 'list' && (
+              <div className="flex flex-wrap gap-2">
+                <div>
+                  <label className="text-xs text-gray-500 block mb-1">ตั้งแต่</label>
+                  <input
+                    type="date"
+                    value={dateFrom}
+                    onChange={e => { setDateFrom(e.target.value); setHistoryPage(1) }}
+                    className="input text-xs py-1.5 w-36"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-500 block mb-1">ถึง</label>
+                  <input
+                    type="date"
+                    value={dateTo}
+                    onChange={e => { setDateTo(e.target.value); setHistoryPage(1) }}
+                    className="input text-xs py-1.5 w-36"
+                  />
+                </div>
+                {(dateFrom || dateTo) && (
+                  <button
+                    onClick={() => { setDateFrom(''); setDateTo(''); setHistoryPage(1) }}
+                    className="btn-ghost btn-sm self-end"
+                  >
+                    ล้าง
+                  </button>
+                )}
+              </div>
             )}
           </div>
         </div>
 
-        {historyLoading ? (
-          <SkeletonTable rows={5} cols={5} />
-        ) : history.length === 0 ? (
-          <div className="text-center py-12 text-gray-400">
-            <Calendar size={40} className="mx-auto mb-3 opacity-30" />
-            <p className="font-medium">ยังไม่มีข้อมูลการเข้างาน</p>
-            <p className="text-sm mt-1">กดปุ่ม "เช็คอิน" เพื่อเริ่มบันทึกชั่วโมง</p>
+        {viewMode === 'calendar' ? (
+          <div className="-mx-4 sm:mx-0 mt-4">
+            <AttendanceCalendar />
           </div>
         ) : (
           <>
-            <div className="table-wrapper">
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>วันที่</th>
-                    <th>เวลาเข้า</th>
-                    <th>เวลาออก</th>
-                    <th>ชั่วโมง</th>
-                    <th>สถานะ</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {history.map(row => (
-                    <tr key={row.id}>
-                      <td className="font-medium text-gray-900">{formatThaiDate(row.date)}</td>
-                      <td>{formatThaiTime(row.check_in)}</td>
-                      <td>{formatThaiTime(row.check_out)}</td>
-                      <td>
-                        {row.hours_worked
-                          ? <span className="font-semibold text-success">{parseFloat(row.hours_worked).toFixed(1)}</span>
-                          : <span className="text-gray-400">-</span>
-                        }
-                      </td>
-                      <td>
-                        <span className={`badge ${row.check_out ? 'badge-success' : 'badge-warning'}`}>
-                          {row.check_out ? 'เสร็จสิ้น' : 'กำลังทำงาน'}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Pagination */}
-            <div className="flex items-center justify-between mt-4 text-sm">
-              <span className="text-gray-500">
-                แสดง {Math.min((historyPage - 1) * ROWS + 1, historyTotal)}–{Math.min(historyPage * ROWS, historyTotal)} จาก {historyTotal} รายการ
-              </span>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setHistoryPage(p => Math.max(1, p - 1))}
-                  disabled={historyPage === 1}
-                  className="btn-secondary btn-sm disabled:opacity-40"
-                >
-                  ก่อนหน้า
-                </button>
-                <button
-                  onClick={() => setHistoryPage(p => p + 1)}
-                  disabled={historyPage * ROWS >= historyTotal}
-                  className="btn-secondary btn-sm disabled:opacity-40"
-                >
-                  ถัดไป
-                </button>
+            {historyLoading ? (
+              <SkeletonTable rows={5} cols={5} />
+            ) : history.length === 0 ? (
+              <div className="text-center py-12 text-gray-400">
+                <Calendar size={40} className="mx-auto mb-3 opacity-30" />
+                <p className="font-medium">ยังไม่มีข้อมูลการเข้างาน</p>
+                <p className="text-sm mt-1">กดปุ่ม "เช็คอิน" เพื่อเริ่มบันทึกชั่วโมง</p>
               </div>
-            </div>
+            ) : (
+              <>
+                <div className="table-wrapper">
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th>วันที่</th>
+                        <th>เวลาเข้า</th>
+                        <th>เวลาออก</th>
+                        <th>ชั่วโมง</th>
+                        <th>สถานะ</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {history.map(row => (
+                        <tr key={row.id}>
+                          <td className="font-medium text-gray-900">{formatThaiDate(row.date)}</td>
+                          <td>{formatThaiTime(row.check_in)}</td>
+                          <td>{formatThaiTime(row.check_out)}</td>
+                          <td>
+                            {row.hours_worked
+                              ? <span className="font-semibold text-success">{parseFloat(row.hours_worked).toFixed(1)}</span>
+                              : <span className="text-gray-400">-</span>
+                            }
+                          </td>
+                          <td>
+                            <span className={`badge ${row.check_out ? 'badge-success' : 'badge-warning'}`}>
+                              {row.check_out ? 'เสร็จสิ้น' : 'กำลังทำงาน'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination */}
+                <div className="flex items-center justify-between mt-4 text-sm">
+                  <span className="text-gray-500">
+                    แสดง {Math.min((historyPage - 1) * ROWS + 1, historyTotal)}–{Math.min(historyPage * ROWS, historyTotal)} จาก {historyTotal} รายการ
+                  </span>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setHistoryPage(p => Math.max(1, p - 1))}
+                      disabled={historyPage === 1}
+                      className="btn-secondary btn-sm disabled:opacity-40"
+                    >
+                      ก่อนหน้า
+                    </button>
+                    <button
+                      onClick={() => setHistoryPage(p => p + 1)}
+                      disabled={historyPage * ROWS >= historyTotal}
+                      className="btn-secondary btn-sm disabled:opacity-40"
+                    >
+                      ถัดไป
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
           </>
         )}
       </div>
