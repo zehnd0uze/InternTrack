@@ -87,6 +87,24 @@ CREATE POLICY "Mentors can read their interns profiles"
     )
   );
 
+DROP POLICY IF EXISTS "Mentors can update their interns profiles" ON public.users;
+CREATE POLICY "Mentors can update their interns profiles"
+  ON public.users FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.internship_placements ip
+      WHERE ip.student_id = users.id
+        AND ip.mentor_id = auth.uid()
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.internship_placements ip
+      WHERE ip.student_id = users.id
+        AND ip.mentor_id = auth.uid()
+    )
+  );
+
 -- ---------------------------------------------------------------
 -- 6. ALLOW MENTORS TO READ INTERNS' ATTENDANCE
 -- ---------------------------------------------------------------

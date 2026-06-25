@@ -13,6 +13,29 @@ import ConfirmModal from '../../components/ui/ConfirmModal'
 import { useAuth } from '../../contexts/AuthContext'
 import { SkeletonTable } from '../../components/ui/Skeleton'
 
+// Helper function to calculate working hours (Mon-Sat, 8:00 - 16:00, optional 1h lunch break deduction)
+const calculateWorkingHours = (startDateStr, endDateStr) => {
+  if (!startDateStr || !endDateStr) return null
+  const s = new Date(startDateStr)
+  const e = new Date(endDateStr)
+  if (isNaN(s.getTime()) || isNaN(e.getTime()) || s > e) return null
+  
+  let workingDays = 0
+  let cur = new Date(s)
+  while (cur <= e) {
+    const day = cur.getDay() // 0 = Sun, 1 = Mon, ..., 6 = Sat
+    if (day >= 1 && day <= 6) { // Mon-Sat
+      workingDays++
+    }
+    cur.setDate(cur.getDate() + 1)
+  }
+  return {
+    workingDays,
+    hours7: workingDays * 7,
+    hours8: workingDays * 8
+  }
+}
+
 // ---- Shared Form Fields used by both Add & Edit modals ----
 function PlacementFormFields({
   companyName, setCompanyName,
@@ -22,6 +45,7 @@ function PlacementFormFields({
   endDate, setEndDate,
   status, setStatus,
   notes, setNotes,
+  targetHours, setTargetHours,
 }) {
   return (
     <>
@@ -102,6 +126,43 @@ function PlacementFormFields({
         </div>
       </div>
 
+      {/* Target Hours and Calculation suggestion */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+          เป้าหมายชั่วโมงฝึกงาน (ชม.) <span className="text-danger">*</span>
+        </label>
+        <div className="relative">
+          <Clock3 size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          <input
+            type="number"
+            min={1}
+            value={targetHours}
+            onChange={e => setTargetHours(e.target.value)}
+            className="input pl-9"
+            required
+          />
+        </div>
+        {startDate && endDate && (
+          <div className="mt-2.5 p-3 bg-primary-50 rounded-xl border border-primary-100 text-xs text-primary-800 space-y-1.5 shadow-sm">
+            <p className="font-semibold text-primary-900 flex items-center gap-1">
+              <span>💡</span> แนะนำจากการคำนวณช่วงวันที่เลือก (ทำงาน จ.-ส. 8.00-16.00 น.):
+            </p>
+            <ul className="list-disc list-inside pl-1 space-y-1 text-gray-700">
+              <li>จำนวนวันทำงานทั้งหมด: <span className="font-bold text-gray-900">{calculateWorkingHours(startDate, endDate)?.workingDays} วัน</span></li>
+              <li>เป้าหมายแบบหักเวลาพักกลางวัน (7 ชม./วัน): <span className="font-bold text-primary-700 text-[13px]">{calculateWorkingHours(startDate, endDate)?.hours7} ชั่วโมง</span> (แนะนำสำหรับการเช็คเอาท์ในระบบ)</li>
+              <li>เป้าหมายแบบไม่หักเวลาพัก (8 ชม./วัน): <span className="font-bold text-gray-900">{calculateWorkingHours(startDate, endDate)?.hours8} ชั่วโมง</span></li>
+            </ul>
+            <button
+              type="button"
+              onClick={() => setTargetHours(calculateWorkingHours(startDate, endDate)?.hours7 || 240)}
+              className="mt-1 text-primary-700 hover:text-primary-900 font-semibold underline text-[11px] block"
+            >
+              ใช้ชั่วโมงแนะนำแบบหักเวลาพัก ({calculateWorkingHours(startDate, endDate)?.hours7} ชม.)
+            </button>
+          </div>
+        )}
+      </div>
+
       {/* Status */}
       {setStatus && (
         <div>
@@ -145,6 +206,7 @@ function AddInternModal({ onClose, onSuccess, mentorId }) {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [notes, setNotes] = useState('')
+  const [targetHours, setTargetHours] = useState(240)
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
@@ -152,7 +214,7 @@ function AddInternModal({ onClose, onSuccess, mentorId }) {
       setStudentsLoading(true)
       const { data } = await supabase
         .from('users')
-        .select('id, full_name, email')
+        .select('id, full_name, email, target_hours')
         .eq('role', 'student')
         .eq('is_active', true)
         .order('full_name')
@@ -161,6 +223,12 @@ function AddInternModal({ onClose, onSuccess, mentorId }) {
     }
     fetchStudents()
   }, [])
+
+  useEffect(() => {
+    if (selectedStudent) {
+      setTargetHours(selectedStudent.target_hours || 240)
+    }
+  }, [selectedStudent])
 
   const filteredStudents = students.filter(s =>
     s.full_name?.toLowerCase().includes(studentSearch.toLowerCase()) ||
@@ -175,7 +243,7 @@ function AddInternModal({ onClose, onSuccess, mentorId }) {
     if (!startDate) { toast.error('กรุณาเลือกวันที่เริ่มฝึกงาน'); return }
 
     setSaving(true)
-    const { error } = await supabase.from('internship_placements').upsert({
+    const { error: placementErr } = await supabase.from('internship_placements').upsert({
       student_id: selectedStudent.id,
       mentor_id: mentorId,
       company_name: companyName.trim(),
@@ -187,9 +255,21 @@ function AddInternModal({ onClose, onSuccess, mentorId }) {
       status: 'active',
     }, { onConflict: 'student_id' })
 
+    if (placementErr) {
+      setSaving(false)
+      toast.error('บันทึกข้อมูลการฝึกงานล้มเหลว: ' + (placementErr.message || ''))
+      return
+    }
+
+    // Update target hours on student
+    const { error: userErr } = await supabase
+      .from('users')
+      .update({ target_hours: parseInt(targetHours) })
+      .eq('id', selectedStudent.id)
+
     setSaving(false)
-    if (error) {
-      toast.error('บันทึกข้อมูลล้มเหลว: ' + (error.message || ''))
+    if (userErr) {
+      toast.error('อัปเดตเป้าหมายชั่วโมงฝึกงานล้มเหลว: ' + (userErr.message || ''))
     } else {
       toast.success(`เพิ่ม ${selectedStudent.full_name} สำเร็จ ✅`)
       onSuccess()
@@ -283,6 +363,7 @@ function AddInternModal({ onClose, onSuccess, mentorId }) {
             startDate={startDate} setStartDate={setStartDate}
             endDate={endDate} setEndDate={setEndDate}
             notes={notes} setNotes={setNotes}
+            targetHours={targetHours} setTargetHours={setTargetHours}
           />
 
           <div className="flex gap-3 pt-1">
@@ -306,6 +387,7 @@ function EditPlacementModal({ placement, onClose, onSuccess, onDelete }) {
   const [endDate, setEndDate] = useState(placement.end_date || '')
   const [status, setStatus] = useState(placement.status || 'active')
   const [notes, setNotes] = useState(placement.notes || '')
+  const [targetHours, setTargetHours] = useState(placement.student?.target_hours || 240)
   const [saving, setSaving] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -317,7 +399,7 @@ function EditPlacementModal({ placement, onClose, onSuccess, onDelete }) {
     if (!startDate) { toast.error('กรุณาเลือกวันที่เริ่มฝึกงาน'); return }
 
     setSaving(true)
-    const { error } = await supabase
+    const { error: placementErr } = await supabase
       .from('internship_placements')
       .update({
         company_name: companyName.trim(),
@@ -330,9 +412,21 @@ function EditPlacementModal({ placement, onClose, onSuccess, onDelete }) {
       })
       .eq('id', placement.id)
 
+    if (placementErr) {
+      setSaving(false)
+      toast.error('บันทึกข้อมูลล้มเหลว: ' + (placementErr.message || ''))
+      return
+    }
+
+    // Update target hours on student
+    const { error: userErr } = await supabase
+      .from('users')
+      .update({ target_hours: parseInt(targetHours) })
+      .eq('id', placement.student_id)
+
     setSaving(false)
-    if (error) {
-      toast.error('บันทึกข้อมูลล้มเหลว: ' + (error.message || ''))
+    if (userErr) {
+      toast.error('อัปเดตเป้าหมายชั่วโมงฝึกงานล้มเหลว: ' + (userErr.message || ''))
     } else {
       toast.success('อัปเดตข้อมูลการฝึกงานสำเร็จ ✅')
       onSuccess()
@@ -391,6 +485,7 @@ function EditPlacementModal({ placement, onClose, onSuccess, onDelete }) {
             endDate={endDate} setEndDate={setEndDate}
             status={status} setStatus={setStatus}
             notes={notes} setNotes={setNotes}
+            targetHours={targetHours} setTargetHours={setTargetHours}
           />
 
           {/* Action buttons */}
