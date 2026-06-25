@@ -33,14 +33,14 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-900 via-primary-700 to-primary-500 flex items-center justify-center p-4">
-      {/* Background decoration */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/5 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-white/5 rounded-full blur-3xl" />
-      </div>
+    <div 
+      className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center bg-no-repeat relative"
+      style={{ backgroundImage: "url('/bg-login.jpg')" }}
+    >
+      {/* Background dark overlay for better readability */}
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
 
-      <div className="w-full max-w-md relative">
+      <div className="w-full max-w-md relative z-10">
         {/* Card */}
         <div className="bg-white rounded-2xl shadow-card-lg p-8 animate-fade-in">
           {/* Logo */}
