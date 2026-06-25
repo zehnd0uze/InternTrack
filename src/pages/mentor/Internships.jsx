@@ -3,13 +3,280 @@ import { format } from 'date-fns'
 import { th } from 'date-fns/locale'
 import {
   Building2, Briefcase, MapPin, Calendar,
-  CheckCircle2, Clock3, Eye, Search,
+  CheckCircle2, Clock3, Eye, Search, Plus, X,
+  User, Loader2,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { SkeletonTable } from '../../components/ui/Skeleton'
 
+// ---- Add Intern Modal ----
+function AddInternModal({ onClose, onSuccess, mentorId }) {
+  const [students, setStudents] = useState([])
+  const [studentsLoading, setStudentsLoading] = useState(true)
+  const [studentSearch, setStudentSearch] = useState('')
+  const [selectedStudent, setSelectedStudent] = useState(null)
+
+  const [companyName, setCompanyName] = useState('')
+  const [department, setDepartment] = useState('')
+  const [position, setPosition] = useState('')
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
+  const [notes, setNotes] = useState('')
+  const [saving, setSaving] = useState(false)
+
+  // Load all students (those without a placement or with any role=student)
+  useEffect(() => {
+    const fetchStudents = async () => {
+      setStudentsLoading(true)
+      const { data } = await supabase
+        .from('users')
+        .select('id, full_name, email')
+        .eq('role', 'student')
+        .eq('is_active', true)
+        .order('full_name')
+      setStudents(data || [])
+      setStudentsLoading(false)
+    }
+    fetchStudents()
+  }, [])
+
+  const filteredStudents = students.filter(s =>
+    s.full_name?.toLowerCase().includes(studentSearch.toLowerCase()) ||
+    s.email?.toLowerCase().includes(studentSearch.toLowerCase())
+  )
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!selectedStudent) { toast.error('กรุณาเลือกนักศึกษา'); return }
+    if (!companyName.trim()) { toast.error('กรุณากรอกชื่อบริษัท'); return }
+    if (!position.trim()) { toast.error('กรุณากรอกตำแหน่งงาน'); return }
+    if (!startDate) { toast.error('กรุณาเลือกวันที่เริ่มฝึกงาน'); return }
+
+    setSaving(true)
+    const { error } = await supabase.from('internship_placements').upsert({
+      student_id: selectedStudent.id,
+      mentor_id: mentorId,
+      company_name: companyName.trim(),
+      department: department.trim() || null,
+      position: position.trim(),
+      start_date: startDate,
+      end_date: endDate || null,
+      notes: notes.trim() || null,
+      status: 'active',
+    }, { onConflict: 'student_id' })
+
+    setSaving(false)
+    if (error) {
+      console.error(error)
+      toast.error('บันทึกข้อมูลล้มเหลว: ' + (error.message || ''))
+    } else {
+      toast.success(`เพิ่ม ${selectedStudent.full_name} สำเร็จ ✅`)
+      onSuccess()
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <div className="flex items-center gap-2">
+            <Plus size={18} className="text-primary-700" />
+            <h2 className="font-semibold text-gray-900">เพิ่มนักศึกษาฝึกงาน</h2>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100">
+            <X size={18} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-5">
+          {/* Student Picker */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              นักศึกษา <span className="text-danger">*</span>
+            </label>
+            {selectedStudent ? (
+              <div className="flex items-center gap-3 p-3 bg-primary-50 border border-primary-200 rounded-lg">
+                <div className="w-8 h-8 rounded-full bg-primary-700 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
+                  {selectedStudent.full_name?.charAt(0)?.toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-gray-900 text-sm">{selectedStudent.full_name}</p>
+                  <p className="text-xs text-gray-500">{selectedStudent.email}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedStudent(null)}
+                  className="text-gray-400 hover:text-danger p-1"
+                >
+                  <X size={15} />
+                </button>
+              </div>
+            ) : (
+              <div className="border border-gray-200 rounded-lg overflow-hidden">
+                <div className="relative">
+                  <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="ค้นหาชื่อหรืออีเมลนักศึกษา..."
+                    value={studentSearch}
+                    onChange={e => setStudentSearch(e.target.value)}
+                    className="w-full pl-9 pr-4 py-2.5 text-sm border-0 outline-none focus:ring-0"
+                    autoFocus
+                  />
+                </div>
+                <div className="border-t border-gray-100 max-h-44 overflow-y-auto">
+                  {studentsLoading ? (
+                    <div className="flex items-center justify-center py-6 text-gray-400">
+                      <Loader2 size={18} className="animate-spin mr-2" /> กำลังโหลด...
+                    </div>
+                  ) : filteredStudents.length === 0 ? (
+                    <div className="py-6 text-center text-sm text-gray-400">
+                      {studentSearch ? 'ไม่พบนักศึกษา' : 'ไม่มีนักศึกษาในระบบ'}
+                    </div>
+                  ) : (
+                    filteredStudents.map(s => (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => { setSelectedStudent(s); setStudentSearch('') }}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-primary-50 transition-colors text-left"
+                      >
+                        <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-bold text-xs flex-shrink-0">
+                          {s.full_name?.charAt(0)?.toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">{s.full_name}</p>
+                          <p className="text-xs text-gray-400">{s.email}</p>
+                        </div>
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Company Name */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              ชื่อบริษัท / สถานประกอบการ <span className="text-danger">*</span>
+            </label>
+            <div className="relative">
+              <Building2 size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              <input
+                type="text"
+                value={companyName}
+                onChange={e => setCompanyName(e.target.value)}
+                placeholder="เช่น บริษัท ABC จำกัด"
+                className="input pl-9"
+                required
+              />
+            </div>
+          </div>
+
+          {/* Department + Position */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">แผนก</label>
+              <div className="relative">
+                <MapPin size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                <input
+                  type="text"
+                  value={department}
+                  onChange={e => setDepartment(e.target.value)}
+                  placeholder="เช่น IT, HR"
+                  className="input pl-9"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                ตำแหน่งงาน <span className="text-danger">*</span>
+              </label>
+              <div className="relative">
+                <Briefcase size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                <input
+                  type="text"
+                  value={position}
+                  onChange={e => setPosition(e.target.value)}
+                  placeholder="เช่น Developer"
+                  className="input pl-9"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Dates */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                วันที่เริ่มฝึกงาน <span className="text-danger">*</span>
+              </label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={e => setStartDate(e.target.value)}
+                className="input"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">วันที่สิ้นสุด</label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={e => setEndDate(e.target.value)}
+                className="input"
+                min={startDate}
+              />
+            </div>
+          </div>
+
+          {/* Notes */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">หมายเหตุ</label>
+            <textarea
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+              placeholder="ข้อมูลเพิ่มเติม (ถ้ามี)"
+              className="textarea h-20"
+              maxLength={300}
+            />
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-3 pt-1">
+            <button
+              type="submit"
+              disabled={saving}
+              id="add-intern-submit"
+              className="btn-primary flex-1 flex items-center justify-center gap-2 disabled:opacity-60"
+            >
+              {saving ? (
+                <><Loader2 size={15} className="animate-spin" /> กำลังบันทึก...</>
+              ) : (
+                <><Plus size={15} /> เพิ่มนักศึกษา</>
+              )}
+            </button>
+            <button type="button" onClick={onClose} className="btn-secondary px-5">
+              ยกเลิก
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+// ---- Main Page ----
 export default function MentorInternships() {
   const { user } = useAuth()
   const navigate = useNavigate()
@@ -17,6 +284,7 @@ export default function MentorInternships() {
   const [loading, setLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState('all')
   const [search, setSearch] = useState('')
+  const [showAddModal, setShowAddModal] = useState(false)
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -44,11 +312,33 @@ export default function MentorInternships() {
 
   const formatDate = dt => dt ? format(new Date(dt), 'd MMM yyyy', { locale: th }) : '-'
 
+  const handleMarkComplete = async (placementId, studentName) => {
+    const { error } = await supabase
+      .from('internship_placements')
+      .update({ status: 'completed', end_date: new Date().toISOString().split('T')[0] })
+      .eq('id', placementId)
+    if (error) {
+      toast.error('ไม่สามารถอัปเดตสถานะได้')
+    } else {
+      toast.success(`${studentName} เสร็จสิ้นการฝึกงานแล้ว`)
+      fetchData()
+    }
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-xl font-bold text-gray-900">ข้อมูลการฝึกงาน</h1>
-        <p className="text-sm text-gray-500 mt-0.5">รายละเอียดการฝึกงานของนักศึกษาทั้งหมดในความดูแล</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-bold text-gray-900">ข้อมูลการฝึกงาน</h1>
+          <p className="text-sm text-gray-500 mt-0.5">รายละเอียดการฝึกงานของนักศึกษาทั้งหมดในความดูแล</p>
+        </div>
+        <button
+          id="add-intern-btn"
+          onClick={() => setShowAddModal(true)}
+          className="btn-primary btn-sm flex items-center gap-2 self-start sm:self-auto"
+        >
+          <Plus size={15} /> เพิ่มนักศึกษาฝึกงาน
+        </button>
       </div>
 
       {/* Summary badges */}
@@ -72,7 +362,6 @@ export default function MentorInternships() {
       {/* Filters */}
       <div className="card">
         <div className="flex flex-col sm:flex-row gap-3">
-          {/* Search */}
           <div className="relative flex-1">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
@@ -83,7 +372,6 @@ export default function MentorInternships() {
               className="input pl-9 text-sm w-full"
             />
           </div>
-          {/* Status filter */}
           <div className="flex gap-2">
             {[
               { value: 'all', label: 'ทั้งหมด' },
@@ -111,9 +399,19 @@ export default function MentorInternships() {
         {loading ? (
           <SkeletonTable rows={5} cols={7} />
         ) : filtered.length === 0 ? (
-          <div className="text-center py-12 text-gray-400">
-            <Building2 size={40} className="mx-auto mb-3 opacity-30" />
-            <p>{search || statusFilter !== 'all' ? 'ไม่พบข้อมูลที่ตรงกัน' : 'ยังไม่มีข้อมูลการฝึกงาน'}</p>
+          <div className="text-center py-14 text-gray-400">
+            <Building2 size={44} className="mx-auto mb-3 opacity-25" />
+            <p className="font-medium">
+              {search || statusFilter !== 'all' ? 'ไม่พบข้อมูลที่ตรงกัน' : 'ยังไม่มีนักศึกษาฝึกงาน'}
+            </p>
+            {!search && statusFilter === 'all' && (
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="btn-primary btn-sm mt-4 inline-flex items-center gap-2"
+              >
+                <Plus size={14} /> เพิ่มนักศึกษาฝึกงานคนแรก
+              </button>
+            )}
           </div>
         ) : (
           <div className="table-wrapper">
@@ -188,13 +486,23 @@ export default function MentorInternships() {
                       </span>
                     </td>
                     <td>
-                      <button
-                        id={`view-intern-detail-${p.student_id}`}
-                        onClick={() => navigate(`/mentor/students/${p.student_id}`)}
-                        className="btn-secondary btn-sm"
-                      >
-                        <Eye size={14} /> ดูรายละเอียด
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          id={`view-intern-detail-${p.student_id}`}
+                          onClick={() => navigate(`/mentor/students/${p.student_id}`)}
+                          className="btn-secondary btn-sm"
+                        >
+                          <Eye size={14} /> ดู
+                        </button>
+                        {p.status === 'active' && (
+                          <button
+                            onClick={() => handleMarkComplete(p.id, p.student?.full_name)}
+                            className="btn-sm px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors whitespace-nowrap"
+                          >
+                            เสร็จสิ้น
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -203,6 +511,15 @@ export default function MentorInternships() {
           </div>
         )}
       </div>
+
+      {/* Add Intern Modal */}
+      {showAddModal && (
+        <AddInternModal
+          mentorId={user.id}
+          onClose={() => setShowAddModal(false)}
+          onSuccess={() => { setShowAddModal(false); fetchData() }}
+        />
+      )}
     </div>
   )
 }

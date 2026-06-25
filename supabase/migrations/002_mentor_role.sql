@@ -145,5 +145,21 @@ CREATE INDEX IF NOT EXISTS idx_placements_mentor  ON public.internship_placement
 CREATE INDEX IF NOT EXISTS idx_placements_status  ON public.internship_placements(status);
 
 -- ---------------------------------------------------------------
+-- 11. ALLOW MENTORS TO READ ALL STUDENTS
+--     Needed so mentors can search and add new interns via the UI.
+-- ---------------------------------------------------------------
+DROP POLICY IF EXISTS "Mentors can read all students" ON public.users;
+CREATE POLICY "Mentors can read all students"
+  ON public.users FOR SELECT
+  USING (
+    public.get_current_user_role() = 'mentor'
+    AND role = 'student'
+  );
+
+-- ---------------------------------------------------------------
 -- DONE! Mentor role and internship_placements table ready.
+-- ---------------------------------------------------------------
+-- NOTE: Run this SQL in Supabase SQL Editor.
+-- After running, mentors can log in and add interns via
+-- the "ข้อมูลการฝึกงาน" page using the "เพิ่มนักศึกษาฝึกงาน" button.
 -- ---------------------------------------------------------------
