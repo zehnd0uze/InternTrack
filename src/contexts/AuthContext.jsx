@@ -61,9 +61,19 @@ export function AuthProvider({ children }) {
   }
 
   const signUp = async (email, password, fullName) => {
-    const { data, error } = await supabase.auth.signUp({ email, password })
+    const { data, error } = await supabase.auth.signUp({ 
+      email, 
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+          role: 'student'
+        }
+      }
+    })
+    
     if (!error && data.user) {
-      // Insert profile row; trigger may also do this, upsert is safe
+      // The trigger handle_new_user should have inserted this, but doing a safe upsert
       await supabase.from('users').upsert({
         id: data.user.id,
         email,
