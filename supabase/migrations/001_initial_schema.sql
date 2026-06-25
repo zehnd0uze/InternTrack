@@ -105,6 +105,14 @@ ALTER TABLE public.weekly_approvals  ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notifications     ENABLE ROW LEVEL SECURITY;
 
 -- ---------------------------------------------------------------
+-- 7b. HELPER FUNCTION — avoids infinite recursion in RLS policies
+-- ---------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.get_current_user_role()
+RETURNS TEXT AS $$
+  SELECT role FROM public.users WHERE id = auth.uid();
+$$ LANGUAGE sql SECURITY DEFINER STABLE;
+
+-- ---------------------------------------------------------------
 -- 8. RLS POLICIES — USERS TABLE
 -- ---------------------------------------------------------------
 DROP POLICY IF EXISTS "Users can read own profile" ON public.users;
@@ -117,25 +125,18 @@ CREATE POLICY "Supervisors can read their students"
   ON public.users FOR SELECT
   USING (
     supervisor_id = auth.uid()
-    OR EXISTS (
-      SELECT 1 FROM public.users u
-      WHERE u.id = auth.uid() AND u.role IN ('supervisor', 'admin')
-    )
+    OR public.get_current_user_role() IN ('supervisor', 'admin')
   );
 
 DROP POLICY IF EXISTS "Admins can read all users" ON public.users;
 CREATE POLICY "Admins can read all users"
   ON public.users FOR SELECT
-  USING (
-    EXISTS (SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u.role = 'admin')
-  );
+  USING (public.get_current_user_role() = 'admin');
 
 DROP POLICY IF EXISTS "Admins can update any user" ON public.users;
 CREATE POLICY "Admins can update any user"
   ON public.users FOR UPDATE
-  USING (
-    EXISTS (SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u.role = 'admin')
-  );
+  USING (public.get_current_user_role() = 'admin');
 
 DROP POLICY IF EXISTS "Users can update own profile" ON public.users;
 CREATE POLICY "Users can update own profile"
@@ -146,7 +147,7 @@ DROP POLICY IF EXISTS "Admins can insert users" ON public.users;
 CREATE POLICY "Admins can insert users"
   ON public.users FOR INSERT
   WITH CHECK (
-    EXISTS (SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u.role = 'admin')
+    public.get_current_user_role() = 'admin'
     OR auth.uid() = id
   );
 
