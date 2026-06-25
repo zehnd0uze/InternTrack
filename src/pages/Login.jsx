@@ -34,7 +34,7 @@ export default function Login() {
 
   return (
     <div 
-      className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center bg-no-repeat relative"
+      className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center bg-no-repeat relative bg-primary-900"
       style={{ backgroundImage: "url('/bg-login.jpg')" }}
     >
       {/* Background dark overlay for better readability */}
