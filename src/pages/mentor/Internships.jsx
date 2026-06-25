@@ -4,11 +4,12 @@ import { th } from 'date-fns/locale'
 import {
   Building2, Briefcase, MapPin, Calendar,
   CheckCircle2, Clock3, Eye, Search, Plus, X,
-  Loader2, Pencil, Trash2, AlertTriangle,
+  Loader2, Pencil, Trash2, AlertTriangle, CheckSquare,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { supabase } from '../../lib/supabase'
+import ConfirmModal from '../../components/ui/ConfirmModal'
 import { useAuth } from '../../contexts/AuthContext'
 import { SkeletonTable } from '../../components/ui/Skeleton'
 
@@ -446,6 +447,25 @@ export default function MentorInternships() {
   const [search, setSearch] = useState('')
   const [showAddModal, setShowAddModal] = useState(false)
   const [editingPlacement, setEditingPlacement] = useState(null)
+  const [completeTarget, setCompleteTarget] = useState(null) // placement to mark complete
+  const [completing, setCompleting] = useState(false)
+
+  const handleMarkComplete = async () => {
+    if (!completeTarget) return
+    setCompleting(true)
+    const { error } = await supabase
+      .from('internship_placements')
+      .update({ status: 'completed', end_date: new Date().toISOString().split('T')[0] })
+      .eq('id', completeTarget.id)
+    setCompleting(false)
+    if (error) {
+      toast.error('ไม่สามารถอัปเดตสถานะได้')
+    } else {
+      toast.success(`${completeTarget.student?.full_name} เสร็จสิ้นการฝึกงานแล้ว ✅`)
+      setCompleteTarget(null)
+      fetchData()
+    }
+  }
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -639,6 +659,16 @@ export default function MentorInternships() {
                         >
                           <Eye size={14} />
                         </button>
+                        {p.status === 'active' && (
+                          <button
+                            id={`complete-intern-${p.student_id}`}
+                            onClick={() => setCompleteTarget(p)}
+                            className="btn-sm px-2 py-1.5 bg-green-50 text-success border border-green-200 rounded-lg hover:bg-green-100 transition-colors"
+                            title="เสร็จสิ้นการฝึกงาน"
+                          >
+                            <CheckSquare size={14} />
+                          </button>
+                        )}
                         <button
                           id={`edit-intern-${p.student_id}`}
                           onClick={() => setEditingPlacement(p)}
@@ -681,6 +711,18 @@ export default function MentorInternships() {
           onClose={() => setEditingPlacement(null)}
           onSuccess={() => { setEditingPlacement(null); fetchData() }}
           onDelete={() => { setEditingPlacement(null); fetchData() }}
+        />
+      )}
+
+      {/* Complete Internship Confirm Modal */}
+      {completeTarget && (
+        <ConfirmModal
+          title="ยืนยันเสร็จสิ้นการฝึกงาน"
+          message={`คุณต้องการบันทึกว่า "${completeTarget.student?.full_name}" เสร็จสิ้นการฝึกงานแล้วใช่หรือไม่? ระบบจะบันทึกวันที่สิ้นสุดเป็นวันนี้และเปลี่ยนสถานะเป็น "เสร็จสิ้น"`}
+          confirmLabel={completing ? 'กำลังบันทึก...' : 'ยืนยัน เสร็จสิ้น'}
+          cancelLabel="ยกเลิก"
+          onConfirm={handleMarkComplete}
+          onCancel={() => setCompleteTarget(null)}
         />
       )}
     </div>
