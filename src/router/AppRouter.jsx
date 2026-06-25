@@ -48,8 +48,29 @@ function RequireAuth({ children, allowedRoles }) {
 }
 
 function RoleRedirect() {
-  const { profile, loading } = useAuth()
+  const { user, profile, loading, signOut } = useAuth()
   if (loading) return <PageLoader />
+  
+  if (user && !profile) {
+    // Break the infinite loop if user is authenticated but profile is missing
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="bg-white p-6 rounded-xl shadow-lg max-w-sm w-full text-center space-y-4">
+          <div className="text-red-500 font-semibold">Error: User profile not found</div>
+          <p className="text-sm text-gray-500">
+            Please make sure the database tables are created, then sign out and register again.
+          </p>
+          <button 
+            onClick={() => signOut()}
+            className="w-full bg-primary-700 text-white rounded-lg py-2 hover:bg-primary-800 transition-colors"
+          >
+            Sign Out
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   if (!profile) return <Navigate to="/login" replace />
   const map = { student: '/student', supervisor: '/supervisor', admin: '/admin' }
   return <Navigate to={map[profile.role] || '/login'} replace />
