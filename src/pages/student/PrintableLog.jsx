@@ -111,8 +111,8 @@ export default function PrintableLog() {
           nav, sidebar, .navbar, .sidebar { display: none !important; }
         }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid black; padding: 2px 6px; text-align: center; vertical-align: middle; }
-        th { font-weight: normal; font-size: 13px; }
+        th, td { border: 1px solid #000; padding: 4px 6px; text-align: center; vertical-align: middle; }
+        th { font-weight: 600; font-size: 13px; }
         td { font-size: 13px; }
         .text-left { text-align: left; }
         .dotted-line { display: inline-block; border-bottom: 1px dotted black; }
@@ -167,13 +167,13 @@ export default function PrintableLog() {
             {/* Table exactly like PDF */}
             <table>
               <thead>
-                <tr className="h-8">
-                  <th className="w-12">No.</th>
-                  <th className="w-[12%]">วัน/เดือน/ปี</th>
-                  <th className="w-[12%]">เวลาเข้างาน</th>
-                  <th className="w-[12%]">เวลาเลิกงาน</th>
-                  <th className="w-[18%]">จำนวนชั่วโมง (ชม)</th>
-                  <th>หมายเหตุ</th>
+                <tr className="h-9">
+                  <th className="w-[6%]">No.</th>
+                  <th className="w-[15%]">วัน/เดือน/ปี</th>
+                  <th className="w-[15%]">เวลาเข้างาน</th>
+                  <th className="w-[15%]">เวลาเลิกงาน</th>
+                  <th className="w-[17%]">จำนวนชั่วโมง (ชม)</th>
+                  <th className="w-[32%]">หมายเหตุ</th>
                 </tr>
               </thead>
               <tbody>
@@ -209,7 +209,7 @@ export default function PrintableLog() {
                   )
                 })}
                 {/* Total Hours Row */}
-                <tr className="h-[28px]">
+                <tr className="h-[28px] font-bold">
                   <td colSpan={4} className="text-center">รวมชั่วโมงหน้านี้</td>
                   <td>{pageHours > 0 ? pageHours.toFixed(1) : ''}</td>
                   <td></td>
