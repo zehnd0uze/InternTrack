@@ -34,7 +34,7 @@ export default function MentorLeaveApprovals() {
     setLoading(true)
     const { data, error } = await supabase
       .from('leave_requests')
-      .select('*, users(full_name, student_code)')
+      .select('*, users:user_id(full_name, student_code)')
       .order('created_at', { ascending: false })
 
     if (error) console.error(error)
