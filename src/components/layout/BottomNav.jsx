@@ -1,0 +1,37 @@
+import { NavLink } from 'react-router-dom'
+import { LayoutDashboard, Clock } from 'lucide-react'
+
+const BOTTOM_NAV = [
+  { to: '/student', label: 'หน้าหลัก', icon: LayoutDashboard, end: true },
+  { to: '/student/weekly', label: 'ส่งชั่วโมง', icon: Clock },
+]
+
+export default function BottomNav() {
+  return (
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 md:hidden z-30 shadow-lg">
+      <div className="flex items-center justify-around h-16">
+        {BOTTOM_NAV.map(({ to, label, icon: Icon, end }) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={end}
+            className={({ isActive }) =>
+              `flex flex-col items-center justify-center gap-0.5 flex-1 h-full transition-colors ${
+                isActive ? 'text-primary-700' : 'text-gray-400 hover:text-gray-600'
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <>
+                <Icon size={20} />
+                <span className={`text-xs font-medium ${isActive ? 'text-primary-700' : 'text-gray-400'}`}>
+                  {label}
+                </span>
+              </>
+            )}
+          </NavLink>
+        ))}
+      </div>
+    </nav>
+  )
+}
