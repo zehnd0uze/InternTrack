@@ -4,7 +4,7 @@ import { th } from 'date-fns/locale'
 import {
   Building2, Briefcase, MapPin, Calendar,
   CheckCircle2, Clock3, Eye, Search, Plus, X,
-  User, Loader2,
+  Loader2, Pencil, Trash2, AlertTriangle,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
@@ -12,13 +12,132 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { SkeletonTable } from '../../components/ui/Skeleton'
 
+// ---- Shared Form Fields used by both Add & Edit modals ----
+function PlacementFormFields({
+  companyName, setCompanyName,
+  department, setDepartment,
+  position, setPosition,
+  startDate, setStartDate,
+  endDate, setEndDate,
+  status, setStatus,
+  notes, setNotes,
+}) {
+  return (
+    <>
+      {/* Company Name */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+          ชื่อบริษัท / สถานประกอบการ <span className="text-danger">*</span>
+        </label>
+        <div className="relative">
+          <Building2 size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          <input
+            type="text"
+            value={companyName}
+            onChange={e => setCompanyName(e.target.value)}
+            placeholder="เช่น บริษัท ABC จำกัด"
+            className="input pl-9"
+            required
+          />
+        </div>
+      </div>
+
+      {/* Department + Position */}
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">แผนก</label>
+          <div className="relative">
+            <MapPin size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            <input
+              type="text"
+              value={department}
+              onChange={e => setDepartment(e.target.value)}
+              placeholder="เช่น IT, HR"
+              className="input pl-9"
+            />
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            ตำแหน่งงาน <span className="text-danger">*</span>
+          </label>
+          <div className="relative">
+            <Briefcase size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            <input
+              type="text"
+              value={position}
+              onChange={e => setPosition(e.target.value)}
+              placeholder="เช่น Developer"
+              className="input pl-9"
+              required
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Dates */}
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            วันที่เริ่มฝึกงาน <span className="text-danger">*</span>
+          </label>
+          <input
+            type="date"
+            value={startDate}
+            onChange={e => setStartDate(e.target.value)}
+            className="input"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">วันที่สิ้นสุด</label>
+          <input
+            type="date"
+            value={endDate}
+            onChange={e => setEndDate(e.target.value)}
+            className="input"
+            min={startDate}
+          />
+        </div>
+      </div>
+
+      {/* Status */}
+      {setStatus && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">สถานะ</label>
+          <select
+            value={status}
+            onChange={e => setStatus(e.target.value)}
+            className="select"
+          >
+            <option value="active">กำลังฝึกงาน</option>
+            <option value="completed">เสร็จสิ้น</option>
+          </select>
+        </div>
+      )}
+
+      {/* Notes */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1.5">หมายเหตุ</label>
+        <textarea
+          value={notes}
+          onChange={e => setNotes(e.target.value)}
+          placeholder="ข้อมูลเพิ่มเติม (ถ้ามี)"
+          className="textarea h-20"
+          maxLength={300}
+        />
+        <p className="text-xs text-gray-400 mt-1 text-right">{notes.length}/300</p>
+      </div>
+    </>
+  )
+}
+
 // ---- Add Intern Modal ----
 function AddInternModal({ onClose, onSuccess, mentorId }) {
   const [students, setStudents] = useState([])
   const [studentsLoading, setStudentsLoading] = useState(true)
   const [studentSearch, setStudentSearch] = useState('')
   const [selectedStudent, setSelectedStudent] = useState(null)
-
   const [companyName, setCompanyName] = useState('')
   const [department, setDepartment] = useState('')
   const [position, setPosition] = useState('')
@@ -27,7 +146,6 @@ function AddInternModal({ onClose, onSuccess, mentorId }) {
   const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false)
 
-  // Load all students (those without a placement or with any role=student)
   useEffect(() => {
     const fetchStudents = async () => {
       setStudentsLoading(true)
@@ -70,7 +188,6 @@ function AddInternModal({ onClose, onSuccess, mentorId }) {
 
     setSaving(false)
     if (error) {
-      console.error(error)
       toast.error('บันทึกข้อมูลล้มเหลว: ' + (error.message || ''))
     } else {
       toast.success(`เพิ่ม ${selectedStudent.full_name} สำเร็จ ✅`)
@@ -81,11 +198,10 @@ function AddInternModal({ onClose, onSuccess, mentorId }) {
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[92vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white z-10">
           <div className="flex items-center gap-2">
             <Plus size={18} className="text-primary-700" />
             <h2 className="font-semibold text-gray-900">เพิ่มนักศึกษาฝึกงาน</h2>
@@ -110,11 +226,7 @@ function AddInternModal({ onClose, onSuccess, mentorId }) {
                   <p className="font-semibold text-gray-900 text-sm">{selectedStudent.full_name}</p>
                   <p className="text-xs text-gray-500">{selectedStudent.email}</p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setSelectedStudent(null)}
-                  className="text-gray-400 hover:text-danger p-1"
-                >
+                <button type="button" onClick={() => setSelectedStudent(null)} className="text-gray-400 hover:text-danger p-1">
                   <X size={15} />
                 </button>
               </div>
@@ -163,112 +275,160 @@ function AddInternModal({ onClose, onSuccess, mentorId }) {
             )}
           </div>
 
-          {/* Company Name */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              ชื่อบริษัท / สถานประกอบการ <span className="text-danger">*</span>
-            </label>
-            <div className="relative">
-              <Building2 size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-              <input
-                type="text"
-                value={companyName}
-                onChange={e => setCompanyName(e.target.value)}
-                placeholder="เช่น บริษัท ABC จำกัด"
-                className="input pl-9"
-                required
-              />
-            </div>
-          </div>
+          <PlacementFormFields
+            companyName={companyName} setCompanyName={setCompanyName}
+            department={department} setDepartment={setDepartment}
+            position={position} setPosition={setPosition}
+            startDate={startDate} setStartDate={setStartDate}
+            endDate={endDate} setEndDate={setEndDate}
+            notes={notes} setNotes={setNotes}
+          />
 
-          {/* Department + Position */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">แผนก</label>
-              <div className="relative">
-                <MapPin size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                <input
-                  type="text"
-                  value={department}
-                  onChange={e => setDepartment(e.target.value)}
-                  placeholder="เช่น IT, HR"
-                  className="input pl-9"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                ตำแหน่งงาน <span className="text-danger">*</span>
-              </label>
-              <div className="relative">
-                <Briefcase size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                <input
-                  type="text"
-                  value={position}
-                  onChange={e => setPosition(e.target.value)}
-                  placeholder="เช่น Developer"
-                  className="input pl-9"
-                  required
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Dates */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                วันที่เริ่มฝึกงาน <span className="text-danger">*</span>
-              </label>
-              <input
-                type="date"
-                value={startDate}
-                onChange={e => setStartDate(e.target.value)}
-                className="input"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">วันที่สิ้นสุด</label>
-              <input
-                type="date"
-                value={endDate}
-                onChange={e => setEndDate(e.target.value)}
-                className="input"
-                min={startDate}
-              />
-            </div>
-          </div>
-
-          {/* Notes */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">หมายเหตุ</label>
-            <textarea
-              value={notes}
-              onChange={e => setNotes(e.target.value)}
-              placeholder="ข้อมูลเพิ่มเติม (ถ้ามี)"
-              className="textarea h-20"
-              maxLength={300}
-            />
-          </div>
-
-          {/* Actions */}
           <div className="flex gap-3 pt-1">
-            <button
-              type="submit"
-              disabled={saving}
-              id="add-intern-submit"
-              className="btn-primary flex-1 flex items-center justify-center gap-2 disabled:opacity-60"
-            >
-              {saving ? (
-                <><Loader2 size={15} className="animate-spin" /> กำลังบันทึก...</>
-              ) : (
-                <><Plus size={15} /> เพิ่มนักศึกษา</>
-              )}
+            <button type="submit" disabled={saving} id="add-intern-submit" className="btn-primary flex-1 flex items-center justify-center gap-2 disabled:opacity-60">
+              {saving ? <><Loader2 size={15} className="animate-spin" /> กำลังบันทึก...</> : <><Plus size={15} /> เพิ่มนักศึกษา</>}
             </button>
-            <button type="button" onClick={onClose} className="btn-secondary px-5">
-              ยกเลิก
+            <button type="button" onClick={onClose} className="btn-secondary px-5">ยกเลิก</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+// ---- Edit Placement Modal ----
+function EditPlacementModal({ placement, onClose, onSuccess, onDelete }) {
+  const [companyName, setCompanyName] = useState(placement.company_name || '')
+  const [department, setDepartment] = useState(placement.department || '')
+  const [position, setPosition] = useState(placement.position || '')
+  const [startDate, setStartDate] = useState(placement.start_date || '')
+  const [endDate, setEndDate] = useState(placement.end_date || '')
+  const [status, setStatus] = useState(placement.status || 'active')
+  const [notes, setNotes] = useState(placement.notes || '')
+  const [saving, setSaving] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!companyName.trim()) { toast.error('กรุณากรอกชื่อบริษัท'); return }
+    if (!position.trim()) { toast.error('กรุณากรอกตำแหน่งงาน'); return }
+    if (!startDate) { toast.error('กรุณาเลือกวันที่เริ่มฝึกงาน'); return }
+
+    setSaving(true)
+    const { error } = await supabase
+      .from('internship_placements')
+      .update({
+        company_name: companyName.trim(),
+        department: department.trim() || null,
+        position: position.trim(),
+        start_date: startDate,
+        end_date: endDate || null,
+        status,
+        notes: notes.trim() || null,
+      })
+      .eq('id', placement.id)
+
+    setSaving(false)
+    if (error) {
+      toast.error('บันทึกข้อมูลล้มเหลว: ' + (error.message || ''))
+    } else {
+      toast.success('อัปเดตข้อมูลการฝึกงานสำเร็จ ✅')
+      onSuccess()
+    }
+  }
+
+  const handleDelete = async () => {
+    setDeleting(true)
+    const { error } = await supabase
+      .from('internship_placements')
+      .delete()
+      .eq('id', placement.id)
+    setDeleting(false)
+    if (error) {
+      toast.error('ลบข้อมูลล้มเหลว')
+    } else {
+      toast.success('ลบข้อมูลการฝึกงานแล้ว')
+      onDelete()
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[92vh] overflow-y-auto"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white z-10">
+          <div className="flex items-center gap-2">
+            <Pencil size={16} className="text-primary-700" />
+            <h2 className="font-semibold text-gray-900">แก้ไขข้อมูลการฝึกงาน</h2>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100">
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Student info banner (read-only) */}
+        <div className="mx-6 mt-5 flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded-xl">
+          <div className="w-9 h-9 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold text-sm flex-shrink-0">
+            {placement.student?.full_name?.charAt(0)?.toUpperCase()}
+          </div>
+          <div>
+            <p className="font-semibold text-gray-900 text-sm">{placement.student?.full_name}</p>
+            <p className="text-xs text-gray-400">{placement.student?.email}</p>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-5">
+          <PlacementFormFields
+            companyName={companyName} setCompanyName={setCompanyName}
+            department={department} setDepartment={setDepartment}
+            position={position} setPosition={setPosition}
+            startDate={startDate} setStartDate={setStartDate}
+            endDate={endDate} setEndDate={setEndDate}
+            status={status} setStatus={setStatus}
+            notes={notes} setNotes={setNotes}
+          />
+
+          {/* Action buttons */}
+          <div className="flex gap-3 pt-1">
+            <button type="submit" disabled={saving} id="edit-placement-save" className="btn-primary flex-1 flex items-center justify-center gap-2 disabled:opacity-60">
+              {saving ? <><Loader2 size={15} className="animate-spin" /> กำลังบันทึก...</> : <><Pencil size={15} /> บันทึกการแก้ไข</>}
             </button>
+            <button type="button" onClick={onClose} className="btn-secondary px-5">ยกเลิก</button>
+          </div>
+
+          {/* Delete section */}
+          <div className="border-t border-gray-100 pt-4">
+            {!confirmDelete ? (
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(true)}
+                className="w-full flex items-center justify-center gap-2 text-sm text-danger hover:bg-red-50 py-2 rounded-lg transition-colors"
+              >
+                <Trash2 size={15} /> ลบข้อมูลการฝึกงานนี้
+              </button>
+            ) : (
+              <div className="bg-red-50 border border-red-100 rounded-xl p-4 space-y-3">
+                <div className="flex items-start gap-2 text-sm text-red-700">
+                  <AlertTriangle size={16} className="flex-shrink-0 mt-0.5" />
+                  <p>ยืนยันการลบ? ข้อมูลการฝึกงานของ <span className="font-semibold">{placement.student?.full_name}</span> จะถูกลบถาวร</p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={handleDelete}
+                    disabled={deleting}
+                    className="btn-danger btn-sm flex-1 flex items-center justify-center gap-2 disabled:opacity-60"
+                  >
+                    {deleting ? <><Loader2 size={13} className="animate-spin" /> กำลังลบ...</> : <><Trash2 size={13} /> ยืนยันลบ</>}
+                  </button>
+                  <button type="button" onClick={() => setConfirmDelete(false)} className="btn-secondary btn-sm">ยกเลิก</button>
+                </div>
+              </div>
+            )}
           </div>
         </form>
       </div>
@@ -285,6 +445,7 @@ export default function MentorInternships() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [search, setSearch] = useState('')
   const [showAddModal, setShowAddModal] = useState(false)
+  const [editingPlacement, setEditingPlacement] = useState(null)
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -311,19 +472,6 @@ export default function MentorInternships() {
   })
 
   const formatDate = dt => dt ? format(new Date(dt), 'd MMM yyyy', { locale: th }) : '-'
-
-  const handleMarkComplete = async (placementId, studentName) => {
-    const { error } = await supabase
-      .from('internship_placements')
-      .update({ status: 'completed', end_date: new Date().toISOString().split('T')[0] })
-      .eq('id', placementId)
-    if (error) {
-      toast.error('ไม่สามารถอัปเดตสถานะได้')
-    } else {
-      toast.success(`${studentName} เสร็จสิ้นการฝึกงานแล้ว`)
-      fetchData()
-    }
-  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -397,7 +545,7 @@ export default function MentorInternships() {
       {/* Table */}
       <div className="card">
         {loading ? (
-          <SkeletonTable rows={5} cols={7} />
+          <SkeletonTable rows={5} cols={8} />
         ) : filtered.length === 0 ? (
           <div className="text-center py-14 text-gray-400">
             <Building2 size={44} className="mx-auto mb-3 opacity-25" />
@@ -454,9 +602,7 @@ export default function MentorInternships() {
                           <MapPin size={13} className="text-gray-400 flex-shrink-0" />
                           <span className="text-gray-700">{p.department}</span>
                         </div>
-                      ) : (
-                        <span className="text-gray-300 text-xs">-</span>
-                      )}
+                      ) : <span className="text-gray-300 text-xs">-</span>}
                     </td>
                     <td>
                       <div className="flex items-center gap-1.5">
@@ -476,9 +622,7 @@ export default function MentorInternships() {
                           <Calendar size={13} className="text-gray-400 flex-shrink-0" />
                           {formatDate(p.end_date)}
                         </div>
-                      ) : (
-                        <span className="text-gray-300 text-xs">ไม่กำหนด</span>
-                      )}
+                      ) : <span className="text-gray-300 text-xs">ไม่กำหนด</span>}
                     </td>
                     <td>
                       <span className={`badge ${p.status === 'active' ? 'badge-success' : 'badge-gray'}`}>
@@ -486,22 +630,31 @@ export default function MentorInternships() {
                       </span>
                     </td>
                     <td>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5">
                         <button
-                          id={`view-intern-detail-${p.student_id}`}
+                          id={`view-intern-${p.student_id}`}
                           onClick={() => navigate(`/mentor/students/${p.student_id}`)}
-                          className="btn-secondary btn-sm"
+                          className="btn-secondary btn-sm px-2"
+                          title="ดูรายละเอียด"
                         >
-                          <Eye size={14} /> ดู
+                          <Eye size={14} />
                         </button>
-                        {p.status === 'active' && (
-                          <button
-                            onClick={() => handleMarkComplete(p.id, p.student?.full_name)}
-                            className="btn-sm px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors whitespace-nowrap"
-                          >
-                            เสร็จสิ้น
-                          </button>
-                        )}
+                        <button
+                          id={`edit-intern-${p.student_id}`}
+                          onClick={() => setEditingPlacement(p)}
+                          className="btn-sm px-2 py-1.5 bg-amber-50 text-amber-600 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors"
+                          title="แก้ไข"
+                        >
+                          <Pencil size={14} />
+                        </button>
+                        <button
+                          id={`delete-intern-${p.student_id}`}
+                          onClick={() => setEditingPlacement(p)}
+                          className="btn-sm px-2 py-1.5 bg-red-50 text-danger border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
+                          title="ลบ"
+                        >
+                          <Trash2 size={14} />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -518,6 +671,16 @@ export default function MentorInternships() {
           mentorId={user.id}
           onClose={() => setShowAddModal(false)}
           onSuccess={() => { setShowAddModal(false); fetchData() }}
+        />
+      )}
+
+      {/* Edit Placement Modal */}
+      {editingPlacement && (
+        <EditPlacementModal
+          placement={editingPlacement}
+          onClose={() => setEditingPlacement(null)}
+          onSuccess={() => { setEditingPlacement(null); fetchData() }}
+          onDelete={() => { setEditingPlacement(null); fetchData() }}
         />
       )}
     </div>
