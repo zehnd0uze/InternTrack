@@ -103,17 +103,17 @@ export default function PrintableLog() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap');
         
-        @page { size: A4; margin: 15mm; }
-        body { background: white; margin: 0; padding: 0; color: black; font-family: 'Sarabun', sans-serif; line-height: 1.5; }
+        @page { size: A4; margin: 10mm; }
+        body { background: white; margin: 0; padding: 0; color: black; font-family: 'Sarabun', sans-serif; line-height: 1.4; }
         @media print {
           .print-container { background: white; }
           .page-break { page-break-after: always; }
           nav, sidebar, .navbar, .sidebar { display: none !important; }
         }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { border: 1px solid black; padding: 4px 8px; text-align: center; vertical-align: middle; }
-        th { font-weight: normal; font-size: 14px; }
-        td { font-size: 14px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid black; padding: 2px 6px; text-align: center; vertical-align: middle; }
+        th { font-weight: normal; font-size: 13px; }
+        td { font-size: 13px; }
         .text-left { text-align: left; }
         .dotted-line { display: inline-block; border-bottom: 1px dotted black; }
       `}</style>
@@ -128,22 +128,22 @@ export default function PrintableLog() {
           <div key={pageIndex} className={`pt-4 ${pageIndex < pages.length - 1 ? 'page-break' : ''}`}>
             
             {/* Header section matching the PDF exactly */}
-            <div className="relative mb-6">
+            <div className="relative mb-4">
               <div className="absolute right-0 top-0 font-bold text-base">DG-B2</div>
               
               {/* CAMT Logo */}
-              <div className="flex flex-col items-center justify-center mb-4">
-                <img src="/camt-logo.png" alt="CAMT Logo" className="h-16 object-contain" />
+              <div className="flex flex-col items-center justify-center mb-2">
+                <img src="/camt-logo.png" alt="CAMT Logo" className="h-12 object-contain" />
               </div>
 
-              <div className="text-center mt-6">
-                <div className="text-[16px] mb-1">แบบฟอร์มบันทึกเวลาการเรียนรู้ร่วมกับการทำงานของนักศึกษา (WIL-DG)</div>
-                <div className="text-[16px]">สาขาวิชาดิจิทัลเกม วิทยาลัยศิลปะ สื่อ และเทคโนโลยี มหาวิทยาลัยเชียงใหม่</div>
+              <div className="text-center mt-3">
+                <div className="text-[15px] mb-0.5">แบบฟอร์มบันทึกเวลาการเรียนรู้ร่วมกับการทำงานของนักศึกษา (WIL-DG)</div>
+                <div className="text-[15px]">สาขาวิชาดิจิทัลเกม วิทยาลัยศิลปะ สื่อ และเทคโนโลยี มหาวิทยาลัยเชียงใหม่</div>
               </div>
             </div>
 
             {/* Input fields matching the PDF exactly */}
-            <div className="flex flex-col gap-3 mb-4 text-[15px] px-8">
+            <div className="flex flex-col gap-2 mb-2 text-[14px] px-8">
               <div className="flex items-center">
                 <span className="whitespace-nowrap mr-2">ชื่อ-สกุล</span>
                 <span className="dotted-line flex-1 text-center">{profile?.full_name || ''}</span>
@@ -167,7 +167,7 @@ export default function PrintableLog() {
             {/* Table exactly like PDF */}
             <table>
               <thead>
-                <tr className="h-10">
+                <tr className="h-8">
                   <th className="w-12">No.</th>
                   <th className="w-[12%]">วัน/เดือน/ปี</th>
                   <th className="w-[12%]">เวลาเข้างาน</th>
@@ -182,7 +182,7 @@ export default function PrintableLog() {
                   const globalIdx = pageIndex * PAGE_SIZE + idx + 1
                   if (!row) {
                     return (
-                      <tr key={`blank-${idx}`} className="h-[28px]">
+                      <tr key={`blank-${idx}`} className="h-[25px]">
                         <td>{globalIdx}</td>
                         <td></td>
                         <td></td>
@@ -198,7 +198,7 @@ export default function PrintableLog() {
                                   : ''
 
                   return (
-                    <tr key={row.id} className="h-[28px]">
+                    <tr key={row.id} className="h-[25px]">
                       <td>{globalIdx}</td>
                       <td>{formatThaiDateShort(row.date)}</td>
                       <td>{formatThaiTime(row.check_in)}</td>
@@ -209,7 +209,7 @@ export default function PrintableLog() {
                   )
                 })}
                 {/* Total Hours Row */}
-                <tr className="h-[32px]">
+                <tr className="h-[28px]">
                   <td colSpan={4} className="text-center">รวมชั่วโมงหน้านี้</td>
                   <td>{pageHours > 0 ? pageHours.toFixed(1) : ''}</td>
                   <td></td>
@@ -218,13 +218,13 @@ export default function PrintableLog() {
             </table>
 
             {/* Footer exactly like PDF */}
-            <div className="mt-12 flex justify-between items-end px-4">
-              <div className="text-[15px]">
+            <div className="mt-5 flex justify-between items-end px-4">
+              <div className="text-[14px]">
                 หมายเหตุ : แนบเอกสารนี้ในรายงานตอนสิ้นเทอม
               </div>
-              <div className="w-64 text-center text-[15px]">
-                <div className="dotted-line w-full mb-2"></div>
-                <div className="mb-2">ลงชื่อ ผู้ดูแลนักศึกษา / พี่เลี้ยง</div>
+              <div className="w-64 text-center text-[14px]">
+                <div className="dotted-line w-full mb-1"></div>
+                <div className="mb-1">ลงชื่อ ผู้ดูแลนักศึกษา / พี่เลี้ยง</div>
                 <div>วันที่............./.................../.................</div>
               </div>
             </div>
