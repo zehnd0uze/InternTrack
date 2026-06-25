@@ -56,8 +56,12 @@ const ROLE_LABELS = {
 
 export default function Sidebar({ role, collapsed, onToggle, mobile }) {
   const { profile, signOut } = useAuth()
-  const { unreadCount } = useNotifications()
+  const { notifications, unreadCount } = useNotifications()
   const items = NAV_ITEMS[role] || []
+
+  // Calculate unread counts by type
+  const unreadApprovals = notifications.filter(n => !n.is_read && n.type === 'approval_request').length
+  const unreadLeaves = notifications.filter(n => !n.is_read && n.type === 'leave_request').length
 
   const handleSignOut = async () => {
     const { error } = await signOut()
@@ -117,29 +121,35 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
 
       {/* Nav Items */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto sidebar-scroll">
-        {items.map(({ to, label, icon: Icon, end }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={end}
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
-                isActive
-                  ? 'bg-white text-primary-700 shadow-sm'
-                  : 'text-white/70 hover:text-white hover:bg-white/10'
-              } ${collapsed ? 'justify-center' : ''}`
-            }
-            title={collapsed ? label : undefined}
-          >
-            <Icon size={18} className="flex-shrink-0" />
-            {!collapsed && <span className="truncate">{label}</span>}
-            {!collapsed && label === 'อนุมัติชั่วโมง' && unreadCount > 0 && (
-              <span className="ml-auto bg-danger text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
-                {unreadCount}
-              </span>
-            )}
-          </NavLink>
-        ))}
+        {items.map(({ to, label, icon: Icon, end }) => {
+          let badgeCount = 0
+          if (label === 'อนุมัติชั่วโมง') badgeCount = unreadApprovals
+          if (label === 'อนุมัติการลา') badgeCount = unreadLeaves
+
+          return (
+            <NavLink
+              key={to}
+              to={to}
+              end={end}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
+                  isActive
+                    ? 'bg-white text-primary-700 shadow-sm'
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                } ${collapsed ? 'justify-center' : ''}`
+              }
+              title={collapsed ? label : undefined}
+            >
+              <Icon size={18} className="flex-shrink-0" />
+              {!collapsed && <span className="truncate">{label}</span>}
+              {!collapsed && badgeCount > 0 && (
+                <span className="ml-auto bg-danger text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+                  {badgeCount}
+                </span>
+              )}
+            </NavLink>
+          )
+        })}
       </nav>
 
       {/* Sign Out */}
