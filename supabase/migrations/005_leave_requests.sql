@@ -37,26 +37,38 @@ CREATE POLICY "Students can insert own leave requests"
   ON public.leave_requests FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
--- Supervisors can read leave requests of their students
+-- Supervisors and mentors can read leave requests of their students
 DROP POLICY IF EXISTS "Supervisors can read their students leave requests" ON public.leave_requests;
-CREATE POLICY "Supervisors can read their students leave requests"
+DROP POLICY IF EXISTS "Supervisors and mentors can read students leave requests" ON public.leave_requests;
+CREATE POLICY "Supervisors and mentors can read students leave requests"
   ON public.leave_requests FOR SELECT
   USING (
-    EXISTS (
+    auth.uid() = supervisor_id
+    OR EXISTS (
       SELECT 1 FROM public.users s
       WHERE s.id = leave_requests.user_id AND s.supervisor_id = auth.uid()
+    )
+    OR EXISTS (
+      SELECT 1 FROM public.internship_placements ip
+      WHERE ip.student_id = leave_requests.user_id AND ip.mentor_id = auth.uid()
     )
     OR EXISTS (SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u.role = 'admin')
   );
 
--- Supervisors can update leave requests of their students (for approval/rejection)
+-- Supervisors and mentors can update leave requests of their students (for approval/rejection)
 DROP POLICY IF EXISTS "Supervisors can update their students leave requests" ON public.leave_requests;
-CREATE POLICY "Supervisors can update their students leave requests"
+DROP POLICY IF EXISTS "Supervisors and mentors can update students leave requests" ON public.leave_requests;
+CREATE POLICY "Supervisors and mentors can update students leave requests"
   ON public.leave_requests FOR UPDATE
   USING (
-    EXISTS (
+    auth.uid() = supervisor_id
+    OR EXISTS (
       SELECT 1 FROM public.users s
       WHERE s.id = leave_requests.user_id AND s.supervisor_id = auth.uid()
+    )
+    OR EXISTS (
+      SELECT 1 FROM public.internship_placements ip
+      WHERE ip.student_id = leave_requests.user_id AND ip.mentor_id = auth.uid()
     )
     OR EXISTS (SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u.role = 'admin')
   );

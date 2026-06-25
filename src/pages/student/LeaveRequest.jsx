@@ -67,9 +67,23 @@ export default function StudentLeaveRequest() {
       .eq('id', user.id)
       .single()
 
+    let supervisorId = profile?.supervisor_id
+
+    if (!supervisorId) {
+      const { data: placement } = await supabase
+        .from('internship_placements')
+        .select('mentor_id')
+        .eq('student_id', user.id)
+        .eq('status', 'active')
+        .maybeSingle()
+      if (placement?.mentor_id) {
+        supervisorId = placement.mentor_id
+      }
+    }
+
     const { error } = await supabase.from('leave_requests').insert({
       user_id: user.id,
-      supervisor_id: profile?.supervisor_id,
+      supervisor_id: supervisorId,
       leave_type: form.leave_type,
       start_date: form.start_date,
       end_date: form.end_date,
@@ -77,11 +91,11 @@ export default function StudentLeaveRequest() {
       status: 'pending'
     })
 
-    if (!error && profile?.supervisor_id) {
+    if (!error && supervisorId) {
       // Notify supervisor
       await supabase.from('notifications').insert({
-        user_id: profile.supervisor_id,
-        message: `มีคำขอ${TYPE_LABEL[form.leave_type]}ใหม่ จาก ${profile.full_name}`,
+        user_id: supervisorId,
+        message: `มีคำขอ${TYPE_LABEL[form.leave_type]}ใหม่ จาก ${profile?.full_name || 'นักศึกษา'}`,
         type: 'leave_request',
       })
     }
