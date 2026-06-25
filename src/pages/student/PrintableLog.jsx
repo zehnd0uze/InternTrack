@@ -91,14 +91,9 @@ export default function PrintableLog() {
             <div className="relative mb-6">
               <div className="absolute right-0 top-0 font-bold text-base">DG-B2</div>
               
-              {/* CAMT Logo placeholder */}
+              {/* CAMT Logo */}
               <div className="flex flex-col items-center justify-center mb-4">
-                <div className="w-12 h-10 border-[3px] border-gray-800 flex flex-col justify-between p-1 mb-1 relative overflow-hidden">
-                   <div className="w-4 h-4 bg-gray-800 absolute top-[-5px] right-[-5px] transform rotate-45"></div>
-                   <div className="w-4 h-4 bg-gray-800 absolute bottom-[-5px] left-[-5px] transform rotate-45"></div>
-                </div>
-                <div className="font-bold text-xl tracking-wider uppercase leading-none">CAMT</div>
-                <div className="text-[7px] uppercase tracking-[0.2em] mt-1">Creative Digital Innovation</div>
+                <img src="/camt-logo.png" alt="CAMT Logo" className="h-16 object-contain" />
               </div>
 
               <div className="text-center mt-6">
