@@ -19,6 +19,7 @@ export default function PrintableLog() {
   const [data, setData] = useState([])
   const [placement, setPlacement] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [logoLoaded, setLogoLoaded] = useState(false)
 
   const getSemesterAndYear = (dateStr) => {
     if (!dateStr) return { semester: '', year: '' }
@@ -67,6 +68,17 @@ export default function PrintableLog() {
     return index > 0 ? index : 1
   }
 
+  // Preload logo image to guarantee it's in browser cache before print preview
+  useEffect(() => {
+    const img = new Image()
+    img.src = '/camt-logo.png'
+    img.onload = () => setLogoLoaded(true)
+    img.onerror = () => {
+      console.error('Failed to load logo asset')
+      setLogoLoaded(true) // Proceed anyway to avoid blocking user
+    }
+  }, [])
+
   useEffect(() => {
     const fetchData = async () => {
       if (!user?.id) return
@@ -103,14 +115,20 @@ export default function PrintableLog() {
       }
 
       setLoading(false)
-
-      setTimeout(() => {
-        window.print()
-      }, 500)
     }
 
     fetchData()
   }, [user])
+
+  // Trigger print dialog only when data is fetched and image has loaded
+  useEffect(() => {
+    if (!loading && logoLoaded) {
+      const timer = setTimeout(() => {
+        window.print()
+      }, 1000) // 1 second safety delay for rendering
+      return () => clearTimeout(timer)
+    }
+  }, [loading, logoLoaded])
 
   if (loading) {
     return <div className="p-10 text-center font-sarabun text-lg">กำลังโหลดข้อมูล...</div>
