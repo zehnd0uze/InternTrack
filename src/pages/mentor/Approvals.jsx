@@ -75,7 +75,7 @@ export default function MentorApprovals() {
     }
   }
 
-  const handleApprove = async (approvalId, studentId) => {
+  const handleApprove = async (approvalId, studentId, weekStart) => {
     setProcessing(approvalId)
     const { error } = await supabase
       .from('weekly_approvals')
@@ -83,9 +83,18 @@ export default function MentorApprovals() {
       .eq('id', approvalId)
 
     if (!error) {
+      let formattedDate = ''
+      try {
+        const [year, month, day] = weekStart.split('-')
+        formattedDate = `${day}/${month}/${year.slice(-2)}`
+      } catch (e) {
+        console.error(e)
+        formattedDate = weekStart || ''
+      }
+
       await supabase.from('notifications').insert({
         user_id: studentId,
-        message: 'ชั่วโมงทำงานประจำสัปดาห์ของคุณได้รับการอนุมัติจากพี่เลี้ยงแล้ว ✅',
+        message: `ชั่วโมงทำงานประจำวันที่ ${formattedDate} ของคุณได้รับการอนุมัติจากพี่เลี้ยงแล้ว`,
         type: 'approval_result',
       })
       toast.success('อนุมัติเรียบร้อยแล้ว!')
@@ -209,7 +218,7 @@ export default function MentorApprovals() {
                 ) : (
                   <div className="flex gap-2">
                     <button
-                      onClick={() => handleApprove(approval.id, approval.student_id)}
+                      onClick={() => handleApprove(approval.id, approval.student_id, approval.week_start)}
                       disabled={processing === approval.id}
                       className="btn-success btn-sm flex-1"
                     >
