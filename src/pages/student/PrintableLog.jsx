@@ -39,6 +39,34 @@ export default function PrintableLog() {
     return { semester: sem.toString(), year: yr.toString() }
   }
 
+  const getPlacementMonths = (startDateStr, endDateStr) => {
+    if (!startDateStr || !endDateStr) return 10
+    const start = new Date(startDateStr)
+    const end = new Date(endDateStr)
+    
+    const startYear = start.getFullYear()
+    const startMonth = start.getMonth() + 1
+    const endYear = end.getFullYear()
+    const endMonth = end.getMonth() + 1
+    
+    const total = (endYear - startYear) * 12 + (endMonth - startMonth) + 1
+    return total > 0 ? total : 10
+  }
+
+  const getMonthNumber = (dateStr, startDateStr) => {
+    if (!dateStr || !startDateStr) return 1
+    const dateObj = new Date(dateStr)
+    const start = new Date(startDateStr)
+    
+    const startYear = start.getFullYear()
+    const startMonth = start.getMonth() + 1
+    const year = dateObj.getFullYear()
+    const month = dateObj.getMonth() + 1
+    
+    const index = (year - startYear) * 12 + (month - startMonth) + 1
+    return index > 0 ? index : 1
+  }
+
   useEffect(() => {
     const fetchData = async () => {
       if (!user?.id) return
@@ -59,11 +87,11 @@ export default function PrintableLog() {
         setData(records || [])
       }
 
-      // Fetch company name from internship_placements
+      // Fetch company name and placement dates from internship_placements
       try {
         const { data: placementData } = await supabase
           .from('internship_placements')
-          .select('company_name')
+          .select('company_name, start_date, end_date')
           .eq('student_id', user.id)
           .maybeSingle()
 
@@ -124,6 +152,12 @@ export default function PrintableLog() {
         const firstValidRow = pageData.find(row => row && row.date)
         const dateToUse = firstValidRow?.date || new Date().toISOString()
         const { semester, year } = getSemesterAndYear(dateToUse)
+        
+        // Calculate Month Index and Total Months based on placement dates or defaults
+        const startDate = placement?.start_date || '2026-06-22'
+        const endDate = placement?.end_date || '2027-03-14'
+        const totalMonths = getPlacementMonths(startDate, endDate)
+        const currentMonthNum = getMonthNumber(dateToUse, startDate)
 
         return (
           <div key={pageIndex} className={`pt-4 px-1 ${pageIndex < pages.length - 1 ? 'page-break' : ''}`}>
@@ -159,9 +193,9 @@ export default function PrintableLog() {
                 <span className="whitespace-nowrap ml-6 mr-2">บริษัท</span>
                 <span className="dotted-line flex-1 text-center mr-6">{placement?.company_name || ''}</span>
                 <span className="whitespace-nowrap mr-2">หน้า</span>
-                <span className="dotted-line w-10 text-center">{pageIndex + 1}</span>
+                <span className="dotted-line w-10 text-center">{currentMonthNum}</span>
                 <span className="mx-1">/</span>
-                <span className="dotted-line w-10 text-center">{pages.length}</span>
+                <span className="dotted-line w-10 text-center">{totalMonths}</span>
               </div>
             </div>
 
