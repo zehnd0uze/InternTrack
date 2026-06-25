@@ -12,6 +12,7 @@ import {
   LogOut,
   X,
   Database,
+  UserCircle,
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useNotifications } from '../../contexts/NotificationContext'
@@ -21,6 +22,7 @@ const NAV_ITEMS = {
   student: [
     { to: '/student', label: 'แดชบอร์ด', icon: LayoutDashboard, end: true },
     { to: '/student/weekly', label: 'ส่งชั่วโมงรายสัปดาห์', icon: Clock },
+    { to: '/student/profile', label: 'โปรไฟล์ของฉัน', icon: UserCircle },
   ],
   supervisor: [
     { to: '/supervisor', label: 'แดชบอร์ด', icon: LayoutDashboard, end: true },

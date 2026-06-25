@@ -1,0 +1,298 @@
+import { useState } from 'react'
+import { User, Mail, Save, Lock, Eye, EyeOff, ShieldCheck } from 'lucide-react'
+import toast from 'react-hot-toast'
+import { supabase } from '../../lib/supabase'
+import { useAuth } from '../../contexts/AuthContext'
+
+export default function StudentProfile() {
+  const { user, profile, refreshProfile } = useAuth()
+
+  // ---- Profile fields ----
+  const [fullName, setFullName] = useState(profile?.full_name || '')
+  const [email, setEmail]       = useState(user?.email || '')
+  const [profileLoading, setProfileLoading] = useState(false)
+
+  // ---- Password fields ----
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword]         = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [showCurrent, setShowCurrent]         = useState(false)
+  const [showNew, setShowNew]                 = useState(false)
+  const [showConfirm, setShowConfirm]         = useState(false)
+  const [passwordLoading, setPasswordLoading] = useState(false)
+
+  // ---- Save profile (name + email) ----
+  const handleSaveProfile = async (e) => {
+    e.preventDefault()
+    const trimmedName = fullName.trim()
+    if (!trimmedName) {
+      toast.error('กรุณากรอกชื่อ-นามสกุล')
+      return
+    }
+
+    setProfileLoading(true)
+    try {
+      // 1. Update display name in `users` table
+      const { error: dbErr } = await supabase
+        .from('users')
+        .update({ full_name: trimmedName })
+        .eq('id', user.id)
+
+      if (dbErr) throw dbErr
+
+      // 2. If email changed — update via Supabase Auth (sends confirmation email)
+      const trimmedEmail = email.trim().toLowerCase()
+      if (trimmedEmail && trimmedEmail !== user.email) {
+        const { error: emailErr } = await supabase.auth.updateUser({ email: trimmedEmail })
+        if (emailErr) throw emailErr
+        toast.success('บันทึกชื่อสำเร็จ! ระบบส่งลิงก์ยืนยันไปยังอีเมลใหม่แล้ว 📧')
+      } else {
+        toast.success('บันทึกข้อมูลโปรไฟล์สำเร็จ ✅')
+      }
+
+      await refreshProfile()
+    } catch (err) {
+      console.error(err)
+      toast.error(err.message || 'บันทึกข้อมูลล้มเหลว กรุณาลองใหม่')
+    } finally {
+      setProfileLoading(false)
+    }
+  }
+
+  // ---- Change password ----
+  const handleChangePassword = async (e) => {
+    e.preventDefault()
+    if (!newPassword) { toast.error('กรุณากรอกรหัสผ่านใหม่'); return }
+    if (newPassword.length < 6) { toast.error('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร'); return }
+    if (newPassword !== confirmPassword) { toast.error('รหัสผ่านใหม่และยืนยันรหัสผ่านไม่ตรงกัน'); return }
+
+    setPasswordLoading(true)
+    try {
+      // Re-authenticate first by signing in with current password
+      const { error: reAuthErr } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: currentPassword,
+      })
+      if (reAuthErr) throw new Error('รหัสผ่านปัจจุบันไม่ถูกต้อง')
+
+      // Update password
+      const { error: pwErr } = await supabase.auth.updateUser({ password: newPassword })
+      if (pwErr) throw pwErr
+
+      toast.success('เปลี่ยนรหัสผ่านสำเร็จ 🔐')
+      setCurrentPassword('')
+      setNewPassword('')
+      setConfirmPassword('')
+    } catch (err) {
+      console.error(err)
+      toast.error(err.message || 'เปลี่ยนรหัสผ่านล้มเหลว กรุณาลองใหม่')
+    } finally {
+      setPasswordLoading(false)
+    }
+  }
+
+  const avatarLetter = profile?.full_name?.charAt(0)?.toUpperCase() || '?'
+
+  return (
+    <div className="space-y-6 animate-fade-in max-w-2xl">
+      {/* Page Title */}
+      <div>
+        <h1 className="text-xl font-bold text-gray-900">โปรไฟล์ของฉัน</h1>
+        <p className="text-sm text-gray-500 mt-0.5">จัดการข้อมูลส่วนตัวและการตั้งค่าบัญชี</p>
+      </div>
+
+      {/* Avatar + name banner */}
+      <div className="card flex items-center gap-5">
+        <div className="w-16 h-16 rounded-full bg-primary-700 flex items-center justify-center text-white text-2xl font-bold flex-shrink-0 shadow-md">
+          {avatarLetter}
+        </div>
+        <div>
+          <p className="text-lg font-bold text-gray-900">{profile?.full_name || '—'}</p>
+          <p className="text-sm text-gray-500">{user?.email}</p>
+          <span className="inline-block mt-1 px-2 py-0.5 bg-primary-50 text-primary-700 text-xs font-semibold rounded-full">
+            นักศึกษา
+          </span>
+        </div>
+      </div>
+
+      {/* ---- Edit Profile Form ---- */}
+      <div className="card">
+        <div className="flex items-center gap-2 mb-5">
+          <User size={18} className="text-primary-700" />
+          <h2 className="font-semibold text-gray-900">แก้ไขข้อมูลส่วนตัว</h2>
+        </div>
+
+        <form onSubmit={handleSaveProfile} className="space-y-5">
+          {/* Full Name */}
+          <div>
+            <label htmlFor="profile-full-name" className="block text-sm font-medium text-gray-700 mb-1.5">
+              ชื่อ-นามสกุล <span className="text-danger">*</span>
+            </label>
+            <div className="relative">
+              <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              <input
+                id="profile-full-name"
+                type="text"
+                value={fullName}
+                onChange={e => setFullName(e.target.value)}
+                placeholder="ชื่อ-นามสกุล"
+                className="input pl-9"
+                required
+              />
+            </div>
+          </div>
+
+          {/* Email */}
+          <div>
+            <label htmlFor="profile-email" className="block text-sm font-medium text-gray-700 mb-1.5">
+              อีเมล
+            </label>
+            <div className="relative">
+              <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              <input
+                id="profile-email"
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="อีเมล"
+                className="input pl-9"
+              />
+            </div>
+            {email.trim().toLowerCase() !== user?.email && (
+              <p className="text-xs text-warning mt-1.5 flex items-center gap-1">
+                <ShieldCheck size={12} />
+                การเปลี่ยนอีเมลจะต้องยืนยันผ่านลิงก์ที่ส่งไปยังอีเมลใหม่
+              </p>
+            )}
+          </div>
+
+          <div className="flex justify-end pt-1">
+            <button
+              id="save-profile-btn"
+              type="submit"
+              disabled={profileLoading}
+              className="btn-primary btn-sm disabled:opacity-60 flex items-center gap-2"
+            >
+              {profileLoading ? (
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <Save size={15} />
+              )}
+              {profileLoading ? 'กำลังบันทึก...' : 'บันทึกการเปลี่ยนแปลง'}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* ---- Change Password Form ---- */}
+      <div className="card">
+        <div className="flex items-center gap-2 mb-5">
+          <Lock size={18} className="text-primary-700" />
+          <h2 className="font-semibold text-gray-900">เปลี่ยนรหัสผ่าน</h2>
+        </div>
+
+        <form onSubmit={handleChangePassword} className="space-y-5">
+          {/* Current Password */}
+          <div>
+            <label htmlFor="current-password" className="block text-sm font-medium text-gray-700 mb-1.5">
+              รหัสผ่านปัจจุบัน <span className="text-danger">*</span>
+            </label>
+            <div className="relative">
+              <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              <input
+                id="current-password"
+                type={showCurrent ? 'text' : 'password'}
+                value={currentPassword}
+                onChange={e => setCurrentPassword(e.target.value)}
+                placeholder="รหัสผ่านปัจจุบัน"
+                className="input pl-9 pr-10"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowCurrent(v => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                {showCurrent ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+          </div>
+
+          {/* New Password */}
+          <div>
+            <label htmlFor="new-password" className="block text-sm font-medium text-gray-700 mb-1.5">
+              รหัสผ่านใหม่ <span className="text-danger">*</span>
+            </label>
+            <div className="relative">
+              <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              <input
+                id="new-password"
+                type={showNew ? 'text' : 'password'}
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
+                placeholder="รหัสผ่านใหม่ (อย่างน้อย 6 ตัวอักษร)"
+                className="input pl-9 pr-10"
+                required
+                minLength={6}
+              />
+              <button
+                type="button"
+                onClick={() => setShowNew(v => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                {showNew ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+          </div>
+
+          {/* Confirm Password */}
+          <div>
+            <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700 mb-1.5">
+              ยืนยันรหัสผ่านใหม่ <span className="text-danger">*</span>
+            </label>
+            <div className="relative">
+              <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              <input
+                id="confirm-password"
+                type={showConfirm ? 'text' : 'password'}
+                value={confirmPassword}
+                onChange={e => setConfirmPassword(e.target.value)}
+                placeholder="ยืนยันรหัสผ่านใหม่"
+                className={`input pl-9 pr-10 ${
+                  confirmPassword && newPassword !== confirmPassword ? 'border-danger/60 focus:ring-danger/30' : ''
+                }`}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirm(v => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+            {confirmPassword && newPassword !== confirmPassword && (
+              <p className="text-xs text-danger mt-1.5">รหัสผ่านไม่ตรงกัน</p>
+            )}
+          </div>
+
+          <div className="flex justify-end pt-1">
+            <button
+              id="change-password-btn"
+              type="submit"
+              disabled={passwordLoading}
+              className="btn-primary btn-sm disabled:opacity-60 flex items-center gap-2"
+            >
+              {passwordLoading ? (
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <Lock size={15} />
+              )}
+              {passwordLoading ? 'กำลังเปลี่ยน...' : 'เปลี่ยนรหัสผ่าน'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
-import { Menu, Bell, ChevronDown, User } from 'lucide-react'
+import { NavLink } from 'react-router-dom'
+import { Menu, Bell, ChevronDown, User, UserCircle } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useNotifications } from '../../contexts/NotificationContext'
 import { formatDistanceToNow } from 'date-fns'
@@ -121,11 +122,21 @@ export default function TopBar({ onMenuClick }) {
           </button>
 
           {userOpen && (
-            <div className="absolute right-0 top-full mt-2 w-44 bg-white rounded-xl shadow-card-lg border border-gray-100 z-50 animate-slide-in py-1">
+            <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-card-lg border border-gray-100 z-50 animate-slide-in py-1">
               <div className="px-3 py-2 border-b border-gray-50">
                 <p className="text-xs text-gray-400">เข้าสู่ระบบในฐานะ</p>
                 <p className="text-sm font-semibold text-gray-800 truncate">{profile?.full_name}</p>
               </div>
+              {profile?.role === 'student' && (
+                <NavLink
+                  to="/student/profile"
+                  onClick={() => setUserOpen(false)}
+                  className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+                >
+                  <UserCircle size={15} className="text-gray-400" />
+                  แก้ไขโปรไฟล์
+                </NavLink>
+              )}
               <button
                 onClick={signOut}
                 className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"

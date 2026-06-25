@@ -12,6 +12,7 @@ import Register from '../pages/Register'
 // Student pages
 import StudentDashboard from '../pages/student/Dashboard'
 import StudentWeeklySubmit from '../pages/student/WeeklySubmit'
+import StudentProfile from '../pages/student/Profile'
 
 // Supervisor pages
 import SupervisorDashboard from '../pages/supervisor/Dashboard'
@@ -107,6 +108,7 @@ export default function AppRouter() {
         >
           <Route index element={<StudentDashboard />} />
           <Route path="weekly" element={<StudentWeeklySubmit />} />
+          <Route path="profile" element={<StudentProfile />} />
         </Route>
 
         {/* Supervisor */}
