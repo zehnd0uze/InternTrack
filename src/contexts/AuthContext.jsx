@@ -72,17 +72,9 @@ export function AuthProvider({ children }) {
       }
     })
     
-    if (!error && data.user) {
-      // The trigger handle_new_user should have inserted this, but doing a safe upsert
-      await supabase.from('users').upsert({
-        id: data.user.id,
-        email,
-        full_name: fullName,
-        role: 'student',
-        is_active: true,
-        target_hours: 240,
-      })
-    }
+    // The database trigger handle_new_user will automatically create the user profile
+    // We do not need to manually upsert it here (which would fail anyway since the user has no session yet)
+    
     return { data, error }
   }
 
