@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { format, startOfWeek, startOfMonth, differenceInSeconds, parseISO } from 'date-fns'
 import { th } from 'date-fns/locale'
-import { Clock, CheckCircle, XCircle, BookOpen, Calendar, Target, AlertTriangle } from 'lucide-react'
+import { Clock, CheckCircle, XCircle, BookOpen, Calendar, Target, AlertTriangle, Printer } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
@@ -92,8 +93,9 @@ export default function StudentDashboard() {
     const totalHours = (allRes.data || []).reduce((s, r) => s + (parseFloat(r.hours_worked) || 0), 0)
     const weekHours  = (weekRes.data || []).reduce((s, r) => s + (parseFloat(r.hours_worked) || 0), 0)
     const monthDays  = (monthRes.data || []).length
+    const totalDays  = (allRes.data || []).length
 
-    setStats({ totalHours, weekHours, monthDays })
+    setStats({ totalHours, weekHours, monthDays, totalDays })
     setStatsLoading(false)
   }, [user.id])
 
@@ -261,7 +263,7 @@ export default function StudentDashboard() {
   // ---- Status Indicator ----
   const clockStatus = !today ? 'none' : today.check_out ? 'done' : 'working'
 
-  const targetHours = profile?.target_hours || 240
+  const targetHours = profile?.target_hours || 1596
   const progressPct = Math.min(100, (stats.totalHours / targetHours) * 100)
 
   return (
@@ -399,6 +401,7 @@ export default function StudentDashboard() {
               </div>
               <span className="text-sm font-bold text-primary-700">
                 {stats.totalHours.toFixed(1)} / {targetHours} ชม.
+                <span className="ml-2 text-gray-500 font-normal hidden sm:inline">({stats.totalDays || 0} / 228 วัน)</span>
               </span>
             </div>
             <div className="progress-bar mb-2">
@@ -442,10 +445,15 @@ export default function StudentDashboard() {
 
       {/* ---- Daily Log ---- */}
       <div className="card">
-        <div className="flex items-center gap-2 mb-4">
-          <BookOpen size={18} className="text-primary-700" />
-          <h2 className="font-semibold text-gray-900">บันทึกประจำวัน</h2>
-          <span className="text-xs text-gray-400">({format(new Date(), 'd MMM yyyy', { locale: th })})</span>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <BookOpen size={18} className="text-primary-700" />
+            <h2 className="font-semibold text-gray-900">บันทึกประจำวัน</h2>
+            <span className="text-xs text-gray-400">({format(new Date(), 'd MMM yyyy', { locale: th })})</span>
+          </div>
+          <Link to="/student/print-log" target="_blank" className="btn-primary btn-sm flex items-center gap-1">
+            <Printer size={16} /> พิมพ์รายงาน
+          </Link>
         </div>
 
         {!today?.id && (

@@ -13,6 +13,7 @@ import Register from '../pages/Register'
 import StudentDashboard from '../pages/student/Dashboard'
 import StudentWeeklySubmit from '../pages/student/WeeklySubmit'
 import StudentProfile from '../pages/student/Profile'
+import StudentPrintableLog from '../pages/student/PrintableLog'
 
 // Supervisor pages
 import SupervisorDashboard from '../pages/supervisor/Dashboard'
@@ -116,6 +117,15 @@ export default function AppRouter() {
           <Route path="weekly" element={<StudentWeeklySubmit />} />
           <Route path="profile" element={<StudentProfile />} />
         </Route>
+
+        <Route
+          path="/student/print-log"
+          element={
+            <RequireAuth allowedRoles={['student']}>
+              <StudentPrintableLog />
+            </RequireAuth>
+          }
+        />
 
         {/* Supervisor */}
         <Route

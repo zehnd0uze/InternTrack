@@ -141,7 +141,7 @@ export default function AdminDashboard() {
         supabase.from('attendance').select('check_in, check_out').eq('user_id', s.id).eq('date', todayStr).single(),
       ])
       const total = (att || []).reduce((sum, r) => sum + parseFloat(r.hours_worked || 0), 0)
-      const pct = (total / (s.target_hours || 240)) * 100
+      const pct = (total / (s.target_hours || 1596)) * 100
       return {
         ...s,
         totalHours: total,

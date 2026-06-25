@@ -22,7 +22,7 @@ export default function AdminUsers() {
 
   const [form, setForm] = useState({
     full_name: '', email: '', role: 'student',
-    supervisor_id: '', target_hours: 240, password: ''
+    supervisor_id: '', target_hours: 1596, password: ''
   })
 
   const fetchUsers = useCallback(async () => {
@@ -47,7 +47,7 @@ export default function AdminUsers() {
 
   const openAdd = () => {
     setEditUser(null)
-    setForm({ full_name: '', email: '', role: 'student', supervisor_id: '', target_hours: 240, password: '' })
+    setForm({ full_name: '', email: '', role: 'student', supervisor_id: '', target_hours: 1596, password: '' })
     setShowModal(true)
   }
 
@@ -58,7 +58,7 @@ export default function AdminUsers() {
       email: u.email,
       role: u.role,
       supervisor_id: u.supervisor_id || '',
-      target_hours: u.target_hours || 240,
+      target_hours: u.target_hours || 1596,
       password: ''
     })
     setShowModal(true)
@@ -120,7 +120,7 @@ export default function AdminUsers() {
             full_name: form.full_name,
             role: form.role,
             supervisor_id: form.role === 'student' ? form.supervisor_id || null : null,
-            target_hours: form.role === 'student' ? parseInt(form.target_hours) : 240,
+            target_hours: form.role === 'student' ? parseInt(form.target_hours) : 1596,
             is_active: true,
           })
         }
@@ -133,7 +133,7 @@ export default function AdminUsers() {
             full_name: form.full_name,
             role: form.role,
             supervisor_id: form.role === 'student' ? form.supervisor_id || null : null,
-            target_hours: form.role === 'student' ? parseInt(form.target_hours) : 240,
+            target_hours: form.role === 'student' ? parseInt(form.target_hours) : 1596,
             is_active: true,
           })
         }

@@ -57,13 +57,13 @@ export default function AdminReport() {
 
       const { data: att } = await q
       const total = (att || []).reduce((sum, r) => sum + parseFloat(r.hours_worked || 0), 0)
-      const pct = Math.min(100, (total / (s.target_hours || 240)) * 100)
+      const pct = Math.min(100, (total / (s.target_hours || 1596)) * 100)
 
       results.push({
         id: s.id,
         full_name: s.full_name,
         totalHours: total,
-        targetHours: s.target_hours || 240,
+        targetHours: s.target_hours || 1596,
         pct,
         status: pct >= 100 ? 'ครบแล้ว' : pct >= 50 ? 'กำลังดำเนินการ' : 'ยังน้อย',
       })

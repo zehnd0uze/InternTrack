@@ -1,0 +1,177 @@
+import React, { useEffect, useState } from 'react'
+import { format } from 'date-fns'
+import { th } from 'date-fns/locale'
+import { supabase } from '../../lib/supabase'
+import { useAuth } from '../../contexts/AuthContext'
+
+function formatThaiTime(dt) {
+  if (!dt) return '-'
+  return format(new Date(dt), 'HH:mm', { locale: th }) 
+}
+
+function formatThaiDateShort(dt) {
+  if (!dt) return '-'
+  return format(new Date(dt), 'dd/MM/yy', { locale: th })
+}
+
+export default function PrintableLog() {
+  const { user, profile } = useAuth()
+  const [data, setData] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!user?.id) return
+
+      const { data: records, error } = await supabase
+        .from('attendance')
+        .select(`
+          id, date, check_in, check_out, hours_worked,
+          daily_logs ( log_text )
+        `)
+        .eq('user_id', user.id)
+        .order('date', { ascending: true })
+
+      if (error) {
+        console.error('Error fetching logs for print:', error)
+      } else {
+        setData(records || [])
+      }
+      setLoading(false)
+
+      setTimeout(() => {
+        window.print()
+      }, 500)
+    }
+
+    fetchData()
+  }, [user])
+
+  if (loading) {
+    return <div className="p-10 text-center">กำลังโหลดข้อมูล...</div>
+  }
+
+  const PAGE_SIZE = 20
+  const pages = []
+  for (let i = 0; i < data.length; i += PAGE_SIZE) {
+    pages.push(data.slice(i, i + PAGE_SIZE))
+  }
+
+  if (pages.length === 0) {
+    pages.push([])
+  }
+
+  return (
+    <div className="bg-white text-black min-h-screen text-sm print-container">
+      <style>{`
+        @page { size: A4; margin: 15mm; }
+        body { background: white; margin: 0; padding: 0; color: black; font-family: 'Sarabun', 'Inter', sans-serif; }
+        @media print {
+          .print-container { background: white; }
+          .page-break { page-break-after: always; }
+          nav, sidebar, .navbar, .sidebar { display: none !important; }
+        }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid black; padding: 6px; text-align: center; }
+        th { font-weight: bold; }
+        .text-left { text-align: left; }
+        .dotted-line { display: inline-block; border-bottom: 1px dotted black; min-width: 150px; }
+      `}</style>
+
+      {pages.map((pageData, pageIndex) => {
+        const pageHours = pageData.reduce((sum, row) => sum + parseFloat(row.hours_worked || 0), 0)
+
+        return (
+          <div key={pageIndex} className={`pt-4 ${pageIndex < pages.length - 1 ? 'page-break' : ''}`}>
+            
+            <div className="relative mb-6">
+              <div className="absolute right-0 top-0 font-bold text-lg">DG-B2</div>
+              <div className="text-center">
+                <h1 className="font-bold text-lg mb-2">แบบฟอร์มบันทึกเวลาการเรียนรู้ร่วมกับการทำงานของนักศึกษา (WIL-DG)</h1>
+                <h2 className="font-bold text-base">สาขาวิชาดิจิทัลเกม วิทยาลัยศิลปะ สื่อ และเทคโนโลยี มหาวิทยาลัยเชียงใหม่</h2>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-4 mb-4 text-base">
+              <div className="flex items-center gap-2">
+                <span>ชื่อ-สกุล</span>
+                <span className="dotted-line flex-1 text-center">{profile?.full_name || ''}</span>
+                <span>รหัสนักศึกษา</span>
+                <span className="dotted-line w-48"></span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span>ภาคการศึกษา. ............... /.................</span>
+                <span className="ml-4">บริษัท</span>
+                <span className="dotted-line flex-1"></span>
+                <span>หน้า {pageIndex + 1} / {pages.length}</span>
+              </div>
+            </div>
+
+            <table>
+              <thead>
+                <tr>
+                  <th className="w-12">No.</th>
+                  <th className="w-24">วัน/เดือน/ปี</th>
+                  <th className="w-24">เวลาเข้างาน</th>
+                  <th className="w-24">เวลาเลิกงาน</th>
+                  <th className="w-32">จำนวนชั่วโมง (ชม)</th>
+                  <th>หมายเหตุ</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Array.from({ length: PAGE_SIZE }).map((_, idx) => {
+                  const row = pageData[idx]
+                  const globalIdx = pageIndex * PAGE_SIZE + idx + 1
+                  if (!row) {
+                    return (
+                      <tr key={`blank-${idx}`} className="h-8">
+                        <td>{globalIdx}</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                    )
+                  }
+                  
+                  const logText = row.daily_logs && row.daily_logs.length > 0 
+                                  ? row.daily_logs[0].log_text 
+                                  : ''
+
+                  return (
+                    <tr key={row.id} className="h-8">
+                      <td>{globalIdx}</td>
+                      <td>{formatThaiDateShort(row.date)}</td>
+                      <td>{formatThaiTime(row.check_in)}</td>
+                      <td>{formatThaiTime(row.check_out)}</td>
+                      <td>{row.hours_worked || '-'}</td>
+                      <td className="text-left text-xs truncate max-w-[200px]">{logText}</td>
+                    </tr>
+                  )
+                })}
+                <tr className="font-bold bg-gray-50 h-8">
+                  <td colSpan={4} className="text-center">รวมชั่วโมงหน้านี้</td>
+                  <td>{pageHours > 0 ? pageHours.toFixed(1) : ''}</td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div className="mt-8 flex justify-end">
+              <div className="w-64 text-center">
+                <div className="border-b border-dotted border-black mb-2"></div>
+                <div className="mb-2">ลงชื่อ ผู้ดูแลนักศึกษา / พี่เลี้ยง</div>
+                <div>วันที่............./.................../.................</div>
+              </div>
+            </div>
+            <div className="mt-8 text-sm">
+              <strong>หมายเหตุ :</strong> แนบเอกสารนี้ในรายงานตอนสิ้นเทอม
+            </div>
+            
+          </div>
+        )
+      })}
+    </div>
+  )
+}

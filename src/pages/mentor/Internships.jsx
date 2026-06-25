@@ -226,7 +226,7 @@ function AddInternModal({ onClose, onSuccess, mentorId }) {
 
   useEffect(() => {
     if (selectedStudent) {
-      setTargetHours(selectedStudent.target_hours || 240)
+      setTargetHours(selectedStudent.target_hours || 1596)
     }
   }, [selectedStudent])
 
@@ -387,7 +387,7 @@ function EditPlacementModal({ placement, onClose, onSuccess, onDelete }) {
   const [endDate, setEndDate] = useState(placement.end_date || '')
   const [status, setStatus] = useState(placement.status || 'active')
   const [notes, setNotes] = useState(placement.notes || '')
-  const [targetHours, setTargetHours] = useState(placement.student?.target_hours || 240)
+  const [targetHours, setTargetHours] = useState(placement.student?.target_hours || 1596)
   const [saving, setSaving] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)

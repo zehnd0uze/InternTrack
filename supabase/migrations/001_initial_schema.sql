@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS public.users (
   full_name     TEXT        NOT NULL,
   role          TEXT        NOT NULL CHECK (role IN ('student', 'supervisor', 'admin')),
   supervisor_id UUID        REFERENCES public.users(id) ON DELETE SET NULL,
-  target_hours  INTEGER     DEFAULT 240,
+  target_hours  INTEGER     DEFAULT 1596,
   is_active     BOOLEAN     DEFAULT TRUE,
   created_at    TIMESTAMPTZ DEFAULT NOW()
 );
