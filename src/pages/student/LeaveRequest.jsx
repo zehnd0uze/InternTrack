@@ -60,30 +60,27 @@ export default function StudentLeaveRequest() {
 
     setSubmitting(true)
 
-    // Get supervisor
+    // Get supervisor from profile
     const { data: profile } = await supabase
       .from('users')
       .select('supervisor_id, full_name')
       .eq('id', user.id)
       .single()
 
-    let supervisorId = profile?.supervisor_id
+    // Get mentor from placements
+    const { data: placement } = await supabase
+      .from('internship_placements')
+      .select('mentor_id')
+      .eq('student_id', user.id)
+      .eq('status', 'active')
+      .maybeSingle()
 
-    if (!supervisorId) {
-      const { data: placement } = await supabase
-        .from('internship_placements')
-        .select('mentor_id')
-        .eq('student_id', user.id)
-        .eq('status', 'active')
-        .maybeSingle()
-      if (placement?.mentor_id) {
-        supervisorId = placement.mentor_id
-      }
-    }
-
+    // Create the leave request
+    // Note: supervisor_id in leave_requests table is currently used for direct supervisor
+    // but the RLS policies allow mentors to see it too via internship_placements
     const { error } = await supabase.from('leave_requests').insert({
       user_id: user.id,
-      supervisor_id: supervisorId,
+      supervisor_id: profile?.supervisor_id || placement?.mentor_id || null,
       leave_type: form.leave_type,
       start_date: form.start_date,
       end_date: form.end_date,
@@ -91,13 +88,20 @@ export default function StudentLeaveRequest() {
       status: 'pending'
     })
 
-    if (!error && supervisorId) {
-      // Notify supervisor
-      await supabase.from('notifications').insert({
-        user_id: supervisorId,
-        message: `มีคำขอ${TYPE_LABEL[form.leave_type]}ใหม่ จาก ${profile?.full_name || 'นักศึกษา'}`,
-        type: 'leave_request',
-      })
+    if (!error) {
+      // Notify supervisor and mentor
+      const notifyIds = []
+      if (profile?.supervisor_id) notifyIds.push(profile.supervisor_id)
+      if (placement?.mentor_id && placement.mentor_id !== profile?.supervisor_id) notifyIds.push(placement.mentor_id)
+
+      if (notifyIds.length > 0) {
+        const notifications = notifyIds.map(id => ({
+          user_id: id,
+          message: `มีคำขอ${TYPE_LABEL[form.leave_type]}ใหม่ จาก ${profile?.full_name || 'นักศึกษา'}`,
+          type: 'leave_request',
+        }))
+        await supabase.from('notifications').insert(notifications)
+      }
     }
 
     setSubmitting(false)

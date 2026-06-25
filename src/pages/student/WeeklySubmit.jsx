@@ -57,35 +57,36 @@ export default function StudentWeeklySubmit() {
       .eq('id', user.id)
       .single()
 
-    let supervisorId = profile?.supervisor_id
-
-    if (!supervisorId) {
-      const { data: placement } = await supabase
-        .from('internship_placements')
-        .select('mentor_id')
-        .eq('student_id', user.id)
-        .eq('status', 'active')
-        .maybeSingle()
-      if (placement?.mentor_id) {
-        supervisorId = placement.mentor_id
-      }
-    }
+    // Get mentor
+    const { data: placement } = await supabase
+      .from('internship_placements')
+      .select('mentor_id')
+      .eq('student_id', user.id)
+      .eq('status', 'active')
+      .maybeSingle()
 
     const { error } = await supabase.from('weekly_approvals').insert({
       student_id: user.id,
-      supervisor_id: supervisorId,
+      supervisor_id: profile?.supervisor_id || placement?.mentor_id || null,
       week_start: weekStart,
       total_hours: parseFloat(totalHours.toFixed(2)),
       status: 'pending',
     })
 
-    // Create notification for supervisor
-    if (!error && supervisorId) {
-      await supabase.from('notifications').insert({
-        user_id: supervisorId,
-        message: `มีคำขออนุมัติชั่วโมงใหม่จาก ${profile?.full_name || 'นักศึกษา'} — สัปดาห์ ${weekStart}`,
-        type: 'approval_request',
-      })
+    // Create notification for supervisor and mentor
+    if (!error) {
+      const notifyIds = []
+      if (profile?.supervisor_id) notifyIds.push(profile.supervisor_id)
+      if (placement?.mentor_id && placement.mentor_id !== profile?.supervisor_id) notifyIds.push(placement.mentor_id)
+
+      if (notifyIds.length > 0) {
+        const notifications = notifyIds.map(id => ({
+          user_id: id,
+          message: `มีคำขออนุมัติชั่วโมงใหม่จาก ${profile?.full_name || 'นักศึกษา'} — สัปดาห์ ${weekStart}`,
+          type: 'approval_request',
+        }))
+        await supabase.from('notifications').insert(notifications)
+      }
     }
 
     setSubmitting(null)
