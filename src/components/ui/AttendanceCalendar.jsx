@@ -43,6 +43,7 @@ export default function AttendanceCalendar() {
   const { user } = useAuth()
   const [currentDate, setCurrentDate] = useState(new Date())
   const [attendanceMap, setAttendanceMap] = useState({})
+  const [leavesMap, setLeavesMap] = useState({})
   const [loading, setLoading] = useState(true)
 
   const fetchMonthData = useCallback(async (date) => {
@@ -70,6 +71,26 @@ export default function AttendanceCalendar() {
       })
     }
     setAttendanceMap(map)
+
+    const { data: leaves } = await supabase
+      .from('leave_requests')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('status', 'approved')
+      .lte('start_date', endDate)
+      .gte('end_date', startDate)
+
+    const lMap = {}
+    if (leaves) {
+      leaves.forEach(l => {
+        const intervalDays = eachDayOfInterval({ start: new Date(l.start_date), end: new Date(l.end_date) })
+        intervalDays.forEach(d => {
+          lMap[format(d, 'yyyy-MM-dd')] = l.leave_type
+        })
+      })
+    }
+    setLeavesMap(lMap)
+    
     setLoading(false)
   }, [user.id])
 
@@ -124,6 +145,7 @@ export default function AttendanceCalendar() {
           const dateStr = format(day, 'yyyy-MM-dd')
           const mmdd = dateStr.substring(5)
           const record = attendanceMap[dateStr]
+          const leaveType = leavesMap[dateStr]
           const isToday = isSameDay(day, new Date())
           const isCurrentMonth = isSameMonth(day, monthStart)
           const holiday = LUNAR_HOLIDAYS_2026[dateStr] || FIXED_HOLIDAYS[mmdd]
@@ -133,6 +155,7 @@ export default function AttendanceCalendar() {
               key={i} 
               className={`bg-white p-2 flex flex-col gap-1 transition-colors hover:bg-gray-50
                 ${!isCurrentMonth ? 'opacity-50 bg-gray-50/50' : ''}
+                ${leaveType ? 'bg-orange-50/30' : ''}
               `}
             >
               <div className="flex justify-between items-start">
@@ -148,11 +171,15 @@ export default function AttendanceCalendar() {
                     </span>
                   )}
                 </div>
-                {record && (
+                {record ? (
                   <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full shrink-0 ${record.check_out ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>
                     {record.check_out ? 'เสร็จสิ้น' : 'ทำงาน'}
                   </span>
-                )}
+                ) : leaveType ? (
+                  <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full shrink-0 ${leaveType === 'sick' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'}`}>
+                    {leaveType === 'sick' ? 'ลาป่วย' : 'ลากิจ'}
+                  </span>
+                ) : null}
               </div>
 
               {/* Data Block */}

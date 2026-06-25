@@ -15,6 +15,7 @@ import {
   UserCircle,
   Briefcase,
   Building2,
+  CalendarDays,
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useNotifications } from '../../contexts/NotificationContext'
@@ -24,6 +25,7 @@ const NAV_ITEMS = {
   student: [
     { to: '/student', label: 'แดชบอร์ด', icon: LayoutDashboard, end: true },
     { to: '/student/weekly', label: 'ส่งชั่วโมงรายสัปดาห์', icon: Clock },
+    { to: '/student/leave', label: 'แจ้งลา ป่วย/กิจ', icon: CalendarDays },
     { to: '/student/profile', label: 'โปรไฟล์ของฉัน', icon: UserCircle },
   ],
   supervisor: [
@@ -40,6 +42,7 @@ const NAV_ITEMS = {
   mentor: [
     { to: '/mentor', label: 'แดชบอร์ด', icon: LayoutDashboard, end: true },
     { to: '/mentor/approvals', label: 'อนุมัติชั่วโมง', icon: CheckSquare },
+    { to: '/mentor/leave', label: 'อนุมัติการลา', icon: CalendarDays },
     { to: '/mentor/internships', label: 'ข้อมูลการฝึกงาน', icon: Building2 },
   ],
 }

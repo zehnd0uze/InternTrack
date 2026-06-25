@@ -14,6 +14,7 @@ import StudentDashboard from '../pages/student/Dashboard'
 import StudentWeeklySubmit from '../pages/student/WeeklySubmit'
 import StudentProfile from '../pages/student/Profile'
 import StudentPrintableLog from '../pages/student/PrintableLog'
+import StudentLeaveRequest from '../pages/student/LeaveRequest'
 
 // Supervisor pages
 import SupervisorDashboard from '../pages/supervisor/Dashboard'
@@ -32,6 +33,7 @@ import MentorDashboard from '../pages/mentor/Dashboard'
 import MentorApprovals from '../pages/mentor/Approvals'
 import MentorStudentDetail from '../pages/mentor/StudentDetail'
 import MentorInternships from '../pages/mentor/Internships'
+import MentorLeaveApprovals from '../pages/mentor/LeaveApprovals'
 
 // Skeletons / loading
 import PageLoader from '../components/ui/PageLoader'
@@ -116,6 +118,7 @@ export default function AppRouter() {
           <Route index element={<StudentDashboard />} />
           <Route path="weekly" element={<StudentWeeklySubmit />} />
           <Route path="profile" element={<StudentProfile />} />
+          <Route path="leave" element={<StudentLeaveRequest />} />
         </Route>
 
         <Route
@@ -175,6 +178,7 @@ export default function AppRouter() {
           <Route index element={<MentorDashboard />} />
           <Route path="approvals" element={<MentorApprovals />} />
           <Route path="internships" element={<MentorInternships />} />
+          <Route path="leave" element={<MentorLeaveApprovals />} />
           <Route path="students/:studentId" element={<MentorStudentDetail />} />
         </Route>
 
