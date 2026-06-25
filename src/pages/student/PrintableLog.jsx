@@ -143,24 +143,24 @@ export default function PrintableLog() {
             </div>
 
             {/* Input fields matching the PDF exactly */}
-            <div className="flex flex-col gap-2 mb-2 text-[14px] px-8">
-              <div className="flex items-center">
+            <div className="flex flex-col gap-2 mb-3 text-[14px]">
+              <div className="flex items-center w-full">
                 <span className="whitespace-nowrap mr-2">ชื่อ-สกุล</span>
-                <span className="dotted-line flex-1 text-center">{profile?.full_name || ''}</span>
-                <span className="whitespace-nowrap ml-4 mr-2">รหัสนักศึกษา</span>
-                <span className="dotted-line w-48 text-center">{profile?.student_code || ''}</span>
+                <span className="dotted-line flex-[3] text-center mr-6">{profile?.full_name || ''}</span>
+                <span className="whitespace-nowrap mr-2">รหัสนักศึกษา</span>
+                <span className="dotted-line flex-[1.5] text-center">{profile?.student_code || ''}</span>
               </div>
-              <div className="flex items-center">
-                <span className="whitespace-nowrap mr-2">ภาคการศึกษา</span>
-                <span className="dotted-line w-16 text-center">{semester}</span>
-                <span className="mx-2">/</span>
-                <span className="dotted-line w-16 text-center">{year}</span>
+              <div className="flex items-center w-full">
+                <span className="whitespace-nowrap mr-2">ภาคการศึกษา.</span>
+                <span className="dotted-line w-12 text-center">{semester}</span>
+                <span className="mx-1">/</span>
+                <span className="dotted-line w-12 text-center">{year}</span>
                 <span className="whitespace-nowrap ml-6 mr-2">บริษัท</span>
-                <span className="dotted-line flex-1 text-center">{placement?.company_name || ''}</span>
-                <span className="whitespace-nowrap ml-6 mr-2">หน้า</span>
-                <span className="dotted-line w-8 text-center">{pageIndex + 1}</span>
-                <span className="mx-2">/</span>
-                <span className="dotted-line w-8 text-center">{pages.length}</span>
+                <span className="dotted-line flex-1 text-center mr-6">{placement?.company_name || ''}</span>
+                <span className="whitespace-nowrap mr-2">หน้า</span>
+                <span className="dotted-line w-10 text-center">{pageIndex + 1}</span>
+                <span className="mx-1">/</span>
+                <span className="dotted-line w-10 text-center">{pages.length}</span>
               </div>
             </div>
 
@@ -179,11 +179,11 @@ export default function PrintableLog() {
               <tbody>
                 {Array.from({ length: PAGE_SIZE }).map((_, idx) => {
                   const row = pageData[idx]
-                  const globalIdx = pageIndex * PAGE_SIZE + idx + 1
+                  const rowNum = idx + 1
                   if (!row) {
                     return (
                       <tr key={`blank-${idx}`} className="h-[25px]">
-                        <td>{globalIdx}</td>
+                        <td>{rowNum}</td>
                         <td></td>
                         <td></td>
                         <td></td>
@@ -199,7 +199,7 @@ export default function PrintableLog() {
 
                   return (
                     <tr key={row.id} className="h-[25px]">
-                      <td>{globalIdx}</td>
+                      <td>{rowNum}</td>
                       <td>{formatThaiDateShort(row.date)}</td>
                       <td>{formatThaiTime(row.check_in)}</td>
                       <td>{formatThaiTime(row.check_out)}</td>
@@ -218,7 +218,7 @@ export default function PrintableLog() {
             </table>
 
             {/* Footer exactly like PDF */}
-            <div className="mt-5 flex justify-between items-end px-4">
+            <div className="mt-5 flex justify-between items-end">
               <div className="text-[14px]">
                 หมายเหตุ : แนบเอกสารนี้ในรายงานตอนสิ้นเทอม
               </div>
