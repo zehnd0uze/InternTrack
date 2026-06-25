@@ -60,14 +60,15 @@ export function AuthProvider({ children }) {
     return { data, error }
   }
 
-  const signUp = async (email, password, fullName) => {
+  const signUp = async (email, password, fullName, studentCode) => {
     const { data, error } = await supabase.auth.signUp({ 
       email, 
       password,
       options: {
         data: {
           full_name: fullName,
-          role: 'student'
+          role: 'student',
+          student_code: studentCode
         }
       }
     })

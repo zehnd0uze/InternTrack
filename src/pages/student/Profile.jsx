@@ -9,6 +9,7 @@ export default function StudentProfile() {
 
   // ---- Profile fields ----
   const [fullName, setFullName] = useState(profile?.full_name || '')
+  const [studentCode, setStudentCode] = useState(profile?.student_code || '')
   const [email, setEmail]       = useState(user?.email || '')
   const [profileLoading, setProfileLoading] = useState(false)
 
@@ -32,10 +33,13 @@ export default function StudentProfile() {
 
     setProfileLoading(true)
     try {
-      // 1. Update display name in `users` table
+      // 1. Update display name & student code in `users` table
       const { error: dbErr } = await supabase
         .from('users')
-        .update({ full_name: trimmedName })
+        .update({ 
+          full_name: trimmedName,
+          student_code: studentCode.trim() || null
+        })
         .eq('id', user.id)
 
       if (dbErr) throw dbErr
@@ -138,6 +142,24 @@ export default function StudentProfile() {
                 placeholder="ชื่อ-นามสกุล"
                 className="input pl-9"
                 required
+              />
+            </div>
+          </div>
+
+          {/* Student ID */}
+          <div>
+            <label htmlFor="profile-student-code" className="block text-sm font-medium text-gray-700 mb-1.5">
+              รหัสนักศึกษา
+            </label>
+            <div className="relative">
+              <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              <input
+                id="profile-student-code"
+                type="text"
+                value={studentCode}
+                onChange={e => setStudentCode(e.target.value)}
+                placeholder="รหัสนักศึกษา"
+                className="input pl-9"
               />
             </div>
           </div>

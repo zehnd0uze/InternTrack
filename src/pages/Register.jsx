@@ -7,7 +7,7 @@ import { useAuth } from '../contexts/AuthContext'
 export default function Register() {
   const { signUp } = useAuth()
   const navigate = useNavigate()
-  const [form, setForm] = useState({ fullName: '', email: '', password: '', confirmPassword: '' })
+  const [form, setForm] = useState({ fullName: '', email: '', password: '', confirmPassword: '', studentCode: '' })
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -19,12 +19,13 @@ export default function Register() {
     setError('')
 
     if (!form.fullName.trim()) { setError('กรุณากรอกชื่อ-นามสกุล'); return }
+    if (!form.studentCode.trim()) { setError('กรุณากรอกรหัสนักศึกษา'); return }
     if (!form.email) { setError('กรุณากรอกอีเมล'); return }
     if (form.password.length < 6) { setError('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร'); return }
     if (form.password !== form.confirmPassword) { setError('รหัสผ่านไม่ตรงกัน'); return }
 
     setLoading(true)
-    const { error: signUpError } = await signUp(form.email, form.password, form.fullName.trim())
+    const { error: signUpError } = await signUp(form.email, form.password, form.fullName.trim(), form.studentCode.trim())
     setLoading(false)
 
     if (signUpError) {
@@ -72,6 +73,21 @@ export default function Register() {
                 className="input"
                 placeholder="กรอกชื่อ-นามสกุล"
                 autoComplete="name"
+                required
+              />
+            </div>
+
+            {/* Student ID */}
+            <div>
+              <label htmlFor="studentCode" className="label">รหัสนักศึกษา *</label>
+              <input
+                id="studentCode"
+                name="studentCode"
+                type="text"
+                value={form.studentCode}
+                onChange={handleChange}
+                className="input"
+                placeholder="กรอกรหัสนักศึกษา"
                 required
               />
             </div>

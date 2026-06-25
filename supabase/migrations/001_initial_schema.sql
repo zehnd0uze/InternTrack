@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS public.users (
   email         TEXT        UNIQUE NOT NULL,
   full_name     TEXT        NOT NULL,
   role          TEXT        NOT NULL CHECK (role IN ('student', 'supervisor', 'admin')),
+  student_code  TEXT,
   supervisor_id UUID        REFERENCES public.users(id) ON DELETE SET NULL,
   target_hours  INTEGER     DEFAULT 1596,
   is_active     BOOLEAN     DEFAULT TRUE,
@@ -78,12 +79,13 @@ CREATE TABLE IF NOT EXISTS public.notifications (
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.users (id, email, full_name, role)
+  INSERT INTO public.users (id, email, full_name, role, student_code)
   VALUES (
     NEW.id,
     NEW.email,
     COALESCE(NEW.raw_user_meta_data->>'full_name', split_part(NEW.email, '@', 1)),
-    COALESCE(NEW.raw_user_meta_data->>'role', 'student')
+    COALESCE(NEW.raw_user_meta_data->>'role', 'student'),
+    NEW.raw_user_meta_data->>'student_code'
   )
   ON CONFLICT (id) DO NOTHING;
   RETURN NEW;

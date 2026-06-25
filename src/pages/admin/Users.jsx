@@ -22,7 +22,7 @@ export default function AdminUsers() {
 
   const [form, setForm] = useState({
     full_name: '', email: '', role: 'student',
-    supervisor_id: '', target_hours: 1596, password: ''
+    student_code: '', supervisor_id: '', target_hours: 1596, password: ''
   })
 
   const fetchUsers = useCallback(async () => {
@@ -47,7 +47,7 @@ export default function AdminUsers() {
 
   const openAdd = () => {
     setEditUser(null)
-    setForm({ full_name: '', email: '', role: 'student', supervisor_id: '', target_hours: 1596, password: '' })
+    setForm({ full_name: '', email: '', role: 'student', student_code: '', supervisor_id: '', target_hours: 1596, password: '' })
     setShowModal(true)
   }
 
@@ -57,6 +57,7 @@ export default function AdminUsers() {
       full_name: u.full_name,
       email: u.email,
       role: u.role,
+      student_code: u.student_code || '',
       supervisor_id: u.supervisor_id || '',
       target_hours: u.target_hours || 1596,
       password: ''
@@ -73,6 +74,7 @@ export default function AdminUsers() {
       const updates = {
         full_name: form.full_name,
         role: form.role,
+        student_code: form.role === 'student' ? form.student_code || null : null,
         supervisor_id: form.role === 'student' ? form.supervisor_id || null : null,
         target_hours: form.role === 'student' ? parseInt(form.target_hours) : null,
       }
@@ -97,6 +99,11 @@ export default function AdminUsers() {
         email: form.email,
         password: form.password,
         email_confirm: true,
+        user_metadata: {
+          full_name: form.full_name,
+          role: form.role,
+          student_code: form.role === 'student' ? form.student_code || null : null,
+        }
       })
 
       if (authError) {
@@ -104,6 +111,13 @@ export default function AdminUsers() {
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: form.email,
           password: form.password,
+          options: {
+            data: {
+              full_name: form.full_name,
+              role: form.role,
+              student_code: form.role === 'student' ? form.student_code || null : null,
+            }
+          }
         })
 
         if (signUpError) {
@@ -119,6 +133,7 @@ export default function AdminUsers() {
             email: form.email,
             full_name: form.full_name,
             role: form.role,
+            student_code: form.role === 'student' ? form.student_code || null : null,
             supervisor_id: form.role === 'student' ? form.supervisor_id || null : null,
             target_hours: form.role === 'student' ? parseInt(form.target_hours) : 1596,
             is_active: true,
@@ -132,6 +147,7 @@ export default function AdminUsers() {
             email: form.email,
             full_name: form.full_name,
             role: form.role,
+            student_code: form.role === 'student' ? form.student_code || null : null,
             supervisor_id: form.role === 'student' ? form.supervisor_id || null : null,
             target_hours: form.role === 'student' ? parseInt(form.target_hours) : 1596,
             is_active: true,
@@ -221,7 +237,12 @@ export default function AdminUsers() {
                   <td>
                     <div>
                       <p className="font-medium text-gray-900">{u.full_name}</p>
-                      <p className="text-xs text-gray-400">{u.email}</p>
+                      <div className="flex flex-col text-xs text-gray-400">
+                        <span>{u.email}</span>
+                        {u.role === 'student' && u.student_code && (
+                          <span className="text-primary-600 font-medium">รหัส: {u.student_code}</span>
+                        )}
+                      </div>
                     </div>
                   </td>
                   <td>
@@ -320,6 +341,16 @@ export default function AdminUsers() {
 
               {form.role === 'student' && (
                 <>
+                  <div>
+                    <label className="label">รหัสนักศึกษา</label>
+                    <input
+                      type="text"
+                      value={form.student_code}
+                      onChange={e => setForm(p => ({ ...p, student_code: e.target.value }))}
+                      className="input"
+                      placeholder="กรอกรหัสนักศึกษา"
+                    />
+                  </div>
                   <div>
                     <label className="label">อาจารย์ที่ดูแล</label>
                     <select
