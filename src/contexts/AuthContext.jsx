@@ -105,6 +105,7 @@ export function AuthProvider({ children }) {
     isStudent: profile?.role === 'student',
     isSupervisor: profile?.role === 'supervisor',
     isAdmin: profile?.role === 'admin',
+    isMentor: profile?.role === 'mentor',
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

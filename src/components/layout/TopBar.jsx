@@ -28,6 +28,7 @@ export default function TopBar({ onMenuClick }) {
     student: 'นักศึกษา',
     supervisor: 'อาจารย์นิเทศ',
     admin: 'ผู้ดูแลระบบ',
+    mentor: 'พี่เลี้ยง / หัวหน้างาน',
   }
 
   return (

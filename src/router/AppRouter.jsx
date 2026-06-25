@@ -26,6 +26,12 @@ import AdminUsers from '../pages/admin/Users'
 import AdminReport from '../pages/admin/Report'
 import AdminDataManager from '../pages/admin/DataManager'
 
+// Mentor pages
+import MentorDashboard from '../pages/mentor/Dashboard'
+import MentorApprovals from '../pages/mentor/Approvals'
+import MentorStudentDetail from '../pages/mentor/StudentDetail'
+import MentorInternships from '../pages/mentor/Internships'
+
 // Skeletons / loading
 import PageLoader from '../components/ui/PageLoader'
 
@@ -73,7 +79,7 @@ function RoleRedirect() {
   }
 
   if (!profile) return <Navigate to="/login" replace />
-  const map = { student: '/student', supervisor: '/supervisor', admin: '/admin' }
+  const map = { student: '/student', supervisor: '/supervisor', admin: '/admin', mentor: '/mentor' }
   return <Navigate to={map[profile.role] || '/login'} replace />
 }
 
@@ -143,6 +149,23 @@ export default function AppRouter() {
           <Route path="users" element={<AdminUsers />} />
           <Route path="report" element={<AdminReport />} />
           <Route path="data" element={<AdminDataManager />} />
+        </Route>
+
+        {/* Mentor */}
+        <Route
+          path="/mentor"
+          element={
+            <RequireAuth allowedRoles={['mentor']}>
+              <NotificationProvider>
+                <AppLayout role="mentor" />
+              </NotificationProvider>
+            </RequireAuth>
+          }
+        >
+          <Route index element={<MentorDashboard />} />
+          <Route path="approvals" element={<MentorApprovals />} />
+          <Route path="internships" element={<MentorInternships />} />
+          <Route path="students/:studentId" element={<MentorStudentDetail />} />
         </Route>
 
         {/* Root redirect */}

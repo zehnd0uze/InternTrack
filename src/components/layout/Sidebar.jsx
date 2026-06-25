@@ -13,6 +13,8 @@ import {
   X,
   Database,
   UserCircle,
+  Briefcase,
+  Building2,
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useNotifications } from '../../contexts/NotificationContext'
@@ -35,12 +37,18 @@ const NAV_ITEMS = {
     { to: '/admin/report', label: 'รายงานระบบ', icon: BarChart3 },
     { to: '/admin/data', label: 'จัดการข้อมูล', icon: Database },
   ],
+  mentor: [
+    { to: '/mentor', label: 'แดชบอร์ด', icon: LayoutDashboard, end: true },
+    { to: '/mentor/approvals', label: 'อนุมัติชั่วโมง', icon: CheckSquare },
+    { to: '/mentor/internships', label: 'ข้อมูลการฝึกงาน', icon: Building2 },
+  ],
 }
 
 const ROLE_LABELS = {
   student: 'นักศึกษา',
   supervisor: 'อาจารย์นิเทศ',
   admin: 'ผู้ดูแลระบบ',
+  mentor: 'พี่เลี้ยง / หัวหน้างาน',
 }
 
 export default function Sidebar({ role, collapsed, onToggle, mobile }) {
