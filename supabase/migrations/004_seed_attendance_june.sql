@@ -22,7 +22,7 @@ BEGIN
           student_rec.id,
           (d::TEXT || ' 08:30:00+07:00')::TIMESTAMPTZ,
           (d::TEXT || ' 16:30:00+07:00')::TIMESTAMPTZ,
-          7.00,
+          8.00,
           d
         );
         
