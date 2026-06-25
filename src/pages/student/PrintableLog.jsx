@@ -103,6 +103,7 @@ export default function PrintableLog() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap');
         
+        * { box-sizing: border-box; }
         @page { size: A4; margin: 10mm; }
         body { background: white; margin: 0; padding: 0; color: black; font-family: 'Sarabun', sans-serif; line-height: 1.4; }
         @media print {
@@ -110,8 +111,8 @@ export default function PrintableLog() {
           .page-break { page-break-after: always; }
           nav, sidebar, .navbar, .sidebar { display: none !important; }
         }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #000; padding: 4px 6px; text-align: center; vertical-align: middle; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
+        th, td { border: 1px solid #000; padding: 4px 6px; text-align: center; vertical-align: middle; word-break: break-word; }
         th { font-weight: 600; font-size: 13px; }
         td { font-size: 13px; }
         .text-left { text-align: left; }
@@ -125,7 +126,7 @@ export default function PrintableLog() {
         const { semester, year } = getSemesterAndYear(dateToUse)
 
         return (
-          <div key={pageIndex} className={`pt-4 ${pageIndex < pages.length - 1 ? 'page-break' : ''}`}>
+          <div key={pageIndex} className={`pt-4 px-1 ${pageIndex < pages.length - 1 ? 'page-break' : ''}`}>
             
             {/* Header section matching the PDF exactly */}
             <div className="relative mb-4">
