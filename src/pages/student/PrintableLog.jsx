@@ -17,12 +17,33 @@ function formatThaiDateShort(dt) {
 export default function PrintableLog() {
   const { user, profile } = useAuth()
   const [data, setData] = useState([])
+  const [placement, setPlacement] = useState(null)
   const [loading, setLoading] = useState(true)
+
+  const getSemesterAndYear = (dateStr) => {
+    if (!dateStr) return { semester: '', year: '' }
+    const dateObj = new Date(dateStr)
+    const month = dateObj.getMonth() + 1 // 1-12
+    
+    if (month >= 6 && month <= 10) {
+      return { semester: '1', year: '2569' }
+    } else if (month === 11 || month === 12 || month >= 1 && month <= 3) {
+      return { semester: '2', year: '2569' }
+    }
+    
+    // Fallback: standard BE conversion based on June-May academic year
+    const gYear = dateObj.getFullYear()
+    const beYear = gYear + 543
+    const sem = (month >= 6 && month <= 10) ? '1' : '2'
+    const yr = month < 6 ? beYear - 1 : beYear
+    return { semester: sem.toString(), year: yr.toString() }
+  }
 
   useEffect(() => {
     const fetchData = async () => {
       if (!user?.id) return
 
+      // Fetch attendance
       const { data: records, error } = await supabase
         .from('attendance')
         .select(`
@@ -37,6 +58,22 @@ export default function PrintableLog() {
       } else {
         setData(records || [])
       }
+
+      // Fetch company name from internship_placements
+      try {
+        const { data: placementData } = await supabase
+          .from('internship_placements')
+          .select('company_name')
+          .eq('student_id', user.id)
+          .maybeSingle()
+
+        if (placementData) {
+          setPlacement(placementData)
+        }
+      } catch (err) {
+        console.error('Error fetching placement:', err)
+      }
+
       setLoading(false)
 
       setTimeout(() => {
@@ -83,6 +120,9 @@ export default function PrintableLog() {
 
       {pages.map((pageData, pageIndex) => {
         const pageHours = pageData.reduce((sum, row) => sum + parseFloat(row.hours_worked || 0), 0)
+        const firstValidRow = pageData.find(row => row && row.date)
+        const dateToUse = firstValidRow?.date || new Date().toISOString()
+        const { semester, year } = getSemesterAndYear(dateToUse)
 
         return (
           <div key={pageIndex} className={`pt-4 ${pageIndex < pages.length - 1 ? 'page-break' : ''}`}>
@@ -111,12 +151,12 @@ export default function PrintableLog() {
                 <span className="dotted-line w-48 text-center">{profile?.student_code || ''}</span>
               </div>
               <div className="flex items-center">
-                <span className="whitespace-nowrap mr-2">ภาคการศึกษา.</span>
-                <span className="dotted-line w-16"></span>
+                <span className="whitespace-nowrap mr-2">ภาคการศึกษา</span>
+                <span className="dotted-line w-16 text-center">{semester}</span>
                 <span className="mx-2">/</span>
-                <span className="dotted-line w-16"></span>
+                <span className="dotted-line w-16 text-center">{year}</span>
                 <span className="whitespace-nowrap ml-6 mr-2">บริษัท</span>
-                <span className="dotted-line flex-1"></span>
+                <span className="dotted-line flex-1 text-center">{placement?.company_name || ''}</span>
                 <span className="whitespace-nowrap ml-6 mr-2">หน้า</span>
                 <span className="dotted-line w-8 text-center">{pageIndex + 1}</span>
                 <span className="mx-2">/</span>
