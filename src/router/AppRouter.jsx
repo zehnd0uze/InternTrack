@@ -16,6 +16,7 @@ import StudentWeeklySubmit from '../pages/student/WeeklySubmit'
 import PrintableLog from '../pages/student/PrintableLog'
 import StudentLeaveRequest from '../pages/student/LeaveRequest'
 import StudentProfile from '../pages/student/Profile'
+import StudentSchedule from '../pages/student/Schedule'
 
 // Supervisor pages
 import SupervisorDashboard from '../pages/supervisor/Dashboard'
@@ -38,6 +39,7 @@ import MentorApprovals from '../pages/mentor/Approvals'
 import MentorLeaveApprovals from '../pages/mentor/LeaveApprovals'
 import MentorInternships from '../pages/mentor/Internships'
 import MentorStudentDetail from '../pages/mentor/StudentDetail'
+import MentorSchedule from '../pages/mentor/Schedule'
 
 // Skeletons / loading
 import PageLoader from '../components/ui/PageLoader'
@@ -145,6 +147,7 @@ export default function AppRouter() {
             <Route path="weekly" element={<StudentWeeklySubmit />} />
             <Route path="leave" element={<StudentLeaveRequest />} />
             <Route path="profile" element={<StudentProfile />} />
+            <Route path="schedule" element={<StudentSchedule />} />
             <Route path="notifications" element={<NotificationsPage />} />
           </Route>
 
@@ -200,6 +203,7 @@ export default function AppRouter() {
             <Route path="approvals" element={<MentorApprovals />} />
             <Route path="leave" element={<MentorLeaveApprovals />} />
             <Route path="internships" element={<MentorInternships />} />
+            <Route path="schedule" element={<MentorSchedule />} />
             <Route path="students/:studentId" element={<MentorStudentDetail />} />
             <Route path="notifications" element={<NotificationsPage />} />
           </Route>

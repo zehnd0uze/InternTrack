@@ -25,8 +25,9 @@ import toast from 'react-hot-toast'
 const NAV_ITEMS = {
   student: [
     { to: '/student', label: 'แดชบอร์ด', icon: LayoutDashboard, end: true },
-    { to: '/student/weekly', label: 'ส่งชั่วโมงรายสัปดาห์', icon: Clock },
-    { to: '/student/leave', label: 'แจ้งลา ป่วย/กิจ', icon: CalendarDays },
+    { to: '/student/weekly', label: 'บันทึกรายสัปดาห์', icon: FileText },
+    { to: '/student/leave', label: 'แจ้งลา ป่วย/กิจ', icon: Clock },
+    { to: '/student/schedule', label: 'ตารางงาน', icon: CalendarDays },
     { to: '/student/profile', label: 'โปรไฟล์ของฉัน', icon: UserCircle },
   ],
   supervisor: [
@@ -43,9 +44,10 @@ const NAV_ITEMS = {
   ],
   mentor: [
     { to: '/mentor', label: 'แดชบอร์ด', icon: LayoutDashboard, end: true },
-    { to: '/mentor/approvals', label: 'อนุมัติชั่วโมง', icon: CheckSquare },
+    { to: '/mentor/approvals', label: 'อนุมัติเวลา', icon: CheckSquare },
     { to: '/mentor/leave', label: 'อนุมัติการลา', icon: CalendarDays },
-    { to: '/mentor/internships', label: 'ข้อมูลการฝึกงาน', icon: Building2 },
+    { to: '/mentor/schedule', label: 'ตารางงาน', icon: CalendarDays },
+    { to: '/mentor/internships', label: 'สถานที่ฝึกงาน', icon: Building2 },
   ],
   'view-as': [], // no nav items in preview mode
 }
