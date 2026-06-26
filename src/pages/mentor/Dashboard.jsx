@@ -8,10 +8,12 @@ import {
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
+import { useViewAs } from '../../contexts/ViewAsContext'
 import { SkeletonCard, SkeletonTable } from '../../components/ui/Skeleton'
 
 export default function MentorDashboard() {
   const { user } = useAuth()
+  const { setViewingAs } = useViewAs()
   const navigate = useNavigate()
   const [interns, setInterns] = useState([])
   const [stats, setStats] = useState({ total: 0, clockedInToday: 0, pendingCount: 0 })
@@ -239,13 +241,23 @@ export default function MentorDashboard() {
                       </div>
                     </td>
                     <td>
-                      <button
-                        id={`view-intern-${s.id}`}
-                        onClick={() => navigate(`/mentor/students/${s.id}`)}
-                        className="btn-secondary btn-sm"
-                      >
-                        <Eye size={14} /> ดูรายละเอียด
-                      </button>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          id={`view-intern-${s.id}`}
+                          onClick={() => navigate(`/mentor/students/${s.id}`)}
+                          className="btn-secondary btn-sm"
+                        >
+                          <Eye size={14} /> ดูรายละเอียด
+                        </button>
+                        <button
+                          id={`mentor-view-as-${s.id}`}
+                          onClick={() => { setViewingAs({ id: s.id, full_name: s.full_name }); navigate('/view-as-student') }}
+                          className="btn-primary btn-sm flex items-center gap-1"
+                          title={`ดูหน้าในฐานะ ${s.full_name}`}
+                        >
+                          👁 ดูหน้า
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
