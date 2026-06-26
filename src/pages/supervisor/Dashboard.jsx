@@ -108,7 +108,7 @@ export default function SupervisorDashboard() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-xl font-bold text-gray-900">แดชบอร์ดอาจารย์นิเทศ</h1>
+        <h1 className="text-xl font-bold text-gray-900">แดชบอร์ดพี่เลี้ยง</h1>
         <p className="text-sm text-gray-500 mt-0.5">
           {format(new Date(), 'EEEE, d MMMM yyyy', { locale: th })}
         </p>

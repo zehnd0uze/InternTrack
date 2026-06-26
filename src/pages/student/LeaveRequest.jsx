@@ -119,7 +119,7 @@ export default function StudentLeaveRequest() {
     <div className="space-y-6 animate-fade-in">
       <div>
         <h1 className="text-xl font-bold text-gray-900">แจ้งลา ป่วย/กิจ</h1>
-        <p className="text-sm text-gray-500 mt-0.5">ส่งคำขอลาป่วยหรือลากิจเพื่อให้อาจารย์นิเทศพิจารณา</p>
+        <p className="text-sm text-gray-500 mt-0.5">ส่งคำขอลาป่วยหรือลากิจเพื่อให้พี่เลี้ยงพิจารณา</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

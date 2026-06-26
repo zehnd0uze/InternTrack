@@ -7,7 +7,7 @@ import { supabase } from '../../lib/supabase'
 import { SkeletonTable } from '../../components/ui/Skeleton'
 import ConfirmModal from '../../components/ui/ConfirmModal'
 
-const ROLE_LABELS = { student: 'นักศึกษา', supervisor: 'อาจารย์นิเทศ', admin: 'ผู้ดูแลระบบ' }
+const ROLE_LABELS = { student: 'นักศึกษา', supervisor: 'พี่เลี้ยง', admin: 'ผู้ดูแลระบบ' }
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([])
@@ -207,7 +207,7 @@ export default function AdminUsers() {
           <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)} className="select w-40">
             <option value="">ทุกบทบาท</option>
             <option value="student">นักศึกษา</option>
-            <option value="supervisor">อาจารย์นิเทศ</option>
+            <option value="supervisor">พี่เลี้ยง</option>
             <option value="admin">ผู้ดูแลระบบ</option>
           </select>
         </div>
@@ -336,7 +336,7 @@ export default function AdminUsers() {
                   className="select"
                 >
                   <option value="student">นักศึกษา</option>
-                  <option value="supervisor">อาจารย์นิเทศ</option>
+                  <option value="supervisor">พี่เลี้ยง</option>
                   <option value="admin">ผู้ดูแลระบบ</option>
                 </select>
               </div>
@@ -352,7 +352,7 @@ export default function AdminUsers() {
                   >
                     <option value="">-- ไม่มีบทบาทเสริม --</option>
                     {form.role !== 'student'    && <option value="student">นักศึกษา</option>}
-                    {form.role !== 'supervisor' && <option value="supervisor">อาจารย์นิเทศ (Supervisor)</option>}
+                    {form.role !== 'supervisor' && <option value="supervisor">พี่เลี้ยง (Supervisor)</option>}
                     {form.role !== 'admin'      && <option value="admin">ผู้ดูแลระบบ (Admin)</option>}
                   </select>
                   <p className="text-xs text-gray-400 mt-1">
