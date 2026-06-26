@@ -6,16 +6,17 @@ import toast from 'react-hot-toast'
 import { supabase } from '../../lib/supabase'
 import { SkeletonTable } from '../../components/ui/Skeleton'
 
-function downloadCSV(rows, filename) {
+import * as XLSX from 'xlsx'
+
+function downloadExcel(rows, filename) {
   const header = ['ชื่อ-นามสกุล', 'ชั่วโมงสะสม', 'เป้าหมาย', '% ความสำเร็จ', 'สถานะ']
-  const lines = [header, ...rows].map(r =>
-    r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')
-  )
-  const blob = new Blob(['\uFEFF' + lines.join('\n')], { type: 'text/csv;charset=utf-8' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url; a.download = filename; a.click()
-  URL.revokeObjectURL(url)
+  const data = [header, ...rows]
+  
+  const worksheet = XLSX.utils.aoa_to_sheet(data)
+  const workbook = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Report')
+  
+  XLSX.writeFile(workbook, filename)
 }
 
 export default function AdminReport() {
@@ -84,8 +85,8 @@ export default function AdminReport() {
       r.pct.toFixed(1) + '%',
       r.status,
     ])
-    downloadCSV(rows, `รายงานระบบ_${format(new Date(), 'yyyyMMdd')}.csv`)
-    toast.success('ดาวน์โหลด CSV แล้ว!')
+    downloadExcel(rows, `รายงานระบบ_${format(new Date(), 'yyyyMMdd')}.xlsx`)
+    toast.success('ดาวน์โหลด Excel แล้ว!')
   }
 
   return (
@@ -122,8 +123,8 @@ export default function AdminReport() {
             {loading ? 'กำลังโหลด...' : <><Search size={14}/> ดูรายงาน</>}
           </button>
           {data.length > 0 && (
-            <button id="admin-download-csv" onClick={handleDownload} className="btn-secondary btn-sm">
-              <Download size={14} /> ดาวน์โหลดทั้งหมด (CSV)
+            <button id="admin-download-excel" onClick={handleDownload} className="btn-secondary btn-sm">
+              <Download size={14} /> ดาวน์โหลดทั้งหมด (Excel)
             </button>
           )}
         </div>

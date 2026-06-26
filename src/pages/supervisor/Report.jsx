@@ -7,14 +7,17 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { SkeletonTable } from '../../components/ui/Skeleton'
 
-function downloadCSV(rows, filename) {
+import * as XLSX from 'xlsx'
+
+function downloadExcel(rows, filename) {
   const header = ['วันที่', 'เวลาเข้า', 'เวลาออก', 'ชั่วโมง', 'บันทึกประจำวัน', 'สถานะ']
-  const lines = [header, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(','))
-  const blob = new Blob(['\uFEFF' + lines.join('\n')], { type: 'text/csv;charset=utf-8' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url; a.download = filename; a.click()
-  URL.revokeObjectURL(url)
+  const data = [header, ...rows]
+  
+  const worksheet = XLSX.utils.aoa_to_sheet(data)
+  const workbook = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Report')
+  
+  XLSX.writeFile(workbook, filename)
 }
 
 export default function SupervisorReport() {
@@ -78,8 +81,8 @@ export default function SupervisorReport() {
       r.daily_logs?.[0]?.log_text || '',
       r.check_out ? 'เสร็จสิ้น' : 'ยังไม่เสร็จ',
     ])
-    downloadCSV(rows, `รายงาน_${student?.full_name}_${format(new Date(), 'yyyyMMdd')}.csv`)
-    toast.success('ดาวน์โหลด CSV แล้ว!')
+    downloadExcel(rows, `รายงาน_${student?.full_name}_${format(new Date(), 'yyyyMMdd')}.xlsx`)
+    toast.success('ดาวน์โหลด Excel แล้ว!')
   }
 
   const formatTime = dt => dt ? format(new Date(dt), 'HH:mm', { locale: th }) : '-'
@@ -119,8 +122,8 @@ export default function SupervisorReport() {
             {loading ? 'กำลังโหลด...' : <><Search size={14}/> ดูรายงาน</>}
           </button>
           {data.length > 0 && (
-            <button id="download-csv-btn" onClick={handleDownload} className="btn-secondary btn-sm">
-              <Download size={14} /> ดาวน์โหลด CSV
+            <button id="download-excel-btn" onClick={handleDownload} className="btn-secondary btn-sm">
+              <Download size={14} /> ดาวน์โหลด Excel
             </button>
           )}
         </div>
