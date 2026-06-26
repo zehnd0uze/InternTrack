@@ -23,6 +23,8 @@ import SupervisorApprovals from '../pages/supervisor/Approvals'
 import SupervisorReport from '../pages/supervisor/Report'
 import SupervisorStudentDetail from '../pages/supervisor/StudentDetail'
 
+import NotificationsPage from '../pages/Notifications'
+
 // Admin pages
 import AdminDashboard from '../pages/admin/Dashboard'
 import AdminUsers from '../pages/admin/Users'
@@ -161,6 +163,7 @@ export default function AppRouter() {
             <Route path="weekly" element={<StudentWeeklySubmit />} />
             <Route path="leave" element={<StudentLeaveRequest />} />
             <Route path="profile" element={<StudentProfile />} />
+            <Route path="notifications" element={<NotificationsPage />} />
           </Route>
 
           {/* Supervisor */}
@@ -178,6 +181,7 @@ export default function AppRouter() {
             <Route path="approvals" element={<SupervisorApprovals />} />
             <Route path="report" element={<SupervisorReport />} />
             <Route path="students/:studentId" element={<SupervisorStudentDetail />} />
+            <Route path="notifications" element={<NotificationsPage />} />
           </Route>
 
           {/* Admin */}
@@ -196,6 +200,7 @@ export default function AppRouter() {
             <Route path="report" element={<AdminReport />} />
             <Route path="placements" element={<AdminPlacements />} />
             <Route path="data" element={<AdminDataManager />} />
+            <Route path="notifications" element={<NotificationsPage />} />
           </Route>
 
           {/* Mentor */}
@@ -214,6 +219,7 @@ export default function AppRouter() {
             <Route path="leave" element={<MentorLeaveApprovals />} />
             <Route path="internships" element={<MentorInternships />} />
             <Route path="students/:studentId" element={<MentorStudentDetail />} />
+            <Route path="notifications" element={<NotificationsPage />} />
           </Route>
 
           {/* View As Student — accessible by admin, supervisor & mentor */}

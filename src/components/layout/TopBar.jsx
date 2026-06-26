@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink, Link, useNavigate } from 'react-router-dom'
 import { Menu, Bell, ChevronDown, UserCircle } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useNotifications } from '../../contexts/NotificationContext'
@@ -130,6 +130,17 @@ export default function TopBar({ onMenuClick }) {
                     ))
                   )}
                 </div>
+                {notifications.length > 0 && (
+                  <div className="px-4 py-2 border-t border-gray-100 bg-gray-50 text-center">
+                    <Link
+                      to={`/${activeRole}/notifications`}
+                      onClick={() => setNotifOpen(false)}
+                      className="text-xs font-semibold text-primary-600 hover:text-primary-800"
+                    >
+                      ดูการแจ้งเตือนทั้งหมด
+                    </Link>
+                  </div>
+                )}
               </div>
             )}
           </div>
