@@ -7,6 +7,8 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
+  // activeRole: the role currently displayed — can be profile.role or profile.secondary_role
+  const [activeRole, setActiveRole] = useState(null)
 
   useEffect(() => {
     // Get initial session
@@ -27,6 +29,7 @@ export function AuthProvider({ children }) {
           await fetchProfile(session.user.id)
         } else {
           setProfile(null)
+          setActiveRole(null)
           setLoading(false)
         }
       }
@@ -45,6 +48,8 @@ export function AuthProvider({ children }) {
 
       if (error) throw error
       setProfile(data)
+      // Reset active role to primary role on profile refresh
+      setActiveRole(data.role)
     } catch (err) {
       console.error('Error fetching profile:', err)
     } finally {
@@ -60,22 +65,19 @@ export function AuthProvider({ children }) {
     return { data, error }
   }
 
-  const signUp = async (email, password, fullName, studentCode) => {
-    const { data, error } = await supabase.auth.signUp({ 
-      email, 
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-          role: 'student',
-          student_code: studentCode
-        }
-      }
-    })
-    
-    // The database trigger handle_new_user will automatically create the user profile
-    // We do not need to manually upsert it here (which would fail anyway since the user has no session yet)
-    
+  const signUp = async (email, password, fullName) => {
+    const { data, error } = await supabase.auth.signUp({ email, password })
+    if (!error && data.user) {
+      // Insert profile row; trigger may also do this, upsert is safe
+      await supabase.from('users').upsert({
+        id: data.user.id,
+        email,
+        full_name: fullName,
+        role: 'student',
+        is_active: true,
+        target_hours: 240,
+      })
+    }
     return { data, error }
   }
 
@@ -84,6 +86,7 @@ export function AuthProvider({ children }) {
     if (!error) {
       setUser(null)
       setProfile(null)
+      setActiveRole(null)
     }
     return { error }
   }
@@ -94,6 +97,20 @@ export function AuthProvider({ children }) {
     }
   }
 
+  /**
+   * switchRole — toggles between primary role and secondary_role.
+   * Only available if profile.secondary_role is set.
+   */
+  const switchRole = () => {
+    if (!profile?.secondary_role) return
+    setActiveRole(prev =>
+      prev === profile.role ? profile.secondary_role : profile.role
+    )
+  }
+
+  // Convenience booleans based on activeRole (not profile.role directly)
+  const resolvedRole = activeRole || profile?.role || null
+
   const value = {
     user,
     profile,
@@ -102,11 +119,19 @@ export function AuthProvider({ children }) {
     signUp,
     signOut,
     refreshProfile,
-    role: profile?.role ?? null,
-    isStudent: profile?.role === 'student',
-    isSupervisor: profile?.role === 'supervisor',
-    isAdmin: profile?.role === 'admin',
-    isMentor: profile?.role === 'mentor',
+    switchRole,
+    activeRole: resolvedRole,
+    // Keep role as the actual DB role for data queries / RLS
+    role: resolvedRole,
+    isStudent: resolvedRole === 'student',
+    isSupervisor: resolvedRole === 'supervisor',
+    isAdmin: resolvedRole === 'admin',
+    // Whether this user has a secondary role available
+    hasDualRole: !!(profile?.secondary_role),
+    // The "other" role they can switch to
+    alternateRole: profile?.secondary_role
+      ? (resolvedRole === profile.role ? profile.secondary_role : profile.role)
+      : null,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { format, startOfWeek, startOfMonth, differenceInSeconds, parseISO } from 'date-fns'
 import { th } from 'date-fns/locale'
-import { Clock, CheckCircle, XCircle, BookOpen, Calendar, Target, AlertTriangle, Printer } from 'lucide-react'
+import { Clock, CheckCircle, XCircle, BookOpen, Calendar, Target, AlertTriangle, Printer, Eye } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
+import { useViewAs } from '../../contexts/ViewAsContext'
 import { SkeletonCard, SkeletonTable } from '../../components/ui/Skeleton'
 import ConfirmModal from '../../components/ui/ConfirmModal'
 import AttendanceCalendar from '../../components/ui/AttendanceCalendar'
@@ -38,6 +39,10 @@ const STATUS_MAP = {
 
 export default function StudentDashboard() {
   const { user, profile } = useAuth()
+  const { viewingAs } = useViewAs()
+  // In preview mode, fetch data for the viewed student instead of the logged-in user
+  const effectiveUserId = viewingAs?.id ?? user.id
+  const isReadOnly = !!viewingAs
 
   // --- State ---
   const [today, setToday] = useState(null) // today's attendance record
@@ -73,14 +78,14 @@ export default function StudentDashboard() {
     const { data, error } = await supabase
       .from('attendance')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('user_id', effectiveUserId)
       .eq('date', todayStr)
       .maybeSingle()
 
     if (error) console.error(error)
     setToday(data || null)
     setLoading(false)
-  }, [user.id])
+  }, [effectiveUserId])
 
   const fetchStats = useCallback(async () => {
     setStatsLoading(true)
@@ -88,9 +93,9 @@ export default function StudentDashboard() {
     const monthStart = format(startOfMonth(new Date()), 'yyyy-MM-dd')
 
     const [allRes, weekRes, monthRes] = await Promise.all([
-      supabase.from('attendance').select('hours_worked').eq('user_id', user.id).not('check_out', 'is', null),
-      supabase.from('attendance').select('hours_worked').eq('user_id', user.id).gte('date', weekStart).not('check_out', 'is', null),
-      supabase.from('attendance').select('id').eq('user_id', user.id).gte('date', monthStart).not('check_out', 'is', null),
+      supabase.from('attendance').select('hours_worked').eq('user_id', effectiveUserId).not('check_out', 'is', null),
+      supabase.from('attendance').select('hours_worked').eq('user_id', effectiveUserId).gte('date', weekStart).not('check_out', 'is', null),
+      supabase.from('attendance').select('id').eq('user_id', effectiveUserId).gte('date', monthStart).not('check_out', 'is', null),
     ])
 
     const totalHours = (allRes.data || []).reduce((s, r) => s + (parseFloat(r.hours_worked) || 0), 0)
@@ -100,7 +105,7 @@ export default function StudentDashboard() {
 
     setStats({ totalHours, weekHours, monthDays, totalDays })
     setStatsLoading(false)
-  }, [user.id])
+  }, [effectiveUserId])
 
   const fetchLog = useCallback(async () => {
     if (!today?.id) return
@@ -117,17 +122,12 @@ export default function StudentDashboard() {
 
   const fetchHistory = useCallback(async () => {
     setHistoryLoading(true)
-    let query = supabase
-      .from('attendance')
-      .select('*, weekly_approvals!attendance_weekly_approval_fkey(status)', { count: 'exact' })
-      .eq('user_id', user.id)
-      .order('date', { ascending: false })
 
-    // Build a simpler query without join if the FK approach is complex
+    // Build query for effective user (view-as or own)
     let q2 = supabase
       .from('attendance')
       .select('*', { count: 'exact' })
-      .eq('user_id', user.id)
+      .eq('user_id', effectiveUserId)
       .order('date', { ascending: false })
 
     if (dateFrom) q2 = q2.gte('date', dateFrom)
@@ -139,7 +139,7 @@ export default function StudentDashboard() {
     setHistory(data || [])
     setHistoryTotal(count || 0)
     setHistoryLoading(false)
-  }, [user.id, historyPage, dateFrom, dateTo])
+  }, [effectiveUserId, historyPage, dateFrom, dateTo])
 
   // ---- Timer ----
   useEffect(() => {
@@ -160,6 +160,7 @@ export default function StudentDashboard() {
 
   // ---- Clock In ----
   const handleClockIn = async () => {
+    if (isReadOnly) { toast('👁 โหมดดูอย่างเดียว — ไม่สามารถเช็คอินได้', { icon: '🔒' }); return }
     const now = new Date()
     const hour = now.getHours()
 
@@ -173,7 +174,7 @@ export default function StudentDashboard() {
     const { data: existing } = await supabase
       .from('attendance')
       .select('id')
-      .eq('user_id', user.id)
+      .eq('user_id', effectiveUserId)
       .eq('date', todayStr)
       .maybeSingle()
 
@@ -184,7 +185,7 @@ export default function StudentDashboard() {
     }
 
     const { error } = await supabase.from('attendance').insert({
-      user_id: user.id,
+      user_id: effectiveUserId,
       check_in: now.toISOString(),
       date: todayStr,
     })
@@ -200,6 +201,7 @@ export default function StudentDashboard() {
 
   // ---- Clock Out ----
   const doClockOut = async () => {
+    if (isReadOnly) { setClockOutModal(false); toast('👁 โหมดดูอย่างเดียว — ไม่สามารถเช็คเอาท์ได้', { icon: '🔒' }); return }
     setClockOutModal(false)
     if (!today?.id) return
 
@@ -240,6 +242,7 @@ export default function StudentDashboard() {
 
   // ---- Save Log ----
   const handleSaveLog = async () => {
+    if (isReadOnly) { toast('👁 โหมดดูอย่างเดียว — ไม่สามารถบันทึกได้', { icon: '🔒' }); return }
     if (!today?.id) { toast.error('ต้องเช็คอินก่อนบันทึกบันทึกประจำวัน'); return }
     if (!logText.trim()) { toast.error('กรุณากรอกสรุปงานประจำวัน'); return }
 
@@ -248,7 +251,7 @@ export default function StudentDashboard() {
 
     // Upsert
     const { error } = await supabase.from('daily_logs').upsert({
-      user_id: user.id,
+      user_id: effectiveUserId,
       attendance_id: today.id,
       log_text: logText.trim(),
       date: todayStr,
@@ -273,7 +276,14 @@ export default function StudentDashboard() {
     <div className="space-y-6 animate-fade-in">
       {/* Page Title */}
       <div>
-        <h1 className="text-xl font-bold text-gray-900">แดชบอร์ดนักศึกษา</h1>
+        <h1 className="text-xl font-bold text-gray-900">
+          {isReadOnly ? (
+            <span className="flex items-center gap-2">
+              <Eye size={20} className="text-amber-500" />
+              แดชบอร์ดของ {viewingAs?.full_name}
+            </span>
+          ) : 'แดชบอร์ดนักศึกษา'}
+        </h1>
         <p className="text-sm text-gray-500 mt-0.5">
           {format(new Date(), 'EEEE, d MMMM yyyy', { locale: th })}
         </p>
@@ -468,12 +478,13 @@ export default function StudentDashboard() {
 
         <textarea
           id="daily-log-textarea"
-          className="textarea h-28"
-          placeholder="สรุปงานที่ทำวันนี้... (ไม่เกิน 500 ตัวอักษร)"
+          className={`textarea h-28 ${isReadOnly ? 'opacity-70 cursor-not-allowed bg-gray-50' : ''}`}
+          placeholder={isReadOnly ? '🔒 โหมดดูอย่างเดียว' : 'สรุปงานที่ทำวันนี้... (ไม่เกิน 500 ตัวอักษร)'}
           maxLength={500}
           value={logText}
-          onChange={e => { setLogText(e.target.value); setLogSaved(false) }}
-          disabled={!today?.id}
+          onChange={e => { if (!isReadOnly) { setLogText(e.target.value); setLogSaved(false) } }}
+          disabled={!today?.id || isReadOnly}
+          readOnly={isReadOnly}
         />
         <div className="flex items-center justify-between mt-2">
           <span className={`text-xs ${logText.length > 450 ? 'text-danger' : 'text-gray-400'}`}>

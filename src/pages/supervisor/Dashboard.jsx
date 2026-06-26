@@ -5,11 +5,13 @@ import { Users, UserCheck, Clock, AlertCircle, Search, Eye } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
+import { useViewAs } from '../../contexts/ViewAsContext'
 import { SkeletonCard, SkeletonTable } from '../../components/ui/Skeleton'
 
 export default function SupervisorDashboard() {
   const { user } = useAuth()
   const navigate = useNavigate()
+  const { setViewingAs } = useViewAs()
   const [students, setStudents] = useState([])
   const [stats, setStats] = useState({ total: 0, clockedInToday: 0, pendingCount: 0 })
   const [loading, setLoading] = useState(true)
@@ -211,13 +213,23 @@ export default function SupervisorDashboard() {
                       </div>
                     </td>
                     <td>
-                      <button
-                        id={`view-student-${s.id}`}
-                        onClick={() => navigate(`/supervisor/students/${s.id}`)}
-                        className="btn-secondary btn-sm"
-                      >
-                        <Eye size={14} /> ดูรายละเอียด
-                      </button>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          id={`view-student-${s.id}`}
+                          onClick={() => navigate(`/supervisor/students/${s.id}`)}
+                          className="btn-secondary btn-sm"
+                        >
+                          <Eye size={14} /> ดูรายละเอียด
+                        </button>
+                        <button
+                          id={`supervisor-view-as-${s.id}`}
+                          onClick={() => { setViewingAs({ id: s.id, full_name: s.full_name }); navigate('/view-as-student') }}
+                          className="btn-primary btn-sm flex items-center gap-1"
+                          title={`ดูหน้าในฐานะ ${s.full_name}`}
+                        >
+                          👁 ดูหน้า
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

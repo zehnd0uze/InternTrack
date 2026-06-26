@@ -1,6 +1,7 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { NotificationProvider } from '../contexts/NotificationContext'
+import { ViewAsProvider, useViewAs } from '../contexts/ViewAsContext'
 
 // Layouts
 import AppLayout from '../components/layout/AppLayout'
@@ -12,9 +13,6 @@ import Register from '../pages/Register'
 // Student pages
 import StudentDashboard from '../pages/student/Dashboard'
 import StudentWeeklySubmit from '../pages/student/WeeklySubmit'
-import StudentProfile from '../pages/student/Profile'
-import StudentPrintableLog from '../pages/student/PrintableLog'
-import StudentLeaveRequest from '../pages/student/LeaveRequest'
 
 // Supervisor pages
 import SupervisorDashboard from '../pages/supervisor/Dashboard'
@@ -28,62 +26,78 @@ import AdminUsers from '../pages/admin/Users'
 import AdminReport from '../pages/admin/Report'
 import AdminDataManager from '../pages/admin/DataManager'
 
-// Mentor pages
-import MentorDashboard from '../pages/mentor/Dashboard'
-import MentorApprovals from '../pages/mentor/Approvals'
-import MentorStudentDetail from '../pages/mentor/StudentDetail'
-import MentorInternships from '../pages/mentor/Internships'
-import MentorLeaveApprovals from '../pages/mentor/LeaveApprovals'
-
 // Skeletons / loading
 import PageLoader from '../components/ui/PageLoader'
 
 function RequireAuth({ children, allowedRoles }) {
-  const { user, profile, loading } = useAuth()
+  const { user, profile, loading, activeRole } = useAuth()
 
   if (loading) return <PageLoader />
   if (!user) return <Navigate to="/login" replace />
 
-  if (allowedRoles && profile && !allowedRoles.includes(profile.role)) {
+  if (allowedRoles && profile && !allowedRoles.includes(activeRole)) {
     // Redirect to correct role home
     const roleHome = {
       student: '/student',
       supervisor: '/supervisor',
       admin: '/admin',
     }
-    return <Navigate to={roleHome[profile.role] || '/login'} replace />
+    return <Navigate to={roleHome[activeRole] || '/login'} replace />
   }
 
   return children
 }
 
 function RoleRedirect() {
-  const { user, profile, loading, signOut } = useAuth()
+  const { profile, loading, activeRole } = useAuth()
   if (loading) return <PageLoader />
-  
-  if (user && !profile) {
-    // Break the infinite loop if user is authenticated but profile is missing
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-        <div className="bg-white p-6 rounded-xl shadow-lg max-w-sm w-full text-center space-y-4">
-          <div className="text-red-500 font-semibold">Error: User profile not found</div>
-          <p className="text-sm text-gray-500">
-            Please make sure the database tables are created, then sign out and register again.
-          </p>
-          <button 
-            onClick={() => signOut()}
-            className="w-full bg-primary-700 text-white rounded-lg py-2 hover:bg-primary-800 transition-colors"
-          >
-            Sign Out
-          </button>
-        </div>
-      </div>
-    )
+  if (!profile) return <Navigate to="/login" replace />
+  const map = { student: '/student', supervisor: '/supervisor', admin: '/admin' }
+  return <Navigate to={map[activeRole] || '/login'} replace />
+}
+
+/**
+ * ViewAsStudentPage — renders the Student Dashboard inside the
+ * admin or supervisor layout, with a "viewing as" banner.
+ * Accessible only to admin/supervisor.
+ */
+function ViewAsStudentPage() {
+  const { viewingAs, exitViewAs } = useViewAs()
+  const navigate = useNavigate()
+  const { activeRole } = useAuth()
+
+  const handleExit = () => {
+    exitViewAs()
+    navigate(activeRole === 'admin' ? '/admin' : '/supervisor')
   }
 
-  if (!profile) return <Navigate to="/login" replace />
-  const map = { student: '/student', supervisor: '/supervisor', admin: '/admin', mentor: '/mentor' }
-  return <Navigate to={map[profile.role] || '/login'} replace />
+  return (
+    <div className="space-y-0">
+      {/* View-As Banner */}
+      <div className="sticky top-0 z-30 bg-amber-500 text-white px-4 py-2.5 flex items-center justify-between shadow-md">
+        <div className="flex items-center gap-2 text-sm font-medium">
+          <span className="text-lg">👁</span>
+          <span>
+            กำลังดูในฐานะ:{' '}
+            <strong>{viewingAs?.full_name || 'นักศึกษา'}</strong>
+            {' '}—{' '}
+            <span className="font-normal opacity-90">โหมดดูอย่างเดียว (ไม่สามารถแก้ไขข้อมูลได้)</span>
+          </span>
+        </div>
+        <button
+          onClick={handleExit}
+          className="flex items-center gap-1.5 bg-white/20 hover:bg-white/30 transition-colors px-3 py-1 rounded-lg text-sm font-semibold"
+        >
+          ✕ ออกจากโหมดดู
+        </button>
+      </div>
+      <div className="p-4 md:p-6">
+        <div className="max-w-7xl mx-auto">
+          <StudentDashboard />
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export default function AppRouter() {
@@ -92,100 +106,87 @@ export default function AppRouter() {
   if (loading) return <PageLoader />
 
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Public */}
-        <Route
-          path="/login"
-          element={user ? <RoleRedirect /> : <Login />}
-        />
-        <Route
-          path="/register"
-          element={user ? <RoleRedirect /> : <Register />}
-        />
+    <ViewAsProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Public */}
+          <Route
+            path="/login"
+            element={user ? <RoleRedirect /> : <Login />}
+          />
+          <Route
+            path="/register"
+            element={user ? <RoleRedirect /> : <Register />}
+          />
 
-        {/* Student */}
-        <Route
-          path="/student"
-          element={
-            <RequireAuth allowedRoles={['student']}>
-              <NotificationProvider>
-                <AppLayout role="student" />
-              </NotificationProvider>
-            </RequireAuth>
-          }
-        >
-          <Route index element={<StudentDashboard />} />
-          <Route path="weekly" element={<StudentWeeklySubmit />} />
-          <Route path="profile" element={<StudentProfile />} />
-          <Route path="leave" element={<StudentLeaveRequest />} />
-        </Route>
+          {/* Student */}
+          <Route
+            path="/student"
+            element={
+              <RequireAuth allowedRoles={['student']}>
+                <NotificationProvider>
+                  <AppLayout role="student" />
+                </NotificationProvider>
+              </RequireAuth>
+            }
+          >
+            <Route index element={<StudentDashboard />} />
+            <Route path="weekly" element={<StudentWeeklySubmit />} />
+          </Route>
 
-        <Route
-          path="/student/print-log"
-          element={
-            <RequireAuth allowedRoles={['student']}>
-              <StudentPrintableLog />
-            </RequireAuth>
-          }
-        />
+          {/* Supervisor */}
+          <Route
+            path="/supervisor"
+            element={
+              <RequireAuth allowedRoles={['supervisor']}>
+                <NotificationProvider>
+                  <AppLayout role="supervisor" />
+                </NotificationProvider>
+              </RequireAuth>
+            }
+          >
+            <Route index element={<SupervisorDashboard />} />
+            <Route path="approvals" element={<SupervisorApprovals />} />
+            <Route path="report" element={<SupervisorReport />} />
+            <Route path="students/:studentId" element={<SupervisorStudentDetail />} />
+          </Route>
 
-        {/* Supervisor */}
-        <Route
-          path="/supervisor"
-          element={
-            <RequireAuth allowedRoles={['supervisor']}>
-              <NotificationProvider>
-                <AppLayout role="supervisor" />
-              </NotificationProvider>
-            </RequireAuth>
-          }
-        >
-          <Route index element={<SupervisorDashboard />} />
-          <Route path="approvals" element={<SupervisorApprovals />} />
-          <Route path="report" element={<SupervisorReport />} />
-          <Route path="students/:studentId" element={<SupervisorStudentDetail />} />
-        </Route>
+          {/* Admin */}
+          <Route
+            path="/admin"
+            element={
+              <RequireAuth allowedRoles={['admin']}>
+                <NotificationProvider>
+                  <AppLayout role="admin" />
+                </NotificationProvider>
+              </RequireAuth>
+            }
+          >
+            <Route index element={<AdminDashboard />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="report" element={<AdminReport />} />
+            <Route path="data" element={<AdminDataManager />} />
+          </Route>
 
-        {/* Admin */}
-        <Route
-          path="/admin"
-          element={
-            <RequireAuth allowedRoles={['admin']}>
-              <NotificationProvider>
-                <AppLayout role="admin" />
-              </NotificationProvider>
-            </RequireAuth>
-          }
-        >
-          <Route index element={<AdminDashboard />} />
-          <Route path="users" element={<AdminUsers />} />
-          <Route path="report" element={<AdminReport />} />
-          <Route path="data" element={<AdminDataManager />} />
-        </Route>
+          {/* View As Student — accessible by admin & supervisor */}
+          <Route
+            path="/view-as-student"
+            element={
+              <RequireAuth allowedRoles={['admin', 'supervisor']}>
+                <NotificationProvider>
+                  <AppLayout role="view-as" />
+                </NotificationProvider>
+              </RequireAuth>
+            }
+          >
+            <Route index element={<ViewAsStudentPage />} />
+          </Route>
 
-        {/* Mentor */}
-        <Route
-          path="/mentor"
-          element={
-            <RequireAuth allowedRoles={['mentor']}>
-              <NotificationProvider>
-                <AppLayout role="mentor" />
-              </NotificationProvider>
-            </RequireAuth>
-          }
-        >
-          <Route index element={<MentorDashboard />} />
-          <Route path="approvals" element={<MentorApprovals />} />
-          <Route path="internships" element={<MentorInternships />} />
-          <Route path="leave" element={<MentorLeaveApprovals />} />
-          <Route path="students/:studentId" element={<MentorStudentDetail />} />
-        </Route>
-
-        {/* Root redirect */}
-        <Route path="/" element={<RoleRedirect />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+          {/* Root redirect */}
+          <Route path="/" element={<RoleRedirect />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </ViewAsProvider>
   )
 }

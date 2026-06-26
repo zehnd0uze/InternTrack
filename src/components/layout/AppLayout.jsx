@@ -8,32 +8,39 @@ export default function AppLayout({ role }) {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
 
+  // In view-as mode, hide sidebar entirely for a clean preview
+  const isViewAs = role === 'view-as'
+
   return (
     <div className="flex h-screen bg-surface overflow-hidden">
-      {/* Desktop Sidebar */}
-      <div className={`hidden md:flex flex-col transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-16'}`}>
-        <Sidebar
-          role={role}
-          collapsed={!sidebarOpen}
-          onToggle={() => setSidebarOpen(prev => !prev)}
-        />
-      </div>
+      {/* Desktop Sidebar — hidden in view-as mode */}
+      {!isViewAs && (
+        <div className={`hidden md:flex flex-col transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-16'}`}>
+          <Sidebar
+            role={role}
+            collapsed={!sidebarOpen}
+            onToggle={() => setSidebarOpen(prev => !prev)}
+          />
+        </div>
+      )}
 
-      {/* Mobile Sidebar Overlay */}
-      {mobileSidebarOpen && (
+      {/* Mobile Sidebar Overlay — hidden in view-as mode */}
+      {!isViewAs && mobileSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 md:hidden"
           onClick={() => setMobileSidebarOpen(false)}
         />
       )}
-      <div className={`fixed top-0 left-0 h-full w-64 z-50 md:hidden transition-transform duration-300 ${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <Sidebar
-          role={role}
-          collapsed={false}
-          onToggle={() => setMobileSidebarOpen(false)}
-          mobile
-        />
-      </div>
+      {!isViewAs && (
+        <div className={`fixed top-0 left-0 h-full w-64 z-50 md:hidden transition-transform duration-300 ${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+          <Sidebar
+            role={role}
+            collapsed={false}
+            onToggle={() => setMobileSidebarOpen(false)}
+            mobile
+          />
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
@@ -42,10 +49,14 @@ export default function AppLayout({ role }) {
           sidebarOpen={sidebarOpen}
         />
 
-        <main className={`flex-1 overflow-y-auto p-4 md:p-6 ${role === 'student' ? 'pb-20 md:pb-6' : ''}`}>
-          <div className="max-w-7xl mx-auto">
+        <main className={`flex-1 overflow-y-auto ${isViewAs ? '' : 'p-4 md:p-6'} ${role === 'student' ? 'pb-20 md:pb-6' : ''}`}>
+          {isViewAs ? (
             <Outlet />
-          </div>
+          ) : (
+            <div className="max-w-7xl mx-auto">
+              <Outlet />
+            </div>
+          )}
         </main>
       </div>
 

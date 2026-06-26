@@ -22,7 +22,7 @@ export default function AdminUsers() {
 
   const [form, setForm] = useState({
     full_name: '', email: '', role: 'student',
-    student_code: '', supervisor_id: '', target_hours: 1596, password: ''
+    student_code: '', supervisor_id: '', target_hours: 1596, password: '', secondary_role: ''
   })
 
   const fetchUsers = useCallback(async () => {
@@ -60,7 +60,8 @@ export default function AdminUsers() {
       student_code: u.student_code || '',
       supervisor_id: u.supervisor_id || '',
       target_hours: u.target_hours || 1596,
-      password: ''
+      password: '',
+      secondary_role: u.secondary_role || ''
     })
     setShowModal(true)
   }
@@ -74,6 +75,7 @@ export default function AdminUsers() {
       const updates = {
         full_name: form.full_name,
         role: form.role,
+        secondary_role: form.secondary_role || null,
         student_code: form.role === 'student' ? form.student_code || null : null,
         supervisor_id: form.role === 'student' ? form.supervisor_id || null : null,
         target_hours: form.role === 'student' ? parseInt(form.target_hours) : null,
@@ -327,7 +329,7 @@ export default function AdminUsers() {
               )}
 
               <div>
-                <label className="label">บทบาท *</label>
+                <label className="label">บทบาทหลัก *</label>
                 <select
                   value={form.role}
                   onChange={e => setForm(p => ({ ...p, role: e.target.value }))}
@@ -338,6 +340,23 @@ export default function AdminUsers() {
                   <option value="admin">ผู้ดูแลระบบ</option>
                 </select>
               </div>
+
+              {/* Secondary Role — only for admin/supervisor */}
+              {editUser && form.role !== 'student' && (
+                <div>
+                  <label className="label">บทบาทเสริม (สำหรับผู้ใช้ Dual-Role)</label>
+                  <select
+                    value={form.secondary_role}
+                    onChange={e => setForm(p => ({ ...p, secondary_role: e.target.value }))}
+                    className="select"
+                  >
+                    <option value="">-- ไม่มีบทบาทเสริม --</option>
+                    {form.role === 'admin' && <option value="supervisor">อาจารย์นิเทศ</option>}
+                    {form.role === 'supervisor' && <option value="admin">ผู้ดูแลระบบ</option>}
+                  </select>
+                  <p className="text-xs text-gray-400 mt-1">ผู้ใช้จะสามารถสลับระหว่างสองบทบาทได้ใน Sidebar</p>
+                </div>
+              )}
 
               {form.role === 'student' && (
                 <>

@@ -4,14 +4,16 @@ import { th } from 'date-fns/locale'
 import {
   Users, UserCheck, AlertCircle, CheckCircle, BarChart3,
   Clock, FileText, Activity, RefreshCw, Wifi, WifiOff,
-  ChevronUp, ChevronDown, Check, X as XIcon
+  ChevronUp, ChevronDown, Check, X as XIcon, Eye
 } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Legend
 } from 'recharts'
 import toast from 'react-hot-toast'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
+import { useViewAs } from '../../contexts/ViewAsContext'
 import { SkeletonCard } from '../../components/ui/Skeleton'
 
 // ─── Live badge ────────────────────────────────────────────────────────────────
@@ -66,6 +68,8 @@ function StatCard({ icon: Icon, label, value, color, borderColor, loading }) {
 const COLORS = ['#1B3A6B','#3b82f6','#10B981','#F59E0B','#EF4444','#8b5cf6','#f97316','#06b6d4']
 
 export default function AdminDashboard() {
+  const navigate = useNavigate()
+  const { setViewingAs } = useViewAs()
   const [stats, setStats] = useState({ totalStudents: 0, clockedToday: 0, pendingApprovals: 0, approvedThisWeek: 0 })
   const [statsLoading, setStatsLoading] = useState(true)
   const [liveAttendance, setLiveAttendance] = useState([])
@@ -410,6 +414,7 @@ export default function AdminDashboard() {
                   <th className="w-48">ความคืบหน้า</th>
                   <th>ชั่วโมงสะสม</th>
                   <th>เป้าหมาย</th>
+                  <th>ดูหน้า</th>
                 </tr>
               </thead>
               <tbody>
@@ -426,6 +431,16 @@ export default function AdminDashboard() {
                     <td><ProgressBar pct={s.pct} /></td>
                     <td className="font-semibold text-primary-700">{s.totalHours.toFixed(1)} <span className="text-xs text-gray-400">ชม.</span></td>
                     <td className="text-gray-500 text-sm">{s.target_hours} ชม.</td>
+                    <td>
+                      <button
+                        id={`admin-view-as-${s.id}`}
+                        onClick={() => { setViewingAs({ id: s.id, full_name: s.full_name }); navigate('/view-as-student') }}
+                        className="btn-secondary btn-sm flex items-center gap-1"
+                        title={`ดูหน้าในฐานะ ${s.full_name}`}
+                      >
+                        <Eye size={13} /> ดูหน้า
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
