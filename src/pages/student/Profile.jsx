@@ -49,9 +49,9 @@ export default function StudentProfile() {
       if (trimmedEmail && trimmedEmail !== user.email) {
         const { error: emailErr } = await supabase.auth.updateUser({ email: trimmedEmail })
         if (emailErr) throw emailErr
-        toast.success('บันทึกชื่อสำเร็จ! ระบบส่งลิงก์ยืนยันไปยังอีเมลใหม่แล้ว 📧')
+        toast.success('บันทึกชื่อสำเร็จ! ระบบส่งลิงก์ยืนยันไปยังอีเมลใหม่แล้ว')
       } else {
-        toast.success('บันทึกข้อมูลโปรไฟล์สำเร็จ ✅')
+        toast.success('บันทึกข้อมูลโปรไฟล์สำเร็จ')
       }
 
       await refreshProfile()
@@ -83,7 +83,7 @@ export default function StudentProfile() {
       const { error: pwErr } = await supabase.auth.updateUser({ password: newPassword })
       if (pwErr) throw pwErr
 
-      toast.success('เปลี่ยนรหัสผ่านสำเร็จ 🔐')
+      toast.success('เปลี่ยนรหัสผ่านสำเร็จ')
       setCurrentPassword('')
       setNewPassword('')
       setConfirmPassword('')

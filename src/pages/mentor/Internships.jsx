@@ -145,7 +145,7 @@ function PlacementFormFields({
         {startDate && endDate && (
           <div className="mt-2.5 p-3 bg-primary-50 rounded-xl border border-primary-100 text-xs text-primary-800 space-y-1.5 shadow-sm">
             <p className="font-semibold text-primary-900 flex items-center gap-1">
-              <span>💡</span> แนะนำจากการคำนวณช่วงวันที่เลือก (ทำงาน จ.-ส. 8.00-16.00 น.):
+              <span>แนะนำจากการคำนวณช่วงวันที่เลือก (ทำงาน จ.-ส. 8.00-16.00 น.):</span>
             </p>
             <ul className="list-disc list-inside pl-1 space-y-1 text-gray-700">
               <li>จำนวนวันทำงานทั้งหมด: <span className="font-bold text-gray-900">{calculateWorkingHours(startDate, endDate)?.workingDays} วัน</span></li>

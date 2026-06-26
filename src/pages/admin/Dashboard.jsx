@@ -325,7 +325,7 @@ export default function AdminDashboard() {
                     </span>
                   )}
                   {!a.check_out && (
-                    <span className="text-xs text-green-600 font-medium flex-shrink-0">🟢 อยู่</span>
+                    <span className="text-xs text-green-600 font-medium flex-shrink-0">ใช้งานอยู่</span>
                   )}
                 </div>
               ))}

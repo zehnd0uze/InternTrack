@@ -213,7 +213,7 @@ export default function StudentDashboard() {
 
   // ---- Clock In ----
   const handleClockIn = async () => {
-    if (isReadOnly) { toast('👁 โหมดดูอย่างเดียว — ไม่สามารถเช็คอินได้', { icon: '🔒' }); return }
+    if (isReadOnly) { toast('โหมดดูอย่างเดียว — ไม่สามารถเช็คอินได้', { icon: '🔒' }); return }
     const now = new Date()
     const hour = now.getHours()
 
@@ -247,14 +247,14 @@ export default function StudentDashboard() {
     if (error) {
       toast.error('เช็คอินล้มเหลว กรุณาลองใหม่')
     } else {
-      toast.success('เช็คอินสำเร็จ! 🎉')
+      toast.success('เช็คอินสำเร็จ!')
       fetchToday()
     }
   }
 
   // ---- Clock Out ----
   const doClockOut = async () => {
-    if (isReadOnly) { setClockOutModal(false); toast('👁 โหมดดูอย่างเดียว — ไม่สามารถเช็คเอาท์ได้', { icon: '🔒' }); return }
+    if (isReadOnly) { setClockOutModal(false); toast('โหมดดูอย่างเดียว — ไม่สามารถเช็คเอาท์ได้', { icon: '🔒' }); return }
     setClockOutModal(false)
     if (!today?.id) return
 
@@ -295,7 +295,7 @@ export default function StudentDashboard() {
 
   // ---- Save Log ----
   const handleSaveLog = async () => {
-    if (isReadOnly) { toast('👁 โหมดดูอย่างเดียว — ไม่สามารถบันทึกได้', { icon: '🔒' }); return }
+    if (isReadOnly) { toast('โหมดดูอย่างเดียว — ไม่สามารถบันทึกได้', { icon: '🔒' }); return }
     if (!today?.id) { toast.error('ต้องเช็คอินก่อนบันทึกบันทึกประจำวัน'); return }
     if (!logText.trim()) { toast.error('กรุณากรอกสรุปงานประจำวัน'); return }
 
@@ -537,7 +537,7 @@ export default function StudentDashboard() {
         <textarea
           id="daily-log-textarea"
           className={`textarea h-28 ${isReadOnly ? 'opacity-70 cursor-not-allowed bg-gray-50' : ''}`}
-          placeholder={isReadOnly ? '🔒 โหมดดูอย่างเดียว' : 'สรุปงานที่ทำวันนี้... (ไม่เกิน 500 ตัวอักษร)'}
+          placeholder={isReadOnly ? 'โหมดดูอย่างเดียว' : 'สรุปงานที่ทำวันนี้... (ไม่เกิน 500 ตัวอักษร)'}
           maxLength={500}
           value={logText}
           onChange={e => { if (!isReadOnly) { setLogText(e.target.value); setLogSaved(false) } }}

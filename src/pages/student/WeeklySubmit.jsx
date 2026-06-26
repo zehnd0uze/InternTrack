@@ -97,7 +97,7 @@ export default function StudentWeeklySubmit() {
         toast.error('ส่งคำขอล้มเหลว')
       }
     } else {
-      toast.success('ส่งคำขออนุมัติแล้ว! 📤')
+      toast.success('ส่งคำขออนุมัติแล้ว!')
       fetchWeeks()
     }
   }

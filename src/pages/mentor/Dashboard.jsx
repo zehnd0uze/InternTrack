@@ -255,7 +255,7 @@ export default function MentorDashboard() {
                           className="btn-primary btn-sm flex items-center gap-1"
                           title={`ดูหน้าในฐานะ ${s.full_name}`}
                         >
-                          👁 ดูหน้า
+                          ดูหน้า
                         </button>
                       </div>
                     </td>

@@ -73,7 +73,7 @@ export default function ScheduleCalendar({ events, onSelectEvent, onSelectSlot, 
       const [year, month, day] = h.date.split('-').map(Number)
       return {
         id: `holiday-${h.date}`,
-        title: `🇹🇭 ${h.name}`,
+        title: h.name,
         start: new Date(year, month - 1, day),
         end: new Date(year, month - 1, day),
         allDay: true,

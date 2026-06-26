@@ -46,7 +46,7 @@ export default function TopBar({ onMenuClick }) {
       {viewingAs && location.pathname.includes('/view-as-student') && (
         <div className="bg-amber-500 text-white px-4 py-2 flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm font-medium">
-            <span>👁</span>
+            <span></span>
             <span>
               กำลังดูในฐานะ: <strong>{viewingAs.full_name}</strong>
               <span className="ml-2 font-normal opacity-90">— โหมดดูอย่างเดียว</span>
