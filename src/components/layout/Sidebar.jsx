@@ -90,6 +90,7 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
       admin: '/admin',
       supervisor: '/supervisor',
       student: '/student',
+      mentor: '/mentor',
     }
     const dest = destMap[alternateRole] || '/'
     navigate(dest)

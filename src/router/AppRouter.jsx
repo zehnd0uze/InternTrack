@@ -26,6 +26,13 @@ import AdminUsers from '../pages/admin/Users'
 import AdminReport from '../pages/admin/Report'
 import AdminDataManager from '../pages/admin/DataManager'
 
+// Mentor pages
+import MentorDashboard from '../pages/mentor/Dashboard'
+import MentorApprovals from '../pages/mentor/Approvals'
+import MentorLeaveApprovals from '../pages/mentor/LeaveApprovals'
+import MentorInternships from '../pages/mentor/Internships'
+import MentorStudentDetail from '../pages/mentor/StudentDetail'
+
 // Skeletons / loading
 import PageLoader from '../components/ui/PageLoader'
 
@@ -41,6 +48,7 @@ function RequireAuth({ children, allowedRoles }) {
       student: '/student',
       supervisor: '/supervisor',
       admin: '/admin',
+      mentor: '/mentor',
     }
     return <Navigate to={roleHome[activeRole] || '/login'} replace />
   }
@@ -52,7 +60,7 @@ function RoleRedirect() {
   const { profile, loading, activeRole } = useAuth()
   if (loading) return <PageLoader />
   if (!profile) return <Navigate to="/login" replace />
-  const map = { student: '/student', supervisor: '/supervisor', admin: '/admin' }
+  const map = { student: '/student', supervisor: '/supervisor', admin: '/admin', mentor: '/mentor' }
   return <Navigate to={map[activeRole] || '/login'} replace />
 }
 
@@ -68,7 +76,12 @@ function ViewAsStudentPage() {
 
   const handleExit = () => {
     exitViewAs()
-    navigate(activeRole === 'admin' ? '/admin' : '/supervisor')
+    const homeMap = {
+      admin: '/admin',
+      supervisor: '/supervisor',
+      mentor: '/mentor'
+    }
+    navigate(homeMap[activeRole] || '/')
   }
 
   return (
@@ -168,11 +181,29 @@ export default function AppRouter() {
             <Route path="data" element={<AdminDataManager />} />
           </Route>
 
-          {/* View As Student — accessible by admin & supervisor */}
+          {/* Mentor */}
+          <Route
+            path="/mentor"
+            element={
+              <RequireAuth allowedRoles={['mentor']}>
+                <NotificationProvider>
+                  <AppLayout role="mentor" />
+                </NotificationProvider>
+              </RequireAuth>
+            }
+          >
+            <Route index element={<MentorDashboard />} />
+            <Route path="approvals" element={<MentorApprovals />} />
+            <Route path="leave" element={<MentorLeaveApprovals />} />
+            <Route path="internships" element={<MentorInternships />} />
+            <Route path="students/:studentId" element={<MentorStudentDetail />} />
+          </Route>
+
+          {/* View As Student — accessible by admin, supervisor & mentor */}
           <Route
             path="/view-as-student"
             element={
-              <RequireAuth allowedRoles={['admin', 'supervisor']}>
+              <RequireAuth allowedRoles={['admin', 'supervisor', 'mentor']}>
                 <NotificationProvider>
                   <AppLayout role="view-as" />
                 </NotificationProvider>

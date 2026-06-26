@@ -125,6 +125,7 @@ export function AuthProvider({ children }) {
     role: resolvedRole,
     isStudent: resolvedRole === 'student',
     isSupervisor: resolvedRole === 'supervisor',
+    isMentor: resolvedRole === 'mentor',
     isAdmin: resolvedRole === 'admin',
     // Whether this user has a secondary role available
     hasDualRole: !!(profile?.secondary_role),
