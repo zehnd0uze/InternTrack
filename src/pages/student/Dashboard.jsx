@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { format, startOfWeek, startOfMonth, differenceInSeconds, parseISO } from 'date-fns'
 import { th } from 'date-fns/locale'
-import { Clock, CheckCircle, XCircle, BookOpen, Calendar, Target, AlertTriangle, Printer, Eye } from 'lucide-react'
+import { Clock, CheckCircle, XCircle, BookOpen, Calendar, Target, AlertTriangle, Printer, Eye, Download } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { supabase } from '../../lib/supabase'
@@ -11,7 +11,7 @@ import { SkeletonCard, SkeletonTable } from '../../components/ui/Skeleton'
 import ConfirmModal from '../../components/ui/ConfirmModal'
 import AttendanceCalendar from '../../components/ui/AttendanceCalendar'
 import { format as formatDate } from 'date-fns'
-
+import * as XLSX from 'xlsx'
 // ---- Helpers ----
 function formatElapsed(seconds) {
   const h = Math.floor(seconds / 3600)
@@ -140,6 +140,44 @@ export default function StudentDashboard() {
     setHistoryTotal(count || 0)
     setHistoryLoading(false)
   }, [effectiveUserId, historyPage, dateFrom, dateTo])
+
+  const handleDownloadExcel = async () => {
+    const toastId = toast.loading('กำลังโหลดข้อมูล...')
+    try {
+      const { data, error } = await supabase
+        .from('attendance')
+        .select(`
+          date, check_in, check_out, hours_worked,
+          daily_logs ( log_text )
+        `)
+        .eq('user_id', effectiveUserId)
+        .order('date', { ascending: false })
+
+      if (error) throw error
+
+      const rows = data.map(r => [
+        formatDate(new Date(r.date), 'dd/MM/yyyy'),
+        r.check_in ? formatThaiTime(r.check_in) : '-',
+        r.check_out ? formatThaiTime(r.check_out) : '-',
+        parseFloat(r.hours_worked || 0).toFixed(2),
+        r.daily_logs?.[0]?.log_text || '',
+        r.check_out ? 'เสร็จสิ้น' : 'ยังไม่เสร็จ'
+      ])
+
+      const header = ['วันที่', 'เวลาเข้า', 'เวลาออก', 'ชั่วโมง', 'บันทึกประจำวัน', 'สถานะ']
+      const sheetData = [header, ...rows]
+      
+      const worksheet = XLSX.utils.aoa_to_sheet(sheetData)
+      const workbook = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Report')
+      
+      XLSX.writeFile(workbook, `รายงานการฝึกงาน_${formatDate(new Date(), 'yyyyMMdd')}.xlsx`)
+      toast.success('ดาวน์โหลด Excel แล้ว!', { id: toastId })
+    } catch (err) {
+      console.error(err)
+      toast.error('ดาวน์โหลดล้มเหลว', { id: toastId })
+    }
+  }
 
   // ---- Timer ----
   useEffect(() => {
@@ -464,9 +502,14 @@ export default function StudentDashboard() {
             <h2 className="font-semibold text-gray-900">บันทึกประจำวัน</h2>
             <span className="text-xs text-gray-400">({format(new Date(), 'd MMM yyyy', { locale: th })})</span>
           </div>
-          <Link to={`/student/print-log?studentId=${effectiveUserId}`} target="_blank" className="btn-primary btn-sm flex items-center gap-1">
-            <Printer size={16} /> พิมพ์รายงาน
-          </Link>
+          <div className="flex items-center gap-2">
+            <button onClick={handleDownloadExcel} className="btn-secondary btn-sm flex items-center gap-1">
+              <Download size={16} /> Excel
+            </button>
+            <Link to={`/student/print-log?studentId=${effectiveUserId}`} target="_blank" className="btn-primary btn-sm flex items-center gap-1">
+              <Printer size={16} /> พิมพ์รายงาน
+            </Link>
+          </div>
         </div>
 
         {!today?.id && (
