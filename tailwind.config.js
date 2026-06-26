@@ -28,11 +28,12 @@ export default {
         warning: '#F59E0B',
         danger:  '#EF4444',
         surface: {
-          DEFAULT: '#fafafa',
-          card:    '#ffffff',
+          DEFAULT: 'var(--color-background)',
+          card:    'var(--color-card)',
           dark:    '#18181b',
         },
         sidebar: {
+          DEFAULT: 'var(--bg-sidebar)',
           bg: 'var(--bg-sidebar)',
           fg: 'var(--text-sidebar)',
           muted: 'var(--text-sidebar-muted)',

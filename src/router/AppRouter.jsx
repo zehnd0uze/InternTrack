@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate, useEffect } from 'react-router-dom'
+import { useEffect } from 'react'
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { NotificationProvider } from '../contexts/NotificationContext'
 import { ViewAsProvider, useViewAs } from '../contexts/ViewAsContext'

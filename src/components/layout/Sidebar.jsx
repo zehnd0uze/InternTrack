@@ -194,7 +194,7 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 group ${
                   isActive
-                    ? 'bg-sidebar-active text-sidebar-activeFg font-semibold shadow-sm'
+                    ? 'bg-sidebar-active text-sidebar-active-fg font-semibold shadow-sm'
                     : 'text-sidebar-muted hover:text-sidebar-fg hover:bg-sidebar-hover hover:translate-x-1'
                 } ${collapsed ? 'justify-center' : ''}`
               }

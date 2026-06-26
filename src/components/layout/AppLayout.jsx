@@ -12,7 +12,7 @@ export default function AppLayout({ role }) {
   const isViewAs = role === 'view-as'
 
   return (
-    <div className="flex h-screen bg-surface overflow-hidden">
+    <div className="flex h-screen bg-background overflow-hidden">
       {/* Desktop Sidebar — hidden in view-as mode */}
       {!isViewAs && (
         <div className={`hidden md:flex flex-col transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-16'}`}>
