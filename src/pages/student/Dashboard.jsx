@@ -464,7 +464,7 @@ export default function StudentDashboard() {
             <h2 className="font-semibold text-gray-900">บันทึกประจำวัน</h2>
             <span className="text-xs text-gray-400">({format(new Date(), 'd MMM yyyy', { locale: th })})</span>
           </div>
-          <Link to="/student/print-log" target="_blank" className="btn-primary btn-sm flex items-center gap-1">
+          <Link to={`/student/print-log?studentId=${effectiveUserId}`} target="_blank" className="btn-primary btn-sm flex items-center gap-1">
             <Printer size={16} /> พิมพ์รายงาน
           </Link>
         </div>

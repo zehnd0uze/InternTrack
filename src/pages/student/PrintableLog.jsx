@@ -3,6 +3,7 @@ import { format } from 'date-fns'
 import { th } from 'date-fns/locale'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
+import { useSearchParams } from 'react-router-dom'
 
 function formatThaiTime(dt) {
   if (!dt) return '-'
@@ -15,9 +16,13 @@ function formatThaiDateShort(dt) {
 }
 
 export default function PrintableLog() {
-  const { user, profile } = useAuth()
+  const { user } = useAuth()
+  const [searchParams] = useSearchParams()
+  const studentId = searchParams.get('studentId') || user?.id
+
   const [data, setData] = useState([])
   const [placement, setPlacement] = useState(null)
+  const [studentProfile, setStudentProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [logoLoaded, setLogoLoaded] = useState(false)
 
@@ -81,7 +86,16 @@ export default function PrintableLog() {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!user?.id) return
+      if (!studentId) return
+
+      // Fetch student profile
+      const { data: profileData } = await supabase
+        .from('users')
+        .select('full_name, student_code')
+        .eq('id', studentId)
+        .maybeSingle()
+
+      if (profileData) setStudentProfile(profileData)
 
       // Fetch attendance
       const { data: records, error } = await supabase
@@ -90,7 +104,7 @@ export default function PrintableLog() {
           id, date, check_in, check_out, hours_worked,
           daily_logs ( log_text )
         `)
-        .eq('user_id', user.id)
+        .eq('user_id', studentId)
         .order('date', { ascending: true })
 
       if (error) {
@@ -104,7 +118,7 @@ export default function PrintableLog() {
         const { data: placementData } = await supabase
           .from('internship_placements')
           .select('company_name, start_date, end_date')
-          .eq('student_id', user.id)
+          .eq('student_id', studentId)
           .maybeSingle()
 
         if (placementData) {
@@ -118,7 +132,7 @@ export default function PrintableLog() {
     }
 
     fetchData()
-  }, [user])
+  }, [studentId])
 
   // Trigger print dialog only when data is fetched and image has loaded
   useEffect(() => {
@@ -199,9 +213,9 @@ export default function PrintableLog() {
             <div className="flex flex-col gap-2 mb-3 text-[14px]">
               <div className="flex items-center w-full">
                 <span className="whitespace-nowrap mr-2">ชื่อ-สกุล</span>
-                <span className="dotted-line flex-[3] text-center mr-6">{profile?.full_name || ''}</span>
+                <span className="dotted-line flex-[3] text-center mr-6">{studentProfile?.full_name || ''}</span>
                 <span className="whitespace-nowrap mr-2">รหัสนักศึกษา</span>
-                <span className="dotted-line flex-[1.5] text-center">{profile?.student_code || ''}</span>
+                <span className="dotted-line flex-[1.5] text-center">{studentProfile?.student_code || ''}</span>
               </div>
               <div className="flex items-center w-full">
                 <span className="whitespace-nowrap mr-2">ภาคการศึกษา.</span>
