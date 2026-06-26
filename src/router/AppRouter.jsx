@@ -92,24 +92,6 @@ function ViewAsStudentPage() {
 
   return (
     <div className="space-y-0">
-      {/* View-As Banner */}
-      <div className="sticky top-0 z-30 bg-amber-500 text-white px-4 py-2.5 flex items-center justify-between shadow-md">
-        <div className="flex items-center gap-2 text-sm font-medium">
-          <span className="text-lg">👁</span>
-          <span>
-            กำลังดูในฐานะ:{' '}
-            <strong>{viewingAs?.full_name || 'นักศึกษา'}</strong>
-            {' '}—{' '}
-            <span className="font-normal opacity-90">โหมดดูอย่างเดียว (ไม่สามารถแก้ไขข้อมูลได้)</span>
-          </span>
-        </div>
-        <button
-          onClick={handleExit}
-          className="flex items-center gap-1.5 bg-white/20 hover:bg-white/30 transition-colors px-3 py-1 rounded-lg text-sm font-semibold"
-        >
-          ✕ ออกจากโหมดดู
-        </button>
-      </div>
       <div className="p-4 md:p-6">
         <div className="max-w-7xl mx-auto">
           <StudentDashboard />
