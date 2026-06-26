@@ -52,8 +52,8 @@ export default function MentorSchedule() {
 
   const fetchStudents = useCallback(async () => {
     const { data, error } = await supabase
-      .from('placements')
-      .select('student:users!placements_student_id_fkey(id, full_name)')
+      .from('internship_placements')
+      .select('student:users!internship_placements_student_id_fkey(id, full_name)')
       .eq('mentor_id', user.id)
       .eq('status', 'active')
 

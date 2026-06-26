@@ -44,9 +44,9 @@ create policy "Students can view assigned schedules"
         auth.uid() = student_id
         or
         (student_id is null and exists (
-            select 1 from public.placements
-            where placements.student_id = auth.uid()
-            and placements.mentor_id = public.schedules.mentor_id
-            and placements.status = 'active'
+            select 1 from public.internship_placements
+            where internship_placements.student_id = auth.uid()
+            and internship_placements.mentor_id = public.schedules.mentor_id
+            and internship_placements.status = 'active'
         ))
     );
