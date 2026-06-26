@@ -8,16 +8,16 @@ export default {
     extend: {
       colors: {
         primary: {
-          50:  '#e8edf5',
-          100: '#c5d0e6',
-          200: '#9fb0d4',
-          300: '#7990c2',
-          400: '#5c78b5',
-          500: '#3f60a8',
-          600: '#2e509e',
-          700: '#1B3A6B',
-          800: '#162f56',
-          900: '#0f2040',
+          50:  '#fafafa',
+          100: '#f4f4f5',
+          200: '#e4e4e7',
+          300: '#d4d4d8',
+          400: '#a1a1aa',
+          500: '#71717a',
+          600: '#52525b',
+          700: '#3f3f46',
+          800: '#27272a',
+          900: '#18181b',
         },
         accent: {
           DEFAULT: '#F5A623',
@@ -28,18 +28,18 @@ export default {
         warning: '#F59E0B',
         danger:  '#EF4444',
         surface: {
-          DEFAULT: '#F8FAFC',
-          card:    '#FFFFFF',
-          dark:    '#1E293B',
+          DEFAULT: '#fafafa',
+          card:    '#ffffff',
+          dark:    '#18181b',
         }
       },
       fontFamily: {
         sans: ['Inter', 'Sarabun', 'sans-serif'],
       },
       boxShadow: {
-        card: '0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1)',
-        'card-hover': '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1)',
-        'card-lg': '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)',
+        card: '0 1px 2px 0 rgba(0,0,0,0.05)',
+        'card-hover': '0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05)',
+        'card-lg': '0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -4px rgba(0,0,0,0.05)',
       },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-in-out',
