@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar'
 import { format, parse, startOfWeek, getDay } from 'date-fns'
 import { th as thLocale, enUS } from 'date-fns/locale'
+import { getThaiHolidays } from '../../lib/holidays'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 
 const locales = {
@@ -36,6 +37,21 @@ export default function ScheduleCalendar({ events, onSelectEvent, onSelectSlot, 
 
   // Event styling
   const eventPropGetter = (event) => {
+    if (event.isHoliday) {
+      return {
+        style: {
+          backgroundColor: '#ef4444', // Red for holidays
+          borderRadius: '6px',
+          opacity: 0.9,
+          color: 'white',
+          border: 'none',
+          display: 'block',
+          fontSize: '0.85rem',
+          padding: '2px 6px',
+          fontWeight: 'bold'
+        }
+      }
+    }
     return {
       style: {
         backgroundColor: event.color || '#3b82f6',
@@ -50,12 +66,29 @@ export default function ScheduleCalendar({ events, onSelectEvent, onSelectSlot, 
     }
   }
 
+  // Inject holidays into events
+  const displayEvents = useMemo(() => {
+    const currentYear = date ? date.getFullYear() : new Date().getFullYear()
+    const holidays = getThaiHolidays(currentYear).map(h => {
+      const [year, month, day] = h.date.split('-').map(Number)
+      return {
+        id: `holiday-${h.date}`,
+        title: `🇹🇭 ${h.name}`,
+        start: new Date(year, month - 1, day),
+        end: new Date(year, month - 1, day),
+        allDay: true,
+        isHoliday: true
+      }
+    })
+    return [...holidays, ...(events || [])]
+  }, [events, date])
+
   return (
     <div className="h-[600px] w-full bg-white rounded-xl p-4 shadow-sm border border-gray-100">
       <Calendar
         culture="th"
         localizer={localizer}
-        events={events}
+        events={displayEvents}
         startAccessor="start"
         endAccessor="end"
         style={{ height: '100%' }}
