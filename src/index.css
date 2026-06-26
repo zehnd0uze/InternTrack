@@ -7,6 +7,36 @@
     box-sizing: border-box;
   }
 
+  :root[data-theme="classic"] {
+    --bg-sidebar: #1B3A6B; /* primary-700 */
+    --text-sidebar: #ffffff;
+    --text-sidebar-muted: rgba(255, 255, 255, 0.7);
+    --bg-sidebar-hover: rgba(255, 255, 255, 0.1);
+    --bg-sidebar-active: #ffffff;
+    --text-sidebar-active: #1B3A6B;
+    --border-sidebar: #2e509e; /* primary-600 */
+
+    --radius-btn: 0.5rem; /* rounded-lg */
+    --radius-card: 0.75rem; /* rounded-xl */
+    --shadow-card: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+    --border-card: #f3f4f6; /* gray-100 */
+  }
+
+  :root[data-theme="minimal"] {
+    --bg-sidebar: #ffffff;
+    --text-sidebar: #111827; /* gray-900 */
+    --text-sidebar-muted: #6b7280; /* gray-500 */
+    --bg-sidebar-hover: #f9fafb; /* gray-50 */
+    --bg-sidebar-active: #f3f4f6; /* gray-100 */
+    --text-sidebar-active: #111827;
+    --border-sidebar: #e5e7eb; /* gray-200 */
+
+    --radius-btn: 0.375rem; /* rounded-md */
+    --radius-card: 0.5rem; /* rounded-lg */
+    --shadow-card: 0 1px 2px 0 rgba(0,0,0,0.05);
+    --border-card: #e5e7eb; /* gray-200 */
+  }
+
   html {
     scroll-behavior: smooth;
   }
@@ -24,7 +54,8 @@
 @layer components {
   /* Buttons */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 font-medium text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    border-radius: var(--radius-btn);
   }
 
   .btn-primary {
@@ -65,7 +96,10 @@
 
   /* Cards */
   .card {
-    @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6 transition-shadow duration-200;
+    @apply bg-white p-6 transition-shadow duration-200;
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--border-card);
   }
 
   .card-hover {

@@ -101,15 +101,15 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
   }
 
   return (
-    <div className="h-full bg-white flex flex-col border-r border-gray-200">
+    <div className="h-full bg-sidebar flex flex-col border-r border-sidebar-border">
       {/* Header */}
-      <div className={`flex items-center h-16 px-4 border-b border-gray-100 ${collapsed ? 'justify-center' : 'justify-between'}`}>
+      <div className={`flex items-center h-16 px-4 border-b border-sidebar-border ${collapsed ? 'justify-center' : 'justify-between'}`}>
         {!collapsed && (
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 bg-primary-50 rounded-md flex items-center justify-center">
               <ClipboardList size={18} className="text-primary-600" />
             </div>
-            <span className="text-gray-900 font-bold text-lg tracking-tight">InternTrack</span>
+            <span className="text-sidebar-fg font-bold text-lg tracking-tight">InternTrack</span>
           </div>
         )}
         {collapsed && (
@@ -119,13 +119,13 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
         )}
 
         {mobile ? (
-          <button onClick={onToggle} className="text-gray-500 hover:text-gray-900 transition-colors p-1">
+          <button onClick={onToggle} className="text-sidebar-muted hover:text-sidebar-fg transition-colors p-1">
             <X size={20} />
           </button>
         ) : (
           <button
             onClick={onToggle}
-            className="text-gray-400 hover:text-gray-900 transition-colors p-1 rounded-md hover:bg-gray-100"
+            className="text-sidebar-muted hover:text-sidebar-fg transition-colors p-1 rounded-md hover:bg-sidebar-hover"
           >
             {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
           </button>
@@ -134,15 +134,15 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
 
       {/* User Info */}
       {!collapsed && (
-        <div className="px-4 py-4 border-b border-gray-100">
+        <div className="px-4 py-4 border-b border-sidebar-border">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-700 font-bold text-sm flex-shrink-0 border border-gray-200">
+            <div className="w-10 h-10 rounded-full bg-sidebar-hover flex items-center justify-center text-sidebar-fg font-bold text-sm flex-shrink-0 border border-sidebar-border">
               {profile?.full_name?.charAt(0)?.toUpperCase() || '?'}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-gray-900 font-semibold text-sm truncate">{profile?.full_name || 'กำลังโหลด...'}</p>
+              <p className="text-sidebar-fg font-semibold text-sm truncate">{profile?.full_name || 'กำลังโหลด...'}</p>
               {/* Active role pill */}
-              <span className={`inline-block mt-1 text-xs font-semibold px-2 py-0.5 rounded-md ${ROLE_COLORS[activeRole] || 'bg-gray-100 text-gray-600 border border-gray-200'}`}>
+              <span className={`inline-block mt-1 text-xs font-semibold px-2 py-0.5 rounded-md ${ROLE_COLORS[activeRole] || 'bg-sidebar-hover text-sidebar-fg border border-sidebar-border'}`}>
                 {ROLE_LABELS[activeRole] || activeRole}
               </span>
             </div>
@@ -152,7 +152,7 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
           {hasDualRole && (
             <button
               onClick={handleSwitchRole}
-              className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md bg-gray-50 hover:bg-gray-100 transition-all duration-200 text-gray-700 text-xs font-semibold border border-gray-200"
+              className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md bg-sidebar-hover hover:bg-sidebar-active transition-all duration-200 text-sidebar-fg text-xs font-semibold border border-sidebar-border"
               title={`สลับไปยัง ${ROLE_LABELS[alternateRole]}`}
             >
               <RefreshCw size={13} />
@@ -164,10 +164,10 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
 
       {/* Switch Role (collapsed state — icon only) */}
       {collapsed && hasDualRole && (
-        <div className="px-2 py-2 border-b border-gray-100">
+        <div className="px-2 py-2 border-b border-sidebar-border">
           <button
             onClick={handleSwitchRole}
-            className="w-full flex items-center justify-center p-2 rounded-md bg-gray-50 hover:bg-gray-100 transition-colors text-gray-700 border border-gray-200"
+            className="w-full flex items-center justify-center p-2 rounded-md bg-sidebar-hover hover:bg-sidebar-active transition-colors text-sidebar-fg border border-sidebar-border"
             title={`สลับไปยัง ${ROLE_LABELS[alternateRole]}`}
           >
             <RefreshCw size={16} />
@@ -190,8 +190,8 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-150 ${
                   isActive
-                    ? 'bg-gray-100 text-gray-900 font-semibold'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    ? 'bg-sidebar-active text-sidebar-activeFg font-semibold'
+                    : 'text-sidebar-muted hover:text-sidebar-activeFg hover:bg-sidebar-hover'
                 } ${collapsed ? 'justify-center' : ''}`
               }
               title={collapsed ? label : undefined}
@@ -209,10 +209,10 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
       </nav>
 
       {/* Sign Out */}
-      <div className="p-3 border-t border-gray-100">
+      <div className="p-3 border-t border-sidebar-border">
         <button
           onClick={handleSignOut}
-          className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 transition-all duration-150 ${collapsed ? 'justify-center' : ''}`}
+          className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm font-medium text-sidebar-muted hover:text-red-600 hover:bg-red-50 transition-all duration-150 ${collapsed ? 'justify-center' : ''}`}
           title={collapsed ? 'ออกจากระบบ' : undefined}
         >
           <LogOut size={18} className="flex-shrink-0" />

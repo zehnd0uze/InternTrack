@@ -4,6 +4,7 @@ import { Menu, Bell, ChevronDown, UserCircle } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useNotifications } from '../../contexts/NotificationContext'
 import { useViewAs } from '../../contexts/ViewAsContext'
+import { useTheme } from '../../contexts/ThemeContext'
 import { formatDistanceToNow } from 'date-fns'
 import { th } from 'date-fns/locale'
 
@@ -11,6 +12,7 @@ export default function TopBar({ onMenuClick }) {
   const { profile, signOut, activeRole } = useAuth()
   const { notifications, unreadCount, markAllRead, markRead } = useNotifications()
   const { viewingAs, exitViewAs } = useViewAs()
+  const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
   const location = useLocation()
   const [notifOpen, setNotifOpen] = useState(false)
@@ -78,8 +80,17 @@ export default function TopBar({ onMenuClick }) {
           </h1>
         </div>
 
-        {/* Right: Notifications + User */}
+        {/* Right: Notifications + Theme + User */}
         <div className="flex items-center gap-2 ml-auto">
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
+            title={theme === 'classic' ? 'เปลี่ยนเป็น Minimal Theme' : 'เปลี่ยนเป็น Classic Theme'}
+          >
+            {theme === 'classic' ? <span className="text-xl leading-none">✨</span> : <span className="text-xl leading-none">🎨</span>}
+          </button>
+
           {/* Notification Bell */}
           <div className="relative" ref={notifRef}>
             <button

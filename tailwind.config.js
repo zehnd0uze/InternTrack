@@ -31,6 +31,15 @@ export default {
           DEFAULT: '#fafafa',
           card:    '#ffffff',
           dark:    '#18181b',
+        },
+        sidebar: {
+          bg: 'var(--bg-sidebar)',
+          fg: 'var(--text-sidebar)',
+          muted: 'var(--text-sidebar-muted)',
+          hover: 'var(--bg-sidebar-hover)',
+          active: 'var(--bg-sidebar-active)',
+          activeFg: 'var(--text-sidebar-active)',
+          border: 'var(--border-sidebar)',
         }
       },
       fontFamily: {
