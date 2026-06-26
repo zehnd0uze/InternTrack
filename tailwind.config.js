@@ -33,7 +33,7 @@ export default {
           dark:    '#18181b',
         },
         sidebar: {
-          bg: 'var(--bg-sidebar)',
+          DEFAULT: 'var(--bg-sidebar)',
           fg: 'var(--text-sidebar)',
           muted: 'var(--text-sidebar-muted)',
           hover: 'var(--bg-sidebar-hover)',
