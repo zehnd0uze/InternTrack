@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { NavLink, Link, useNavigate } from 'react-router-dom'
+import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom'
 import { Menu, Bell, ChevronDown, UserCircle } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useNotifications } from '../../contexts/NotificationContext'
@@ -12,6 +12,7 @@ export default function TopBar({ onMenuClick }) {
   const { notifications, unreadCount, markAllRead, markRead } = useNotifications()
   const { viewingAs, exitViewAs } = useViewAs()
   const navigate = useNavigate()
+  const location = useLocation()
   const [notifOpen, setNotifOpen] = useState(false)
   const [userOpen, setUserOpen] = useState(false)
   const notifRef = useRef(null)
@@ -42,7 +43,7 @@ export default function TopBar({ onMenuClick }) {
   return (
     <header className="bg-white border-b border-gray-100 flex-shrink-0 shadow-sm">
       {/* View-As Banner */}
-      {viewingAs && (
+      {viewingAs && location.pathname.includes('/view-as-student') && (
         <div className="bg-amber-500 text-white px-4 py-2 flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm font-medium">
             <span>👁</span>
