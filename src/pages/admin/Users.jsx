@@ -341,20 +341,23 @@ export default function AdminUsers() {
                 </select>
               </div>
 
-              {/* Secondary Role — only for admin/supervisor */}
-              {editUser && form.role !== 'student' && (
+              {/* Secondary Role — shown for ALL roles when editing */}
+              {editUser && (
                 <div>
-                  <label className="label">บทบาทเสริม (สำหรับผู้ใช้ Dual-Role)</label>
+                  <label className="label">บทบาทเสริม (Dual-Role)</label>
                   <select
                     value={form.secondary_role}
                     onChange={e => setForm(p => ({ ...p, secondary_role: e.target.value }))}
                     className="select"
                   >
                     <option value="">-- ไม่มีบทบาทเสริม --</option>
-                    {form.role === 'admin' && <option value="supervisor">อาจารย์นิเทศ</option>}
-                    {form.role === 'supervisor' && <option value="admin">ผู้ดูแลระบบ</option>}
+                    {form.role !== 'student'    && <option value="student">นักศึกษา</option>}
+                    {form.role !== 'supervisor' && <option value="supervisor">อาจารย์นิเทศ (Supervisor)</option>}
+                    {form.role !== 'admin'      && <option value="admin">ผู้ดูแลระบบ (Admin)</option>}
                   </select>
-                  <p className="text-xs text-gray-400 mt-1">ผู้ใช้จะสามารถสลับระหว่างสองบทบาทได้ใน Sidebar</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    เลือกบทบาทเสริมเพื่อให้ผู้ใช้สามารถสลับระหว่างสองบทบาทได้ใน Sidebar
+                  </p>
                 </div>
               )}
 
