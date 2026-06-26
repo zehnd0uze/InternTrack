@@ -20,6 +20,7 @@ import StudentProfile from '../pages/student/Profile'
 // Supervisor pages
 import SupervisorDashboard from '../pages/supervisor/Dashboard'
 import SupervisorApprovals from '../pages/supervisor/Approvals'
+import SupervisorLeaveApprovals from '../pages/supervisor/LeaveApprovals'
 import SupervisorReport from '../pages/supervisor/Report'
 import SupervisorStudentDetail from '../pages/supervisor/StudentDetail'
 
@@ -27,6 +28,7 @@ import SupervisorStudentDetail from '../pages/supervisor/StudentDetail'
 import AdminDashboard from '../pages/admin/Dashboard'
 import AdminUsers from '../pages/admin/Users'
 import AdminReport from '../pages/admin/Report'
+import AdminPlacements from '../pages/admin/Placements'
 import AdminDataManager from '../pages/admin/DataManager'
 
 // Mentor pages
@@ -175,6 +177,7 @@ export default function AppRouter() {
           >
             <Route index element={<SupervisorDashboard />} />
             <Route path="approvals" element={<SupervisorApprovals />} />
+            <Route path="leave" element={<SupervisorLeaveApprovals />} />
             <Route path="report" element={<SupervisorReport />} />
             <Route path="students/:studentId" element={<SupervisorStudentDetail />} />
           </Route>
@@ -193,6 +196,7 @@ export default function AppRouter() {
             <Route index element={<AdminDashboard />} />
             <Route path="users" element={<AdminUsers />} />
             <Route path="report" element={<AdminReport />} />
+            <Route path="placements" element={<AdminPlacements />} />
             <Route path="data" element={<AdminDataManager />} />
           </Route>
 

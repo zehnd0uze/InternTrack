@@ -32,11 +32,13 @@ const NAV_ITEMS = {
   supervisor: [
     { to: '/supervisor', label: 'แดชบอร์ด', icon: LayoutDashboard, end: true },
     { to: '/supervisor/approvals', label: 'อนุมัติชั่วโมง', icon: CheckSquare },
+    { to: '/supervisor/leave', label: 'อนุมัติการลา', icon: CalendarDays },
     { to: '/supervisor/report', label: 'รายงาน', icon: FileText },
   ],
   admin: [
     { to: '/admin', label: 'ภาพรวมระบบ', icon: LayoutDashboard, end: true },
     { to: '/admin/users', label: 'จัดการผู้ใช้', icon: Users },
+    { to: '/admin/placements', label: 'จัดการสถานที่ฝึกงาน', icon: Building2 },
     { to: '/admin/report', label: 'รายงานระบบ', icon: BarChart3 },
     { to: '/admin/data', label: 'จัดการข้อมูล', icon: Database },
   ],
