@@ -14,6 +14,8 @@ import Register from '../pages/Register'
 import StudentDashboard from '../pages/student/Dashboard'
 import StudentWeeklySubmit from '../pages/student/WeeklySubmit'
 import PrintableLog from '../pages/student/PrintableLog'
+import StudentLeaveRequest from '../pages/student/LeaveRequest'
+import StudentProfile from '../pages/student/Profile'
 
 // Supervisor pages
 import SupervisorDashboard from '../pages/supervisor/Dashboard'
@@ -156,6 +158,8 @@ export default function AppRouter() {
           >
             <Route index element={<StudentDashboard />} />
             <Route path="weekly" element={<StudentWeeklySubmit />} />
+            <Route path="leave" element={<StudentLeaveRequest />} />
+            <Route path="profile" element={<StudentProfile />} />
           </Route>
 
           {/* Supervisor */}
