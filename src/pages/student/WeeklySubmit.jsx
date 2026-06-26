@@ -112,7 +112,7 @@ export default function StudentWeeklySubmit() {
     <div className="space-y-6 animate-fade-in">
       <div>
         <h1 className="text-xl font-bold text-gray-900">ส่งชั่วโมงรายสัปดาห์</h1>
-        <p className="text-sm text-gray-500 mt-0.5">ส่งสรุปชั่วโมงทำงานให้พี่เลี้ยงอนุมัติ</p>
+        <p className="text-sm text-gray-500 mt-0.5">ส่งสรุปชั่วโมงทำงานให้อาจารย์นิเทศอนุมัติ</p>
       </div>
 
       {loading ? (

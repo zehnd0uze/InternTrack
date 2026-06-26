@@ -29,7 +29,7 @@ export default function TopBar({ onMenuClick }) {
 
   const ROLE_LABELS = {
     student: 'นักศึกษา',
-    supervisor: 'พี่เลี้ยง',
+    supervisor: 'อาจารย์นิเทศ',
     admin: 'ผู้ดูแลระบบ',
     mentor: 'พี่เลี้ยง / หัวหน้างาน',
   }
