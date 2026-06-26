@@ -136,9 +136,13 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
       {!collapsed && (
         <div className="px-4 py-4 border-b border-sidebar-border">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-sidebar-hover flex items-center justify-center text-sidebar-fg font-bold text-sm flex-shrink-0 border border-sidebar-border">
-              {profile?.full_name?.charAt(0)?.toUpperCase() || '?'}
-            </div>
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="Profile" className="w-10 h-10 rounded-full object-cover flex-shrink-0 border border-sidebar-border shadow-sm" />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-sidebar-hover flex items-center justify-center text-sidebar-fg font-bold text-sm flex-shrink-0 border border-sidebar-border">
+                {profile?.full_name?.charAt(0)?.toUpperCase() || '?'}
+              </div>
+            )}
             <div className="min-w-0 flex-1">
               <p className="text-sidebar-fg font-semibold text-sm truncate">{profile?.full_name || 'กำลังโหลด...'}</p>
               {/* Active role pill */}

@@ -12,6 +12,7 @@ export default function StudentProfile() {
   const [studentCode, setStudentCode] = useState(profile?.student_code || '')
   const [email, setEmail]       = useState(user?.email || '')
   const [profileLoading, setProfileLoading] = useState(false)
+  const [avatarUploading, setAvatarUploading] = useState(false)
 
   // ---- Password fields ----
   const [currentPassword, setCurrentPassword] = useState('')
@@ -97,6 +98,49 @@ export default function StudentProfile() {
 
   const avatarLetter = profile?.full_name?.charAt(0)?.toUpperCase() || '?'
 
+  const handleAvatarUpload = async (e) => {
+    try {
+      if (!e.target.files || e.target.files.length === 0) return
+      
+      const file = e.target.files[0]
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`
+      const filePath = `${user.id}/${fileName}`
+
+      setAvatarUploading(true)
+
+      // Upload to Storage
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file)
+
+      if (uploadError) throw uploadError
+
+      // Get Public URL
+      const { data } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath)
+
+      const avatarUrl = data.publicUrl
+
+      // Update users table
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({ avatar_url: avatarUrl })
+        .eq('id', user.id)
+
+      if (updateError) throw updateError
+
+      toast.success('อัปเดตรูปโปรไฟล์สำเร็จ')
+      await refreshProfile()
+    } catch (error) {
+      console.error('Error uploading avatar:', error)
+      toast.error('อัปโหลดรูปภาพล้มเหลว กรุณาลองใหม่')
+    } finally {
+      setAvatarUploading(false)
+    }
+  }
+
   return (
     <div className="space-y-6 animate-fade-in max-w-2xl">
       {/* Page Title */}
@@ -107,8 +151,29 @@ export default function StudentProfile() {
 
       {/* Avatar + name banner */}
       <div className="card flex items-center gap-5">
-        <div className="w-16 h-16 rounded-full bg-primary-700 flex items-center justify-center text-white text-2xl font-bold flex-shrink-0 shadow-md">
-          {avatarLetter}
+        <div className="relative group flex-shrink-0">
+          {profile?.avatar_url ? (
+            <img src={profile.avatar_url} alt="Profile" className="w-16 h-16 rounded-full object-cover shadow-md border border-gray-200" />
+          ) : (
+            <div className="w-16 h-16 rounded-full bg-primary-700 flex items-center justify-center text-white text-2xl font-bold shadow-md">
+              {avatarLetter}
+            </div>
+          )}
+          
+          <label className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity duration-200">
+            {avatarUploading ? (
+              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            ) : (
+              <span className="text-white text-xs font-medium">เปลี่ยนรูป</span>
+            )}
+            <input 
+              type="file" 
+              accept="image/*" 
+              onChange={handleAvatarUpload}
+              disabled={avatarUploading}
+              className="hidden"
+            />
+          </label>
         </div>
         <div>
           <p className="text-lg font-bold text-gray-900">{profile?.full_name || '—'}</p>
