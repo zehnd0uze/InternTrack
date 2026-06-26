@@ -9,9 +9,14 @@ import { SkeletonTable } from '../../components/ui/Skeleton'
 
 import * as XLSX from 'xlsx'
 
-function downloadExcel(rows, filename) {
+function downloadExcel(rows, filename, titleText) {
   const header = ['วันที่', 'เวลาเข้า', 'เวลาออก', 'ชั่วโมง', 'บันทึกประจำวัน', 'สถานะ']
-  const data = [header, ...rows]
+  
+  let data = []
+  if (titleText) {
+    data.push([titleText], [])
+  }
+  data.push(header, ...rows)
   
   const worksheet = XLSX.utils.aoa_to_sheet(data)
   const workbook = XLSX.utils.book_new()
@@ -81,7 +86,8 @@ export default function SupervisorReport() {
       r.daily_logs?.[0]?.log_text || '',
       r.check_out ? 'เสร็จสิ้น' : 'ยังไม่เสร็จ',
     ])
-    downloadExcel(rows, `รายงาน_${student?.full_name}_${format(new Date(), 'yyyyMMdd')}.xlsx`)
+    const title = `รายงานการเข้างาน: ${student?.full_name || 'ทั้งหมด'}`
+    downloadExcel(rows, `รายงาน_${student?.full_name}_${format(new Date(), 'yyyyMMdd')}.xlsx`, title)
     toast.success('ดาวน์โหลด Excel แล้ว!')
   }
 

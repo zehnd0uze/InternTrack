@@ -144,6 +144,16 @@ export default function StudentDashboard() {
   const handleDownloadExcel = async () => {
     const toastId = toast.loading('กำลังโหลดข้อมูล...')
     try {
+      // Fetch student info
+      const { data: studentInfo } = await supabase
+        .from('users')
+        .select('full_name, student_code')
+        .eq('id', effectiveUserId)
+        .maybeSingle()
+        
+      const studentName = studentInfo?.full_name || 'ไม่ทราบชื่อ'
+      const studentCode = studentInfo?.student_code || '-'
+
       const { data, error } = await supabase
         .from('attendance')
         .select(`
@@ -165,7 +175,12 @@ export default function StudentDashboard() {
       ])
 
       const header = ['วันที่', 'เวลาเข้า', 'เวลาออก', 'ชั่วโมง', 'บันทึกประจำวัน', 'สถานะ']
-      const sheetData = [header, ...rows]
+      const sheetData = [
+        [`รายงานการฝึกงาน: ${studentName} (รหัสนักศึกษา: ${studentCode})`],
+        [],
+        header, 
+        ...rows
+      ]
       
       const worksheet = XLSX.utils.aoa_to_sheet(sheetData)
       const workbook = XLSX.utils.book_new()
