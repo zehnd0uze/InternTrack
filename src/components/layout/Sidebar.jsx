@@ -32,7 +32,6 @@ const NAV_ITEMS = {
   supervisor: [
     { to: '/supervisor', label: 'แดชบอร์ด', icon: LayoutDashboard, end: true },
     { to: '/supervisor/approvals', label: 'อนุมัติชั่วโมง', icon: CheckSquare },
-    { to: '/supervisor/leave', label: 'อนุมัติการลา', icon: CalendarDays },
     { to: '/supervisor/report', label: 'รายงาน', icon: FileText },
   ],
   admin: [

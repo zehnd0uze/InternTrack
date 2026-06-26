@@ -20,7 +20,6 @@ import StudentProfile from '../pages/student/Profile'
 // Supervisor pages
 import SupervisorDashboard from '../pages/supervisor/Dashboard'
 import SupervisorApprovals from '../pages/supervisor/Approvals'
-import SupervisorLeaveApprovals from '../pages/supervisor/LeaveApprovals'
 import SupervisorReport from '../pages/supervisor/Report'
 import SupervisorStudentDetail from '../pages/supervisor/StudentDetail'
 
@@ -177,7 +176,6 @@ export default function AppRouter() {
           >
             <Route index element={<SupervisorDashboard />} />
             <Route path="approvals" element={<SupervisorApprovals />} />
-            <Route path="leave" element={<SupervisorLeaveApprovals />} />
             <Route path="report" element={<SupervisorReport />} />
             <Route path="students/:studentId" element={<SupervisorStudentDetail />} />
           </Route>
