@@ -50,14 +50,14 @@ export default function Register() {
       <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
 
       <div className="w-full max-w-md relative z-10">
-        <div className="bg-white rounded-2xl shadow-card-lg p-8 animate-fade-in">
+        <div className="bg-card rounded-2xl shadow-card-lg p-8 animate-fade-in">
           {/* Logo */}
           <div className="flex flex-col items-center mb-8">
             <div className="w-16 h-16 bg-primary-700 rounded-2xl flex items-center justify-center shadow-lg mb-4">
               <UserPlus size={28} className="text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">สมัครสมาชิก</h1>
-            <p className="text-gray-500 text-sm mt-1">InternTrack — ระบบติดตามการฝึกประสบการณ์</p>
+            <h1 className="text-2xl font-bold text-content">สมัครสมาชิก</h1>
+            <p className="text-content-muted text-sm mt-1">InternTrack — ระบบติดตามการฝึกประสบการณ์</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4" id="register-form">
@@ -126,7 +126,7 @@ export default function Register() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-content-muted transition-colors"
                   aria-label="แสดง/ซ่อนรหัสผ่าน"
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -172,7 +172,7 @@ export default function Register() {
             </button>
           </form>
 
-          <p className="text-center text-sm text-gray-500 mt-6">
+          <p className="text-center text-sm text-content-muted mt-6">
             มีบัญชีอยู่แล้ว?{' '}
             <Link to="/login" className="text-primary-700 font-semibold hover:underline">
               เข้าสู่ระบบ

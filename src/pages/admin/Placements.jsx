@@ -23,7 +23,7 @@ function PlacementFormFields({
   return (
     <>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+        <label className="block text-sm font-medium text-content-muted mb-1.5">
           ชื่อบริษัท / สถานประกอบการ <span className="text-danger">*</span>
         </label>
         <div className="relative">
@@ -39,7 +39,7 @@ function PlacementFormFields({
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">แผนก</label>
+          <label className="block text-sm font-medium text-content-muted mb-1.5">แผนก</label>
           <div className="relative">
             <MapPin size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
             <input
@@ -51,7 +51,7 @@ function PlacementFormFields({
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label className="block text-sm font-medium text-content-muted mb-1.5">
             ตำแหน่งงาน <span className="text-danger">*</span>
           </label>
           <div className="relative">
@@ -68,7 +68,7 @@ function PlacementFormFields({
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label className="block text-sm font-medium text-content-muted mb-1.5">
             วันที่เริ่ม <span className="text-danger">*</span>
           </label>
           <div className="relative">
@@ -83,7 +83,7 @@ function PlacementFormFields({
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">วันที่สิ้นสุด</label>
+          <label className="block text-sm font-medium text-content-muted mb-1.5">วันที่สิ้นสุด</label>
           <div className="relative">
             <Calendar size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
             <input
@@ -98,7 +98,7 @@ function PlacementFormFields({
       </div>
       {setStatus && (
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">สถานะ</label>
+          <label className="block text-sm font-medium text-content-muted mb-1.5">สถานะ</label>
           <select value={status} onChange={e => setStatus(e.target.value)} className="select">
             <option value="active">กำลังฝึกงาน</option>
             <option value="completed">เสร็จสิ้น</option>
@@ -106,7 +106,7 @@ function PlacementFormFields({
         </div>
       )}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">หมายเหตุ</label>
+        <label className="block text-sm font-medium text-content-muted mb-1.5">หมายเหตุ</label>
         <textarea
           value={notes}
           onChange={e => setNotes(e.target.value)}
@@ -176,12 +176,12 @@ function AddPlacementModal({ onClose, onSuccess }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-slide-up flex flex-col max-h-[90vh]">
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50 flex-shrink-0">
-          <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+      <div className="bg-card rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-slide-up flex flex-col max-h-[90vh]">
+        <div className="px-6 py-4 border-b border-border-light flex items-center justify-between bg-gray-50/50 flex-shrink-0">
+          <h2 className="text-lg font-bold text-content flex items-center gap-2">
             <Plus className="text-primary-600" size={20} /> เพิ่มสถานที่ฝึกงาน
           </h2>
-          <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+          <button onClick={onClose} className="p-2 text-gray-400 hover:text-content-muted hover:bg-surface-hover rounded-lg transition-colors">
             <X size={20} />
           </button>
         </div>
@@ -192,14 +192,14 @@ function AddPlacementModal({ onClose, onSuccess }) {
             <form id="add-placement-form" onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">นักศึกษา <span className="text-danger">*</span></label>
+                  <label className="block text-sm font-medium text-content-muted mb-1.5">นักศึกษา <span className="text-danger">*</span></label>
                   <select value={selectedStudent} onChange={e => setSelectedStudent(e.target.value)} className="select" required>
                     <option value="">-- เลือกนักศึกษา --</option>
                     {students.map(s => <option key={s.id} value={s.id}>{s.full_name}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">พี่เลี้ยง <span className="text-danger">*</span></label>
+                  <label className="block text-sm font-medium text-content-muted mb-1.5">พี่เลี้ยง <span className="text-danger">*</span></label>
                   <select value={selectedMentor} onChange={e => setSelectedMentor(e.target.value)} className="select" required>
                     <option value="">-- เลือกพี่เลี้ยง --</option>
                     {mentors.map(m => <option key={m.id} value={m.id}>{m.full_name}</option>)}
@@ -217,7 +217,7 @@ function AddPlacementModal({ onClose, onSuccess }) {
             </form>
           )}
         </div>
-        <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-2 flex-shrink-0">
+        <div className="px-6 py-4 border-t border-border-light bg-background flex justify-end gap-2 flex-shrink-0">
           <button type="button" onClick={onClose} className="btn-secondary">ยกเลิก</button>
           <button type="submit" form="add-placement-form" disabled={saving || loading} className="btn-primary flex items-center gap-2">
             {saving ? <><Loader2 size={16} className="animate-spin" /> บันทึก...</> : <><CheckCircle2 size={16} /> บันทึกข้อมูล</>}
@@ -278,19 +278,19 @@ function EditPlacementModal({ placement, onClose, onSuccess }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-slide-up flex flex-col max-h-[90vh]">
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
-          <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+      <div className="bg-card rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-slide-up flex flex-col max-h-[90vh]">
+        <div className="px-6 py-4 border-b border-border-light flex items-center justify-between flex-shrink-0">
+          <h2 className="text-lg font-bold text-content flex items-center gap-2">
             <Pencil className="text-primary-600" size={20} /> แก้ไขสถานที่ฝึกงาน
           </h2>
-          <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+          <button onClick={onClose} className="p-2 text-gray-400 hover:text-content-muted hover:bg-surface-hover rounded-lg transition-colors">
             <X size={20} />
           </button>
         </div>
         <div className="p-6 overflow-y-auto custom-scrollbar">
           <form id="edit-placement-form" onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">พี่เลี้ยง <span className="text-danger">*</span></label>
+              <label className="block text-sm font-medium text-content-muted mb-1.5">พี่เลี้ยง <span className="text-danger">*</span></label>
               <select value={selectedMentor} onChange={e => setSelectedMentor(e.target.value)} className="select" required>
                 <option value="">-- เลือกพี่เลี้ยง --</option>
                 {mentors.map(m => <option key={m.id} value={m.id}>{m.full_name}</option>)}
@@ -305,7 +305,7 @@ function EditPlacementModal({ placement, onClose, onSuccess }) {
               status={status} setStatus={setStatus}
               notes={notes} setNotes={setNotes}
             />
-            <div className="border-t border-gray-100 pt-4">
+            <div className="border-t border-border-light pt-4">
               {!confirmDelete ? (
                 <button type="button" onClick={() => setConfirmDelete(true)} className="w-full flex justify-center text-sm text-danger hover:bg-red-50 py-2 rounded-lg">
                   <Trash2 size={15} className="mr-2" /> ลบข้อมูลการฝึกงานนี้
@@ -324,7 +324,7 @@ function EditPlacementModal({ placement, onClose, onSuccess }) {
             </div>
           </form>
         </div>
-        <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-2 flex-shrink-0">
+        <div className="px-6 py-4 border-t border-border-light bg-background flex justify-end gap-2 flex-shrink-0">
           <button type="button" onClick={onClose} className="btn-secondary">ยกเลิก</button>
           <button type="submit" form="edit-placement-form" disabled={saving} className="btn-primary">
             {saving ? 'บันทึก...' : 'บันทึกข้อมูล'}
@@ -365,8 +365,8 @@ export default function AdminPlacements() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">จัดการสถานที่ฝึกงาน</h1>
-          <p className="text-sm text-gray-500 mt-0.5">จัดการการจับคู่นักศึกษา พี่เลี้ยง และบริษัท</p>
+          <h1 className="text-xl font-bold text-content">จัดการสถานที่ฝึกงาน</h1>
+          <p className="text-sm text-content-muted mt-0.5">จัดการการจับคู่นักศึกษา พี่เลี้ยง และบริษัท</p>
         </div>
         <button onClick={() => setShowAddModal(true)} className="btn-primary flex items-center gap-2">
           <Plus size={18} /> เพิ่มสถานที่ฝึกงาน
@@ -388,11 +388,11 @@ export default function AdminPlacements() {
         {loading ? (
           <SkeletonTable rows={5} columns={5} />
         ) : filtered.length === 0 ? (
-          <div className="text-center py-10 text-gray-500">ไม่พบข้อมูลสถานที่ฝึกงาน</div>
+          <div className="text-center py-10 text-content-muted">ไม่พบข้อมูลสถานที่ฝึกงาน</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-gray-50 text-gray-600">
+              <thead className="bg-background text-content-muted">
                 <tr>
                   <th className="px-4 py-3 font-semibold rounded-tl-lg">นักศึกษา</th>
                   <th className="px-4 py-3 font-semibold">บริษัท/แผนก</th>
@@ -405,12 +405,12 @@ export default function AdminPlacements() {
                 {filtered.map(p => (
                   <tr key={p.id} className="hover:bg-gray-50/50">
                     <td className="px-4 py-3">
-                      <div className="font-semibold text-gray-900">{p.student?.full_name}</div>
-                      <div className="text-xs text-gray-500">{p.student?.student_code || p.student?.email}</div>
+                      <div className="font-semibold text-content">{p.student?.full_name}</div>
+                      <div className="text-xs text-content-muted">{p.student?.student_code || p.student?.email}</div>
                     </td>
                     <td className="px-4 py-3">
                       <div className="font-semibold">{p.company_name}</div>
-                      <div className="text-xs text-gray-500">{p.position} {p.department && `(${p.department})`}</div>
+                      <div className="text-xs text-content-muted">{p.position} {p.department && `(${p.department})`}</div>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
@@ -419,7 +419,7 @@ export default function AdminPlacements() {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${p.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${p.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-surface-hover text-content-muted'}`}>
                         {p.status === 'active' ? 'กำลังฝึกงาน' : 'เสร็จสิ้น'}
                       </span>
                     </td>

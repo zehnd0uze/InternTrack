@@ -8,7 +8,7 @@ const BOTTOM_NAV = [
 
 export default function BottomNav() {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 md:hidden z-30 shadow-lg">
+    <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border-light md:hidden z-30 shadow-lg">
       <div className="flex items-center justify-around h-16">
         {BOTTOM_NAV.map(({ to, label, icon: Icon, end }) => (
           <NavLink
@@ -17,7 +17,7 @@ export default function BottomNav() {
             end={end}
             className={({ isActive }) =>
               `flex flex-col items-center justify-center gap-0.5 flex-1 h-full transition-colors ${
-                isActive ? 'text-primary-700' : 'text-gray-400 hover:text-gray-600'
+                isActive ? 'text-primary-700' : 'text-gray-400 hover:text-content-muted'
               }`
             }
           >

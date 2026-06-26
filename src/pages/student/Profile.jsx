@@ -13,6 +13,41 @@ export default function StudentProfile() {
   const [email, setEmail]       = useState(user?.email || '')
   const [profileLoading, setProfileLoading] = useState(false)
   const [avatarUploading, setAvatarUploading] = useState(false)
+  const [badges, setBadges] = useState([])
+
+  // ---- Fetch Badges ----
+  useEffect(() => {
+    async function fetchBadges() {
+      const { data } = await supabase.from('attendance').select('hours_worked, date, check_in').eq('user_id', user.id)
+      if (!data) return
+      
+      const totalHours = data.reduce((s, r) => s + (parseFloat(r.hours_worked) || 0), 0)
+      const monthDays = data.filter(r => new Date(r.date).getMonth() === new Date().getMonth()).length
+      
+      const newBadges = []
+      if (totalHours >= 100) newBadges.push({ id: 'marathoner', icon: '💯', title: 'Marathoner', color: 'text-rose-500 bg-rose-50 border-rose-200', desc: 'สะสมชั่วโมงทะลุ 100 ชม.' })
+      
+      let hasEarly = false, hasWeekend = false
+      data.forEach(r => {
+        if (!hasEarly && r.check_in) {
+          const h = new Date(r.check_in).getHours()
+          const m = new Date(r.check_in).getMinutes()
+          if (h < 8 || (h === 8 && m <= 30)) hasEarly = true
+        }
+        if (!hasWeekend && r.date) {
+          const d = new Date(r.date).getDay()
+          if (d === 0 || d === 6) hasWeekend = true
+        }
+      })
+
+      if (hasEarly) newBadges.push({ id: 'early', icon: '🌅', title: 'Early Bird', color: 'text-amber-500 bg-amber-50 border-amber-200', desc: 'เช็คอินก่อน 08:30 น.' })
+      if (hasWeekend) newBadges.push({ id: 'weekend', icon: '👑', title: 'Weekend Warrior', color: 'text-purple-600 bg-purple-50 border-purple-200', desc: 'เข้างานวันหยุดเสาร์-อาทิตย์' })
+      if (monthDays >= 5) newBadges.push({ id: 'fire', icon: '🔥', title: 'On Fire', color: 'text-orange-500 bg-orange-50 border-orange-200', desc: 'ทำงาน 5+ วันในเดือนนี้' })
+      
+      setBadges(newBadges)
+    }
+    fetchBadges()
+  }, [user.id])
 
   // ---- Password fields ----
   const [currentPassword, setCurrentPassword] = useState('')
@@ -145,15 +180,15 @@ export default function StudentProfile() {
     <div className="space-y-6 animate-fade-in max-w-2xl">
       {/* Page Title */}
       <div>
-        <h1 className="text-xl font-bold text-gray-900">โปรไฟล์ของฉัน</h1>
-        <p className="text-sm text-gray-500 mt-0.5">จัดการข้อมูลส่วนตัวและการตั้งค่าบัญชี</p>
+        <h1 className="text-xl font-bold text-content">โปรไฟล์ของฉัน</h1>
+        <p className="text-sm text-content-muted mt-0.5">จัดการข้อมูลส่วนตัวและการตั้งค่าบัญชี</p>
       </div>
 
       {/* Avatar + name banner */}
       <div className="card flex items-center gap-5">
         <div className="relative group flex-shrink-0">
           {profile?.avatar_url ? (
-            <img src={profile.avatar_url} alt="Profile" className="w-16 h-16 rounded-full object-cover shadow-md border border-gray-200" />
+            <img src={profile.avatar_url} alt="Profile" className="w-16 h-16 rounded-full object-cover shadow-md border border-border" />
           ) : (
             <div className="w-16 h-16 rounded-full bg-primary-700 flex items-center justify-center text-white text-2xl font-bold shadow-md">
               {avatarLetter}
@@ -175,12 +210,19 @@ export default function StudentProfile() {
             />
           </label>
         </div>
-        <div>
-          <p className="text-lg font-bold text-gray-900">{profile?.full_name || '—'}</p>
-          <p className="text-sm text-gray-500">{user?.email}</p>
-          <span className="inline-block mt-1 px-2 py-0.5 bg-primary-50 text-primary-700 text-xs font-semibold rounded-full">
-            นักศึกษา
-          </span>
+        <div className="flex-1">
+          <p className="text-lg font-bold text-content">{profile?.full_name || '—'}</p>
+          <p className="text-sm text-content-muted">{user?.email}</p>
+          <div className="flex items-center gap-2 mt-2 flex-wrap">
+            <span className="px-2 py-0.5 bg-primary-50 text-primary-700 text-xs font-semibold rounded-full border border-primary-200">
+              นักศึกษา
+            </span>
+            {badges.map(b => (
+              <span key={b.id} title={b.desc} className={`flex items-center gap-1 px-2 py-0.5 rounded-full border text-xs font-semibold ${b.color}`}>
+                {b.icon} {b.title}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -188,13 +230,13 @@ export default function StudentProfile() {
       <div className="card">
         <div className="flex items-center gap-2 mb-5">
           <User size={18} className="text-primary-700" />
-          <h2 className="font-semibold text-gray-900">แก้ไขข้อมูลส่วนตัว</h2>
+          <h2 className="font-semibold text-content">แก้ไขข้อมูลส่วนตัว</h2>
         </div>
 
         <form onSubmit={handleSaveProfile} className="space-y-5">
           {/* Full Name */}
           <div>
-            <label htmlFor="profile-full-name" className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label htmlFor="profile-full-name" className="block text-sm font-medium text-content-muted mb-1.5">
               ชื่อ-นามสกุล <span className="text-danger">*</span>
             </label>
             <div className="relative">
@@ -213,7 +255,7 @@ export default function StudentProfile() {
 
           {/* Student ID */}
           <div>
-            <label htmlFor="profile-student-code" className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label htmlFor="profile-student-code" className="block text-sm font-medium text-content-muted mb-1.5">
               รหัสนักศึกษา
             </label>
             <div className="relative">
@@ -231,7 +273,7 @@ export default function StudentProfile() {
 
           {/* Email */}
           <div>
-            <label htmlFor="profile-email" className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label htmlFor="profile-email" className="block text-sm font-medium text-content-muted mb-1.5">
               อีเมล
             </label>
             <div className="relative">
@@ -275,13 +317,13 @@ export default function StudentProfile() {
       <div className="card">
         <div className="flex items-center gap-2 mb-5">
           <Lock size={18} className="text-primary-700" />
-          <h2 className="font-semibold text-gray-900">เปลี่ยนรหัสผ่าน</h2>
+          <h2 className="font-semibold text-content">เปลี่ยนรหัสผ่าน</h2>
         </div>
 
         <form onSubmit={handleChangePassword} className="space-y-5">
           {/* Current Password */}
           <div>
-            <label htmlFor="current-password" className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label htmlFor="current-password" className="block text-sm font-medium text-content-muted mb-1.5">
               รหัสผ่านปัจจุบัน <span className="text-danger">*</span>
             </label>
             <div className="relative">
@@ -298,7 +340,7 @@ export default function StudentProfile() {
               <button
                 type="button"
                 onClick={() => setShowCurrent(v => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-content-muted"
               >
                 {showCurrent ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -307,7 +349,7 @@ export default function StudentProfile() {
 
           {/* New Password */}
           <div>
-            <label htmlFor="new-password" className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label htmlFor="new-password" className="block text-sm font-medium text-content-muted mb-1.5">
               รหัสผ่านใหม่ <span className="text-danger">*</span>
             </label>
             <div className="relative">
@@ -325,7 +367,7 @@ export default function StudentProfile() {
               <button
                 type="button"
                 onClick={() => setShowNew(v => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-content-muted"
               >
                 {showNew ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -334,7 +376,7 @@ export default function StudentProfile() {
 
           {/* Confirm Password */}
           <div>
-            <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label htmlFor="confirm-password" className="block text-sm font-medium text-content-muted mb-1.5">
               ยืนยันรหัสผ่านใหม่ <span className="text-danger">*</span>
             </label>
             <div className="relative">
@@ -353,7 +395,7 @@ export default function StudentProfile() {
               <button
                 type="button"
                 onClick={() => setShowConfirm(v => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-content-muted"
               >
                 {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>

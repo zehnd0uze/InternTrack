@@ -84,7 +84,7 @@ export default function ScheduleCalendar({ events, onSelectEvent, onSelectSlot, 
   }, [events, date])
 
   return (
-    <div className="h-[600px] w-full bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+    <div className="h-[600px] w-full bg-card rounded-xl p-4 shadow-sm border border-border-light">
       <Calendar
         culture="th"
         localizer={localizer}

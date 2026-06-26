@@ -265,8 +265,8 @@ export default function AdminUsers() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">จัดการผู้ใช้ระบบ</h1>
-          <p className="text-gray-500 mt-1">เพิ่ม แก้ไข และระงับการใช้งานของบัญชีต่างๆ</p>
+          <h1 className="text-2xl font-bold text-content">จัดการผู้ใช้ระบบ</h1>
+          <p className="text-content-muted mt-1">เพิ่ม แก้ไข และระงับการใช้งานของบัญชีต่างๆ</p>
         </div>
         <div className="flex gap-2">
           <button onClick={handleDownloadTemplate} className="text-primary-600 hover:text-primary-700 text-sm font-medium underline flex items-center self-center mr-2">
@@ -312,7 +312,7 @@ export default function AdminUsers() {
           <p>{search || roleFilter ? 'ไม่พบผู้ใช้ที่ค้นหา' : 'ยังไม่มีผู้ใช้ในระบบ'}</p>
         </div>
       ) : (
-        <div className="table-wrapper bg-white">
+        <div className="table-wrapper bg-card">
           <table className="table">
             <thead>
               <tr>
@@ -328,7 +328,7 @@ export default function AdminUsers() {
                 <tr key={u.id}>
                   <td>
                     <div>
-                      <p className="font-medium text-gray-900">{u.full_name}</p>
+                      <p className="font-medium text-content">{u.full_name}</p>
                       <div className="flex flex-col text-xs text-gray-400">
                         <span>{u.email}</span>
                         {u.role === 'student' && u.student_code && (
@@ -346,7 +346,7 @@ export default function AdminUsers() {
                       {ROLE_LABELS[u.role]}
                     </span>
                   </td>
-                  <td className="text-sm text-gray-600">
+                  <td className="text-sm text-content-muted">
                     {u.supervisor?.full_name || <span className="text-gray-300">-</span>}
                   </td>
                   <td>
@@ -381,10 +381,10 @@ export default function AdminUsers() {
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal-content max-w-lg" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-5">
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-content">
                 {editUser ? 'แก้ไขผู้ใช้' : 'เพิ่มผู้ใช้ใหม่'}
               </h3>
-              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600 p-1">
+              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-content-muted p-1">
                 <X size={20} />
               </button>
             </div>
@@ -516,9 +516,9 @@ export default function AdminUsers() {
       {importing && (
         <div className="modal-overlay">
           <div className="modal-content max-w-md">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">นำเข้าข้อมูลผู้ใช้</h3>
+            <h3 className="text-lg font-semibold text-content mb-4">นำเข้าข้อมูลผู้ใช้</h3>
             <div className="mb-4">
-              <div className="flex justify-between text-sm mb-1 text-gray-600">
+              <div className="flex justify-between text-sm mb-1 text-content-muted">
                 <span>กำลังดำเนินการ... {importProgress.current} / {importProgress.total}</span>
                 <span>{Math.round((importProgress.current / (importProgress.total || 1)) * 100)}%</span>
               </div>

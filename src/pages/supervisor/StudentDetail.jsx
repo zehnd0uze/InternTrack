@@ -22,7 +22,7 @@ export default function SupervisorStudentDetail() {
       supabase.from('users').select('*').eq('id', studentId).single(),
       supabase
         .from('attendance')
-        .select('*, daily_logs(log_text)', { count: 'exact' })
+        .select('*, daily_logs(log_text, mood)', { count: 'exact' })
         .eq('user_id', studentId)
         .order('date', { ascending: false })
         .range((page - 1) * ROWS, page * ROWS - 1),
@@ -47,7 +47,7 @@ export default function SupervisorStudentDetail() {
           <ArrowLeft size={18} />
         </button>
         <div>
-          <h1 className="text-xl font-bold text-gray-900">{student?.full_name || 'กำลังโหลด...'}</h1>
+          <h1 className="text-xl font-bold text-content">{student?.full_name || 'กำลังโหลด...'}</h1>
           <p className="text-sm text-gray-400">{student?.email}</p>
         </div>
       </div>
@@ -70,7 +70,7 @@ export default function SupervisorStudentDetail() {
       )}
 
       <div className="card">
-        <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <h2 className="font-semibold text-content mb-4 flex items-center gap-2">
           <Calendar size={18} className="text-primary-700" />
           ประวัติการเข้างาน
         </h2>
@@ -97,7 +97,7 @@ export default function SupervisorStudentDetail() {
                 <tbody>
                   {attendance.map(r => (
                     <tr key={r.id}>
-                      <td className="font-medium text-gray-900">{formatDate(r.date)}</td>
+                      <td className="font-medium text-content">{formatDate(r.date)}</td>
                       <td>{formatTime(r.check_in)}</td>
                       <td>{formatTime(r.check_out)}</td>
                       <td>
@@ -107,10 +107,20 @@ export default function SupervisorStudentDetail() {
                         }
                       </td>
                       <td className="max-w-xs">
-                        {r.daily_logs?.[0]?.log_text
-                          ? <p className="text-xs text-gray-600 truncate">{r.daily_logs[0].log_text}</p>
-                          : <span className="text-gray-300 text-xs">ไม่มีบันทึก</span>
-                        }
+                        {r.daily_logs?.[0]?.log_text ? (
+                          <div className="flex items-center gap-1.5" title={r.daily_logs[0].log_text}>
+                            {r.daily_logs[0].mood && (
+                              <span className="text-lg leading-none shrink-0">
+                                {
+                                  { great: '🤩', happy: '😊', neutral: '😐', stressed: '😫', bad: '😢' }[r.daily_logs[0].mood]
+                                }
+                              </span>
+                            )}
+                            <p className="text-xs text-content-muted truncate max-w-[180px]">{r.daily_logs[0].log_text}</p>
+                          </div>
+                        ) : (
+                          <span className="text-gray-300 text-xs">ไม่มีบันทึก</span>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -118,7 +128,7 @@ export default function SupervisorStudentDetail() {
               </table>
             </div>
             <div className="flex items-center justify-between mt-4 text-sm">
-              <span className="text-gray-500">แสดง {Math.min((page-1)*ROWS+1, total)}–{Math.min(page*ROWS,total)} จาก {total} รายการ</span>
+              <span className="text-content-muted">แสดง {Math.min((page-1)*ROWS+1, total)}–{Math.min(page*ROWS,total)} จาก {total} รายการ</span>
               <div className="flex gap-2">
                 <button onClick={() => setPage(p=>Math.max(1,p-1))} disabled={page===1} className="btn-secondary btn-sm disabled:opacity-40">ก่อนหน้า</button>
                 <button onClick={() => setPage(p=>p+1)} disabled={page*ROWS>=total} className="btn-secondary btn-sm disabled:opacity-40">ถัดไป</button>

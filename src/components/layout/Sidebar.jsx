@@ -61,10 +61,10 @@ const ROLE_LABELS = {
 }
 
 const ROLE_COLORS = {
-  admin:      'bg-gray-100 text-gray-700 border border-gray-200',
-  supervisor: 'bg-gray-100 text-gray-700 border border-gray-200',
-  student:    'bg-gray-100 text-gray-700 border border-gray-200',
-  mentor:     'bg-gray-100 text-gray-700 border border-gray-200',
+  admin:      'bg-surface-hover text-content-muted border border-border',
+  supervisor: 'bg-surface-hover text-content-muted border border-border',
+  student:    'bg-surface-hover text-content-muted border border-border',
+  mentor:     'bg-surface-hover text-content-muted border border-border',
 }
 
 export default function Sidebar({ role, collapsed, onToggle, mobile }) {

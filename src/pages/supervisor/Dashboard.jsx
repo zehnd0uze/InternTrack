@@ -108,8 +108,8 @@ export default function SupervisorDashboard() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-xl font-bold text-gray-900">แดชบอร์ดอาจารย์นิเทศ</h1>
-        <p className="text-sm text-gray-500 mt-0.5">
+        <h1 className="text-xl font-bold text-content">แดชบอร์ดอาจารย์นิเทศ</h1>
+        <p className="text-sm text-content-muted mt-0.5">
           {format(new Date(), 'EEEE, d MMMM yyyy', { locale: th })}
         </p>
       </div>
@@ -151,7 +151,7 @@ export default function SupervisorDashboard() {
       {/* Student List */}
       <div className="card">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-          <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+          <h2 className="font-semibold text-content flex items-center gap-2">
             <Users size={18} className="text-primary-700" />
             รายชื่อนักศึกษา
           </h2>
@@ -191,13 +191,13 @@ export default function SupervisorDashboard() {
                   <tr key={s.id}>
                     <td>
                       <div>
-                        <p className="font-medium text-gray-900">{s.full_name}</p>
+                        <p className="font-medium text-content">{s.full_name}</p>
                         <p className="text-xs text-gray-400">{s.email}</p>
                       </div>
                     </td>
                     <td>{statusBadge(s.todayRecord)}</td>
                     <td>
-                      <span className="font-semibold text-gray-900">{s.weekHours.toFixed(1)}</span>
+                      <span className="font-semibold text-content">{s.weekHours.toFixed(1)}</span>
                       <span className="text-gray-400 text-xs"> ชม.</span>
                     </td>
                     <td>
@@ -205,7 +205,7 @@ export default function SupervisorDashboard() {
                         <span className="font-semibold text-primary-700">{s.totalHours.toFixed(1)}</span>
                         <span className="text-gray-400 text-xs"> / {s.target_hours} ชม.</span>
                       </div>
-                      <div className="w-24 h-1.5 bg-gray-100 rounded-full mt-1 overflow-hidden">
+                      <div className="w-24 h-1.5 bg-surface-hover rounded-full mt-1 overflow-hidden">
                         <div
                           className="h-full bg-primary-500 rounded-full"
                           style={{ width: `${Math.min(100, (s.totalHours / s.target_hours) * 100)}%` }}

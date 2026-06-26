@@ -13,7 +13,11 @@ export function ThemeProvider({ children }) {
   }, [theme])
 
   const toggleTheme = () => {
-    setTheme(prev => (prev === 'classic' ? 'minimal' : 'classic'))
+    setTheme(prev => {
+      if (prev === 'classic') return 'minimal'
+      if (prev === 'minimal') return 'dark'
+      return 'classic'
+    })
   }
 
   return (

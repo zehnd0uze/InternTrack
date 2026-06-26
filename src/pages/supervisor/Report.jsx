@@ -97,13 +97,13 @@ export default function SupervisorReport() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-xl font-bold text-gray-900">รายงานการเข้างาน</h1>
-        <p className="text-sm text-gray-500 mt-0.5">ดูและดาวน์โหลดข้อมูลการเข้างานของนักศึกษา</p>
+        <h1 className="text-xl font-bold text-content">รายงานการเข้างาน</h1>
+        <p className="text-sm text-content-muted mt-0.5">ดูและดาวน์โหลดข้อมูลการเข้างานของนักศึกษา</p>
       </div>
 
       {/* Filters */}
       <div className="card">
-        <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <h2 className="font-semibold text-content mb-4 flex items-center gap-2">
           <Search size={18} className="text-primary-700" /> ตัวกรองรายงาน
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
@@ -147,8 +147,8 @@ export default function SupervisorReport() {
         ) : (
           <div className="card">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm text-gray-500">
-                พบ <span className="font-semibold text-gray-900">{data.length}</span> รายการ
+              <p className="text-sm text-content-muted">
+                พบ <span className="font-semibold text-content">{data.length}</span> รายการ
               </p>
             </div>
             <div className="table-wrapper">
@@ -166,7 +166,7 @@ export default function SupervisorReport() {
                 <tbody>
                   {data.map(r => (
                     <tr key={r.id}>
-                      <td className="font-medium text-gray-900">{formatDateThai(r.date)}</td>
+                      <td className="font-medium text-content">{formatDateThai(r.date)}</td>
                       <td>{formatTime(r.check_in)}</td>
                       <td>{formatTime(r.check_out)}</td>
                       <td>
@@ -176,7 +176,7 @@ export default function SupervisorReport() {
                       </td>
                       <td className="max-w-xs">
                         {r.daily_logs?.[0]?.log_text
-                          ? <p className="text-xs text-gray-600 truncate max-w-[200px]">{r.daily_logs[0].log_text}</p>
+                          ? <p className="text-xs text-content-muted truncate max-w-[200px]">{r.daily_logs[0].log_text}</p>
                           : <span className="text-gray-300 text-xs">ไม่มีบันทึก</span>}
                       </td>
                       <td>

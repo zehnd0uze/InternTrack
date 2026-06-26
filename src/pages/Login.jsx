@@ -42,14 +42,14 @@ export default function Login() {
 
       <div className="w-full max-w-md relative z-10">
         {/* Card */}
-        <div className="bg-white rounded-2xl shadow-card-lg p-8 animate-fade-in">
+        <div className="bg-card rounded-2xl shadow-card-lg p-8 animate-fade-in">
           {/* Logo */}
           <div className="flex flex-col items-center mb-8">
             <div className="w-16 h-16 bg-primary-700 rounded-2xl flex items-center justify-center shadow-lg mb-4">
               <ClipboardList size={28} className="text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">InternTrack</h1>
-            <p className="text-gray-500 text-sm mt-1">ระบบติดตามการฝึกประสบการณ์วิชาชีพ</p>
+            <h1 className="text-2xl font-bold text-content">InternTrack</h1>
+            <p className="text-content-muted text-sm mt-1">ระบบติดตามการฝึกประสบการณ์วิชาชีพ</p>
           </div>
 
           {/* Form */}
@@ -84,7 +84,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-content-muted transition-colors"
                   aria-label="แสดง/ซ่อนรหัสผ่าน"
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -118,7 +118,7 @@ export default function Login() {
             ติดต่อผู้ดูแลระบบหากไม่สามารถเข้าสู่ระบบได้
           </p>
 
-          <p className="text-center text-sm text-gray-500 mt-4">
+          <p className="text-center text-sm text-content-muted mt-4">
             ยังไม่มีบัญชี?{' '}
             <Link to="/register" className="text-primary-700 font-semibold hover:underline">
               สมัครสมาชิก

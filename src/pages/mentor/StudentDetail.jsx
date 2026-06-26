@@ -27,7 +27,10 @@ export default function MentorStudentDetail() {
 
     let attQuery = supabase
       .from('attendance')
-      .select('*, daily_logs(log_text)', { count: 'exact' })
+      .select(`
+        *,
+        daily_logs ( log_text, mood )
+      `, { count: 'exact' })
       .eq('user_id', studentId)
       .order('date', { ascending: false })
       .range((page - 1) * ROWS, page * ROWS - 1)
@@ -67,7 +70,7 @@ export default function MentorStudentDetail() {
           <ArrowLeft size={18} />
         </button>
         <div>
-          <h1 className="text-xl font-bold text-gray-900">{student?.full_name || 'กำลังโหลด...'}</h1>
+          <h1 className="text-xl font-bold text-content">{student?.full_name || 'กำลังโหลด...'}</h1>
           <p className="text-sm text-gray-400">{student?.email}</p>
         </div>
       </div>
@@ -77,7 +80,7 @@ export default function MentorStudentDetail() {
         <div className="card">
           <div className="flex items-center gap-2 mb-4">
             <Building2 size={18} className="text-primary-700" />
-            <h2 className="font-semibold text-gray-900">ข้อมูลการฝึกงาน</h2>
+            <h2 className="font-semibold text-content">ข้อมูลการฝึกงาน</h2>
             {placement && (
               <span className={`ml-auto badge ${placement.status === 'active' ? 'badge-success' : 'badge-gray'}`}>
                 {placement.status === 'active' ? 'กำลังฝึกงาน' : 'เสร็จสิ้น'}
@@ -94,7 +97,7 @@ export default function MentorStudentDetail() {
                 </div>
                 <div>
                   <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">บริษัท</p>
-                  <p className="text-sm font-semibold text-gray-900 mt-0.5">{placement.company_name}</p>
+                  <p className="text-sm font-semibold text-content mt-0.5">{placement.company_name}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -103,7 +106,7 @@ export default function MentorStudentDetail() {
                 </div>
                 <div>
                   <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">ตำแหน่ง</p>
-                  <p className="text-sm font-semibold text-gray-900 mt-0.5">{placement.position}</p>
+                  <p className="text-sm font-semibold text-content mt-0.5">{placement.position}</p>
                 </div>
               </div>
               {placement.department && (
@@ -113,7 +116,7 @@ export default function MentorStudentDetail() {
                   </div>
                   <div>
                     <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">แผนก</p>
-                    <p className="text-sm font-semibold text-gray-900 mt-0.5">{placement.department}</p>
+                    <p className="text-sm font-semibold text-content mt-0.5">{placement.department}</p>
                   </div>
                 </div>
               )}
@@ -123,7 +126,7 @@ export default function MentorStudentDetail() {
                 </div>
                 <div>
                   <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">วันที่เริ่ม</p>
-                  <p className="text-sm font-semibold text-gray-900 mt-0.5">{formatDate(placement.start_date)}</p>
+                  <p className="text-sm font-semibold text-content mt-0.5">{formatDate(placement.start_date)}</p>
                 </div>
               </div>
               {placement.end_date && (
@@ -133,18 +136,18 @@ export default function MentorStudentDetail() {
                   </div>
                   <div>
                     <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">วันที่สิ้นสุด</p>
-                    <p className="text-sm font-semibold text-gray-900 mt-0.5">{formatDate(placement.end_date)}</p>
+                    <p className="text-sm font-semibold text-content mt-0.5">{formatDate(placement.end_date)}</p>
                   </div>
                 </div>
               )}
               {placement.notes && (
                 <div className="sm:col-span-2 lg:col-span-3 flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center flex-shrink-0">
-                    <User size={15} className="text-gray-500" />
+                  <div className="w-8 h-8 rounded-lg bg-background flex items-center justify-center flex-shrink-0">
+                    <User size={15} className="text-content-muted" />
                   </div>
                   <div>
                     <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">หมายเหตุ</p>
-                    <p className="text-sm text-gray-700 mt-0.5">{placement.notes}</p>
+                    <p className="text-sm text-content-muted mt-0.5">{placement.notes}</p>
                   </div>
                 </div>
               )}
@@ -187,13 +190,13 @@ export default function MentorStudentDetail() {
       {/* Attendance History */}
       <div className="card">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-          <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+          <h2 className="font-semibold text-content flex items-center gap-2">
             <Calendar size={18} className="text-primary-700" />
             ประวัติการเข้างาน
           </h2>
           <div className="flex flex-wrap gap-2">
             <div>
-              <label className="text-xs text-gray-500 block mb-1">ตั้งแต่</label>
+              <label className="text-xs text-content-muted block mb-1">ตั้งแต่</label>
               <input
                 type="date"
                 value={dateFrom}
@@ -202,7 +205,7 @@ export default function MentorStudentDetail() {
               />
             </div>
             <div>
-              <label className="text-xs text-gray-500 block mb-1">ถึง</label>
+              <label className="text-xs text-content-muted block mb-1">ถึง</label>
               <input
                 type="date"
                 value={dateTo}
@@ -245,7 +248,7 @@ export default function MentorStudentDetail() {
                 <tbody>
                   {attendance.map(r => (
                     <tr key={r.id}>
-                      <td className="font-medium text-gray-900">{formatDate(r.date)}</td>
+                      <td className="font-medium text-content">{formatDate(r.date)}</td>
                       <td>{formatTime(r.check_in)}</td>
                       <td>{formatTime(r.check_out)}</td>
                       <td>
@@ -255,10 +258,20 @@ export default function MentorStudentDetail() {
                         }
                       </td>
                       <td className="max-w-xs">
-                        {r.daily_logs?.[0]?.log_text
-                          ? <p className="text-xs text-gray-600 truncate max-w-[200px]" title={r.daily_logs[0].log_text}>{r.daily_logs[0].log_text}</p>
-                          : <span className="text-gray-300 text-xs">ไม่มีบันทึก</span>
-                        }
+                        {r.daily_logs?.[0]?.log_text ? (
+                          <div className="flex items-center gap-1.5" title={r.daily_logs[0].log_text}>
+                            {r.daily_logs[0].mood && (
+                              <span className="text-lg leading-none shrink-0">
+                                {
+                                  { great: '🤩', happy: '😊', neutral: '😐', stressed: '😫', bad: '😢' }[r.daily_logs[0].mood]
+                                }
+                              </span>
+                            )}
+                            <p className="text-xs text-content-muted truncate max-w-[180px]">{r.daily_logs[0].log_text}</p>
+                          </div>
+                        ) : (
+                          <span className="text-gray-300 text-xs">ไม่มีบันทึก</span>
+                        )}
                       </td>
                       <td>
                         <span className={`badge ${r.check_out ? 'badge-success' : 'badge-warning'}`}>
@@ -271,7 +284,7 @@ export default function MentorStudentDetail() {
               </table>
             </div>
             <div className="flex items-center justify-between mt-4 text-sm">
-              <span className="text-gray-500">
+              <span className="text-content-muted">
                 แสดง {Math.min((page - 1) * ROWS + 1, total)}–{Math.min(page * ROWS, total)} จาก {total} รายการ
               </span>
               <div className="flex gap-2">

@@ -118,8 +118,8 @@ export default function StudentLeaveRequest() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-xl font-bold text-gray-900">แจ้งลา ป่วย/กิจ</h1>
-        <p className="text-sm text-gray-500 mt-0.5">ส่งคำขอลาป่วยหรือลากิจเพื่อให้อาจารย์นิเทศพิจารณา</p>
+        <h1 className="text-xl font-bold text-content">แจ้งลา ป่วย/กิจ</h1>
+        <p className="text-sm text-content-muted mt-0.5">ส่งคำขอลาป่วยหรือลากิจเพื่อให้อาจารย์นิเทศพิจารณา</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -127,7 +127,7 @@ export default function StudentLeaveRequest() {
         <div className="card lg:col-span-1 h-fit">
           <div className="flex items-center gap-2 mb-4">
             <FileText size={18} className="text-primary-700" />
-            <h2 className="font-semibold text-gray-900">ฟอร์มขอลา</h2>
+            <h2 className="font-semibold text-content">ฟอร์มขอลา</h2>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -190,7 +190,7 @@ export default function StudentLeaveRequest() {
         <div className="card lg:col-span-2">
           <div className="flex items-center gap-2 mb-4">
             <Calendar size={18} className="text-primary-700" />
-            <h2 className="font-semibold text-gray-900">ประวัติการขอลา</h2>
+            <h2 className="font-semibold text-content">ประวัติการขอลา</h2>
           </div>
 
           {loading ? (
@@ -214,7 +214,7 @@ export default function StudentLeaveRequest() {
                 <tbody>
                   {requests.map(req => (
                     <tr key={req.id}>
-                      <td className="text-sm text-gray-500">
+                      <td className="text-sm text-content-muted">
                         {format(new Date(req.created_at), 'd MMM yyyy', { locale: th })}
                       </td>
                       <td className="font-medium">

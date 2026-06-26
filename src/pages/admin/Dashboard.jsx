@@ -20,7 +20,7 @@ import { SkeletonCard } from '../../components/ui/Skeleton'
 function LiveBadge({ connected }) {
   return (
     <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${
-      connected ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+      connected ? 'bg-green-100 text-green-700' : 'bg-surface-hover text-content-muted'
     }`}>
       {connected
         ? <><span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />LIVE</>
@@ -35,10 +35,10 @@ function ProgressBar({ pct }) {
   const color = clamped >= 100 ? 'bg-green-500' : clamped >= 50 ? 'bg-blue-500' : 'bg-amber-400'
   return (
     <div className="flex items-center gap-2">
-      <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+      <div className="flex-1 h-1.5 bg-surface-hover rounded-full overflow-hidden">
         <div className={`h-full rounded-full transition-all duration-500 ${color}`} style={{ width: `${clamped}%` }} />
       </div>
-      <span className="text-xs text-gray-500 w-9 text-right">{clamped.toFixed(0)}%</span>
+      <span className="text-xs text-content-muted w-9 text-right">{clamped.toFixed(0)}%</span>
     </div>
   )
 }
@@ -258,8 +258,8 @@ export default function AdminDashboard() {
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">ภาพรวมระบบ</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <h1 className="text-xl font-bold text-content">ภาพรวมระบบ</h1>
+          <p className="text-sm text-content-muted mt-0.5">
             {format(new Date(), 'EEEE, d MMMM yyyy', { locale: th })}
           </p>
         </div>
@@ -291,7 +291,7 @@ export default function AdminDashboard() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Activity size={18} className="text-green-600" />
-              <h2 className="font-semibold text-gray-900">การเข้างานวันนี้</h2>
+              <h2 className="font-semibold text-content">การเข้างานวันนี้</h2>
             </div>
             <span className="text-xs text-gray-400">{format(new Date(), 'dd/MM/yyyy')}</span>
           </div>
@@ -301,7 +301,7 @@ export default function AdminDashboard() {
                 <div className="w-8 h-8 bg-gray-200 rounded-full" />
                 <div className="flex-1 space-y-1.5">
                   <div className="h-3.5 bg-gray-200 rounded w-32" />
-                  <div className="h-2.5 bg-gray-100 rounded w-24" />
+                  <div className="h-2.5 bg-surface-hover rounded w-24" />
                 </div>
               </div>
             ))}</div>
@@ -310,10 +310,10 @@ export default function AdminDashboard() {
           ) : (
             <div className="space-y-2 max-h-72 overflow-y-auto">
               {liveAttendance.map(a => (
-                <div key={a.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+                <div key={a.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-background hover:bg-surface-hover transition-colors">
                   <div className={`w-2 h-2 rounded-full flex-shrink-0 ${a.check_out ? 'bg-gray-400' : 'bg-green-500 animate-pulse'}`} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">{a.users?.full_name || '—'}</p>
+                    <p className="text-sm font-medium text-content truncate">{a.users?.full_name || '—'}</p>
                     <p className="text-xs text-gray-400">
                       เข้า {fmt(a.check_in)}
                       {a.check_out ? ` · ออก ${fmt(a.check_out)}` : ' · กำลังทำงาน'}
@@ -337,7 +337,7 @@ export default function AdminDashboard() {
         <div className="card">
           <div className="flex items-center gap-2 mb-4">
             <AlertCircle size={18} className="text-amber-500" />
-            <h2 className="font-semibold text-gray-900">รายการรออนุมัติ</h2>
+            <h2 className="font-semibold text-content">รายการรออนุมัติ</h2>
             {pendingList.length > 0 && (
               <span className="ml-auto text-xs font-bold text-white bg-amber-500 rounded-full w-5 h-5 flex items-center justify-center">
                 {pendingList.length}
@@ -348,7 +348,7 @@ export default function AdminDashboard() {
             <div className="space-y-3">{[1,2,3].map(i=>(
               <div key={i} className="animate-pulse space-y-1.5">
                 <div className="h-3.5 bg-gray-200 rounded w-40" />
-                <div className="h-2.5 bg-gray-100 rounded w-28" />
+                <div className="h-2.5 bg-surface-hover rounded w-28" />
               </div>
             ))}</div>
           ) : pendingList.length === 0 ? (
@@ -358,8 +358,8 @@ export default function AdminDashboard() {
               {pendingList.map(a => (
                 <div key={a.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-amber-50 border border-amber-100">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">{a.users?.full_name || '—'}</p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-sm font-medium text-content truncate">{a.users?.full_name || '—'}</p>
+                    <p className="text-xs text-content-muted">
                       สัปดาห์ {format(new Date(a.week_start), 'd MMM yyyy', { locale: th })}
                       {a.total_hours && ` · ${parseFloat(a.total_hours).toFixed(1)} ชม.`}
                     </p>
@@ -393,13 +393,13 @@ export default function AdminDashboard() {
       <div className="card">
         <div className="flex items-center gap-2 mb-4">
           <Users size={18} className="text-primary-700" />
-          <h2 className="font-semibold text-gray-900">ความคืบหน้านักศึกษาทั้งหมด</h2>
+          <h2 className="font-semibold text-content">ความคืบหน้านักศึกษาทั้งหมด</h2>
         </div>
         {progressLoading ? (
           <div className="space-y-3">{[1,2,3,4].map(i=>(
             <div key={i} className="animate-pulse space-y-1.5">
-              <div className="flex justify-between"><div className="h-3.5 bg-gray-200 rounded w-36" /><div className="h-3.5 bg-gray-100 rounded w-16" /></div>
-              <div className="h-1.5 bg-gray-100 rounded-full" />
+              <div className="flex justify-between"><div className="h-3.5 bg-gray-200 rounded w-36" /><div className="h-3.5 bg-surface-hover rounded w-16" /></div>
+              <div className="h-1.5 bg-surface-hover rounded-full" />
             </div>
           ))}</div>
         ) : studentsProgress.length === 0 ? (
@@ -420,7 +420,7 @@ export default function AdminDashboard() {
               <tbody>
                 {studentsProgress.map(s => (
                   <tr key={s.id}>
-                    <td className="font-medium text-gray-900">{s.full_name}</td>
+                    <td className="font-medium text-content">{s.full_name}</td>
                     <td>
                       {s.clockedIn
                         ? <span className="badge badge-success flex items-center gap-1 w-fit"><span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />อยู่</span>
@@ -430,7 +430,7 @@ export default function AdminDashboard() {
                     </td>
                     <td><ProgressBar pct={s.pct} /></td>
                     <td className="font-semibold text-primary-700">{s.totalHours.toFixed(1)} <span className="text-xs text-gray-400">ชม.</span></td>
-                    <td className="text-gray-500 text-sm">{s.target_hours} ชม.</td>
+                    <td className="text-content-muted text-sm">{s.target_hours} ชม.</td>
                     <td>
                       <button
                         id={`admin-view-as-${s.id}`}
@@ -453,13 +453,13 @@ export default function AdminDashboard() {
       <div className="card">
         <div className="flex items-center gap-2 mb-4">
           <FileText size={18} className="text-primary-700" />
-          <h2 className="font-semibold text-gray-900">บันทึกประจำวันล่าสุด</h2>
+          <h2 className="font-semibold text-content">บันทึกประจำวันล่าสุด</h2>
         </div>
         {logsLoading ? (
           <div className="space-y-3">{[1,2,3].map(i=>(
             <div key={i} className="animate-pulse space-y-1.5">
               <div className="h-3 bg-gray-200 rounded w-48" />
-              <div className="h-3 bg-gray-100 rounded w-full" />
+              <div className="h-3 bg-surface-hover rounded w-full" />
             </div>
           ))}</div>
         ) : recentLogs.length === 0 ? (
@@ -467,12 +467,12 @@ export default function AdminDashboard() {
         ) : (
           <div className="space-y-3">
             {recentLogs.map(log => (
-              <div key={log.id} className="p-3 rounded-lg bg-gray-50 border-l-2 border-primary-200">
+              <div key={log.id} className="p-3 rounded-lg bg-background border-l-2 border-primary-200">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-medium text-gray-900">{log.users?.full_name || '—'}</span>
+                  <span className="text-sm font-medium text-content">{log.users?.full_name || '—'}</span>
                   <span className="text-xs text-gray-400">{format(new Date(log.date), 'd MMM yyyy', { locale: th })}</span>
                 </div>
-                <p className="text-sm text-gray-600 line-clamp-2">{log.log_text}</p>
+                <p className="text-sm text-content-muted line-clamp-2">{log.log_text}</p>
               </div>
             ))}
           </div>
@@ -484,7 +484,7 @@ export default function AdminDashboard() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <BarChart3 size={18} className="text-primary-700" />
-            <h2 className="font-semibold text-gray-900">ชั่วโมงทำงานรายสัปดาห์ (4 สัปดาห์ล่าสุด)</h2>
+            <h2 className="font-semibold text-content">ชั่วโมงทำงานรายสัปดาห์ (4 สัปดาห์ล่าสุด)</h2>
           </div>
           <span className="text-xs text-gray-400">รีเฟรชทุก 60 วิ</span>
         </div>

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom'
-import { Menu, Bell, ChevronDown, UserCircle, Palette, Sparkles } from 'lucide-react'
+import { Menu, Bell, ChevronDown, UserCircle, Palette, Sparkles, Moon } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useNotifications } from '../../contexts/NotificationContext'
 import { useViewAs } from '../../contexts/ViewAsContext'
@@ -43,7 +43,7 @@ export default function TopBar({ onMenuClick }) {
   }
 
   return (
-    <header className="bg-white border-b border-gray-100 flex-shrink-0 shadow-sm">
+    <header className="bg-card border-b border-border-light flex-shrink-0 shadow-sm">
       {/* View-As Banner */}
       {viewingAs && location.pathname.includes('/view-as-student') && (
         <div className="bg-amber-500 text-white px-4 py-2 flex items-center justify-between">
@@ -68,15 +68,15 @@ export default function TopBar({ onMenuClick }) {
         {/* Left: Hamburger (mobile) */}
         <button
           onClick={onMenuClick}
-          className="md:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors"
+          className="md:hidden p-2 rounded-lg text-content-muted hover:bg-surface-hover transition-colors"
           aria-label="เปิดเมนู"
         >
           <Menu size={20} />
         </button>
 
         <div className="hidden md:flex items-center">
-          <h1 className="text-sm text-gray-500 font-medium">
-            ยินดีต้อนรับ, <span className="text-gray-900 font-semibold">{profile?.full_name}</span>
+          <h1 className="text-sm text-content-muted font-medium">
+            ยินดีต้อนรับ, <span className="text-content font-semibold">{profile?.full_name}</span>
           </h1>
         </div>
 
@@ -85,10 +85,11 @@ export default function TopBar({ onMenuClick }) {
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
-            title={theme === 'classic' ? 'เปลี่ยนเป็น Minimal Theme' : 'เปลี่ยนเป็น Classic Theme'}
+            className="p-2 rounded-lg text-content-muted hover:bg-surface-hover hover:text-content-muted transition-colors"
           >
-            {theme === 'classic' ? <Sparkles size={20} className="text-amber-500" /> : <Palette size={20} className="text-primary-600" />}
+            {theme === 'classic' && <Sparkles size={20} className="text-amber-500" title="เปลี่ยนเป็น Minimal Theme" />}
+            {theme === 'minimal' && <Moon size={20} className="text-slate-600" title="เปลี่ยนเป็น Dark Theme" />}
+            {theme === 'dark' && <Palette size={20} className="text-blue-400" title="เปลี่ยนเป็น Classic Theme" />}
           </button>
 
           {/* Notification Bell */}
@@ -96,7 +97,7 @@ export default function TopBar({ onMenuClick }) {
             <button
               id="notification-bell"
               onClick={() => { setNotifOpen(v => !v); setUserOpen(false) }}
-              className="relative p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
+              className="relative p-2 rounded-lg text-content-muted hover:bg-surface-hover hover:text-content-muted transition-colors"
               aria-label="การแจ้งเตือน"
             >
               <Bell size={20} />
@@ -108,9 +109,9 @@ export default function TopBar({ onMenuClick }) {
             </button>
 
             {notifOpen && (
-              <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl shadow-card-lg border border-gray-100 z-50 animate-slide-in overflow-hidden">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-                  <span className="font-semibold text-gray-900 text-sm">การแจ้งเตือน</span>
+              <div className="absolute right-0 top-full mt-2 w-80 bg-card rounded-xl shadow-card-lg border border-border-light z-50 animate-slide-in overflow-hidden">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-border-light">
+                  <span className="font-semibold text-content text-sm">การแจ้งเตือน</span>
                   {unreadCount > 0 && (
                     <button
                       onClick={markAllRead}
@@ -130,9 +131,9 @@ export default function TopBar({ onMenuClick }) {
                       <div
                         key={n.id}
                         onClick={() => markRead(n.id)}
-                        className={`px-4 py-3 border-b border-gray-50 cursor-pointer hover:bg-gray-50 transition-colors ${!n.is_read ? 'bg-blue-50/50' : ''}`}
+                        className={`px-4 py-3 border-b border-gray-50 cursor-pointer hover:bg-background transition-colors ${!n.is_read ? 'bg-blue-50/50' : ''}`}
                       >
-                        <p className={`text-sm ${!n.is_read ? 'font-medium text-gray-900' : 'text-gray-600'}`}>
+                        <p className={`text-sm ${!n.is_read ? 'font-medium text-content' : 'text-content-muted'}`}>
                           {n.message}
                         </p>
                         <p className="text-xs text-gray-400 mt-0.5">
@@ -143,7 +144,7 @@ export default function TopBar({ onMenuClick }) {
                   )}
                 </div>
                 {notifications.length > 0 && (
-                  <div className="px-4 py-2 border-t border-gray-100 bg-gray-50 text-center">
+                  <div className="px-4 py-2 border-t border-border-light bg-background text-center">
                     <Link
                       to={`/${activeRole}/notifications`}
                       onClick={() => setNotifOpen(false)}
@@ -162,33 +163,33 @@ export default function TopBar({ onMenuClick }) {
             <button
               id="user-menu"
               onClick={() => { setUserOpen(v => !v); setNotifOpen(false) }}
-              className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+              className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-surface-hover transition-colors"
             >
               {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="Profile" className="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-gray-200" />
+                <img src={profile.avatar_url} alt="Profile" className="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-border" />
               ) : (
                 <div className="w-8 h-8 rounded-full bg-primary-700 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                   {profile?.full_name?.charAt(0)?.toUpperCase() || '?'}
                 </div>
               )}
               <div className="hidden sm:block text-left">
-                <p className="text-sm font-semibold text-gray-800 leading-tight">{profile?.full_name}</p>
+                <p className="text-sm font-semibold text-content leading-tight">{profile?.full_name}</p>
                 <p className="text-xs text-gray-400">{ROLE_LABELS[activeRole] || activeRole}</p>
               </div>
               <ChevronDown size={14} className="text-gray-400 hidden sm:block" />
             </button>
 
             {userOpen && (
-              <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-card-lg border border-gray-100 z-50 animate-slide-in py-1">
+              <div className="absolute right-0 top-full mt-2 w-48 bg-card rounded-xl shadow-card-lg border border-border-light z-50 animate-slide-in py-1">
                 <div className="px-3 py-2 border-b border-gray-50">
                   <p className="text-xs text-gray-400">เข้าสู่ระบบในฐานะ</p>
-                  <p className="text-sm font-semibold text-gray-800 truncate">{profile?.full_name}</p>
+                  <p className="text-sm font-semibold text-content truncate">{profile?.full_name}</p>
                 </div>
                 {activeRole === 'student' && (
                   <NavLink
                     to="/student/profile"
                     onClick={() => setUserOpen(false)}
-                    className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+                    className="w-full text-left px-3 py-2 text-sm text-content-muted hover:bg-background transition-colors flex items-center gap-2"
                   >
                     <UserCircle size={15} className="text-gray-400" />
                     แก้ไขโปรไฟล์

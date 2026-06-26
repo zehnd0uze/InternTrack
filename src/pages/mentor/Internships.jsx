@@ -51,7 +51,7 @@ function PlacementFormFields({
     <>
       {/* Company Name */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+        <label className="block text-sm font-medium text-content-muted mb-1.5">
           ชื่อบริษัท / สถานประกอบการ <span className="text-danger">*</span>
         </label>
         <div className="relative">
@@ -70,7 +70,7 @@ function PlacementFormFields({
       {/* Department + Position */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">แผนก</label>
+          <label className="block text-sm font-medium text-content-muted mb-1.5">แผนก</label>
           <div className="relative">
             <MapPin size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
             <input
@@ -83,7 +83,7 @@ function PlacementFormFields({
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label className="block text-sm font-medium text-content-muted mb-1.5">
             ตำแหน่งงาน <span className="text-danger">*</span>
           </label>
           <div className="relative">
@@ -103,7 +103,7 @@ function PlacementFormFields({
       {/* Dates */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+          <label className="block text-sm font-medium text-content-muted mb-1.5">
             วันที่เริ่มฝึกงาน <span className="text-danger">*</span>
           </label>
           <input
@@ -115,7 +115,7 @@ function PlacementFormFields({
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">วันที่สิ้นสุด</label>
+          <label className="block text-sm font-medium text-content-muted mb-1.5">วันที่สิ้นสุด</label>
           <input
             type="date"
             value={endDate}
@@ -128,7 +128,7 @@ function PlacementFormFields({
 
       {/* Target Hours and Calculation suggestion */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+        <label className="block text-sm font-medium text-content-muted mb-1.5">
           เป้าหมายชั่วโมงฝึกงาน (ชม.) <span className="text-danger">*</span>
         </label>
         <div className="relative">
@@ -147,10 +147,10 @@ function PlacementFormFields({
             <p className="font-semibold text-primary-900 flex items-center gap-1">
               <span>แนะนำจากการคำนวณช่วงวันที่เลือก (ทำงาน จ.-ส. 8.00-16.00 น.):</span>
             </p>
-            <ul className="list-disc list-inside pl-1 space-y-1 text-gray-700">
-              <li>จำนวนวันทำงานทั้งหมด: <span className="font-bold text-gray-900">{calculateWorkingHours(startDate, endDate)?.workingDays} วัน</span></li>
+            <ul className="list-disc list-inside pl-1 space-y-1 text-content-muted">
+              <li>จำนวนวันทำงานทั้งหมด: <span className="font-bold text-content">{calculateWorkingHours(startDate, endDate)?.workingDays} วัน</span></li>
               <li>เป้าหมายแบบหักเวลาพักกลางวัน (7 ชม./วัน): <span className="font-bold text-primary-700 text-[13px]">{calculateWorkingHours(startDate, endDate)?.hours7} ชั่วโมง</span> (แนะนำสำหรับการเช็คเอาท์ในระบบ)</li>
-              <li>เป้าหมายแบบไม่หักเวลาพัก (8 ชม./วัน): <span className="font-bold text-gray-900">{calculateWorkingHours(startDate, endDate)?.hours8} ชั่วโมง</span></li>
+              <li>เป้าหมายแบบไม่หักเวลาพัก (8 ชม./วัน): <span className="font-bold text-content">{calculateWorkingHours(startDate, endDate)?.hours8} ชั่วโมง</span></li>
             </ul>
             <button
               type="button"
@@ -166,7 +166,7 @@ function PlacementFormFields({
       {/* Status */}
       {setStatus && (
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">สถานะ</label>
+          <label className="block text-sm font-medium text-content-muted mb-1.5">สถานะ</label>
           <select
             value={status}
             onChange={e => setStatus(e.target.value)}
@@ -180,7 +180,7 @@ function PlacementFormFields({
 
       {/* Notes */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">หมายเหตุ</label>
+        <label className="block text-sm font-medium text-content-muted mb-1.5">หมายเหตุ</label>
         <textarea
           value={notes}
           onChange={e => setNotes(e.target.value)}
@@ -279,15 +279,15 @@ function AddInternModal({ onClose, onSuccess, mentorId }) {
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[92vh] overflow-y-auto"
+        className="bg-card rounded-2xl shadow-2xl w-full max-w-lg max-h-[92vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white z-10">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border-light sticky top-0 bg-card z-10">
           <div className="flex items-center gap-2">
             <Plus size={18} className="text-primary-700" />
-            <h2 className="font-semibold text-gray-900">เพิ่มนักศึกษาฝึกงาน</h2>
+            <h2 className="font-semibold text-content">เพิ่มนักศึกษาฝึกงาน</h2>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100">
+          <button onClick={onClose} className="text-gray-400 hover:text-content-muted p-1 rounded-lg hover:bg-surface-hover">
             <X size={18} />
           </button>
         </div>
@@ -295,7 +295,7 @@ function AddInternModal({ onClose, onSuccess, mentorId }) {
         <form onSubmit={handleSubmit} className="px-6 py-5 space-y-5">
           {/* Student Picker */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label className="block text-sm font-medium text-content-muted mb-1.5">
               นักศึกษา <span className="text-danger">*</span>
             </label>
             {selectedStudent ? (
@@ -304,15 +304,15 @@ function AddInternModal({ onClose, onSuccess, mentorId }) {
                   {selectedStudent.full_name?.charAt(0)?.toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-gray-900 text-sm">{selectedStudent.full_name}</p>
-                  <p className="text-xs text-gray-500">{selectedStudent.email}</p>
+                  <p className="font-semibold text-content text-sm">{selectedStudent.full_name}</p>
+                  <p className="text-xs text-content-muted">{selectedStudent.email}</p>
                 </div>
                 <button type="button" onClick={() => setSelectedStudent(null)} className="text-gray-400 hover:text-danger p-1">
                   <X size={15} />
                 </button>
               </div>
             ) : (
-              <div className="border border-gray-200 rounded-lg overflow-hidden">
+              <div className="border border-border rounded-lg overflow-hidden">
                 <div className="relative">
                   <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input
@@ -324,7 +324,7 @@ function AddInternModal({ onClose, onSuccess, mentorId }) {
                     autoFocus
                   />
                 </div>
-                <div className="border-t border-gray-100 max-h-44 overflow-y-auto">
+                <div className="border-t border-border-light max-h-44 overflow-y-auto">
                   {studentsLoading ? (
                     <div className="flex items-center justify-center py-6 text-gray-400">
                       <Loader2 size={18} className="animate-spin mr-2" /> กำลังโหลด...
@@ -341,11 +341,11 @@ function AddInternModal({ onClose, onSuccess, mentorId }) {
                         onClick={() => { setSelectedStudent(s); setStudentSearch('') }}
                         className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-primary-50 transition-colors text-left"
                       >
-                        <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-bold text-xs flex-shrink-0">
+                        <div className="w-7 h-7 rounded-full bg-surface-hover flex items-center justify-center text-content-muted font-bold text-xs flex-shrink-0">
                           {s.full_name?.charAt(0)?.toUpperCase()}
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-gray-900">{s.full_name}</p>
+                          <p className="text-sm font-medium text-content">{s.full_name}</p>
                           <p className="text-xs text-gray-400">{s.email}</p>
                         </div>
                       </button>
@@ -451,27 +451,27 @@ function EditPlacementModal({ placement, onClose, onSuccess, onDelete }) {
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[92vh] overflow-y-auto"
+        className="bg-card rounded-2xl shadow-2xl w-full max-w-lg max-h-[92vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white z-10">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border-light sticky top-0 bg-card z-10">
           <div className="flex items-center gap-2">
             <Pencil size={16} className="text-primary-700" />
-            <h2 className="font-semibold text-gray-900">แก้ไขข้อมูลการฝึกงาน</h2>
+            <h2 className="font-semibold text-content">แก้ไขข้อมูลการฝึกงาน</h2>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100">
+          <button onClick={onClose} className="text-gray-400 hover:text-content-muted p-1 rounded-lg hover:bg-surface-hover">
             <X size={18} />
           </button>
         </div>
 
         {/* Student info banner (read-only) */}
-        <div className="mx-6 mt-5 flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded-xl">
+        <div className="mx-6 mt-5 flex items-center gap-3 p-3 bg-background border border-border-light rounded-xl">
           <div className="w-9 h-9 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold text-sm flex-shrink-0">
             {placement.student?.full_name?.charAt(0)?.toUpperCase()}
           </div>
           <div>
-            <p className="font-semibold text-gray-900 text-sm">{placement.student?.full_name}</p>
+            <p className="font-semibold text-content text-sm">{placement.student?.full_name}</p>
             <p className="text-xs text-gray-400">{placement.student?.email}</p>
           </div>
         </div>
@@ -497,7 +497,7 @@ function EditPlacementModal({ placement, onClose, onSuccess, onDelete }) {
           </div>
 
           {/* Delete section */}
-          <div className="border-t border-gray-100 pt-4">
+          <div className="border-t border-border-light pt-4">
             {!confirmDelete ? (
               <button
                 type="button"
@@ -592,8 +592,8 @@ export default function MentorInternships() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">ข้อมูลการฝึกงาน</h1>
-          <p className="text-sm text-gray-500 mt-0.5">รายละเอียดการฝึกงานของนักศึกษาทั้งหมดในความดูแล</p>
+          <h1 className="text-xl font-bold text-content">ข้อมูลการฝึกงาน</h1>
+          <p className="text-sm text-content-muted mt-0.5">รายละเอียดการฝึกงานของนักศึกษาทั้งหมดในความดูแล</p>
         </div>
         <button
           id="add-intern-btn"
@@ -613,9 +613,9 @@ export default function MentorInternships() {
               กำลังฝึกงาน: {placements.filter(p => p.status === 'active').length} คน
             </span>
           </div>
-          <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-100">
-            <Clock3 size={15} className="text-gray-500" />
-            <span className="text-sm font-medium text-gray-600">
+          <div className="flex items-center gap-2 px-3 py-2 bg-background rounded-lg border border-border-light">
+            <Clock3 size={15} className="text-content-muted" />
+            <span className="text-sm font-medium text-content-muted">
               เสร็จสิ้น: {placements.filter(p => p.status === 'completed').length} คน
             </span>
           </div>
@@ -647,7 +647,7 @@ export default function MentorInternships() {
                 className={`btn-sm px-3 rounded-lg text-sm font-medium transition-all ${
                   statusFilter === opt.value
                     ? 'bg-primary-700 text-white shadow-sm'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    : 'bg-surface-hover text-content-muted hover:bg-gray-200'
                 }`}
               >
                 {opt.label}
@@ -700,7 +700,7 @@ export default function MentorInternships() {
                           {p.student?.full_name?.charAt(0)?.toUpperCase()}
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900 whitespace-nowrap">{p.student?.full_name}</p>
+                          <p className="font-medium text-content whitespace-nowrap">{p.student?.full_name}</p>
                           <p className="text-xs text-gray-400">{p.student?.email}</p>
                         </div>
                       </div>
@@ -708,32 +708,32 @@ export default function MentorInternships() {
                     <td>
                       <div className="flex items-center gap-1.5">
                         <Building2 size={13} className="text-gray-400 flex-shrink-0" />
-                        <span className="font-medium text-gray-800 whitespace-nowrap">{p.company_name}</span>
+                        <span className="font-medium text-content whitespace-nowrap">{p.company_name}</span>
                       </div>
                     </td>
                     <td>
                       {p.department ? (
                         <div className="flex items-center gap-1.5">
                           <MapPin size={13} className="text-gray-400 flex-shrink-0" />
-                          <span className="text-gray-700">{p.department}</span>
+                          <span className="text-content-muted">{p.department}</span>
                         </div>
                       ) : <span className="text-gray-300 text-xs">-</span>}
                     </td>
                     <td>
                       <div className="flex items-center gap-1.5">
                         <Briefcase size={13} className="text-gray-400 flex-shrink-0" />
-                        <span className="text-gray-700">{p.position}</span>
+                        <span className="text-content-muted">{p.position}</span>
                       </div>
                     </td>
                     <td>
-                      <div className="flex items-center gap-1 text-gray-700">
+                      <div className="flex items-center gap-1 text-content-muted">
                         <Calendar size={13} className="text-gray-400 flex-shrink-0" />
                         {formatDate(p.start_date)}
                       </div>
                     </td>
                     <td>
                       {p.end_date ? (
-                        <div className="flex items-center gap-1 text-gray-700">
+                        <div className="flex items-center gap-1 text-content-muted">
                           <Calendar size={13} className="text-gray-400 flex-shrink-0" />
                           {formatDate(p.end_date)}
                         </div>

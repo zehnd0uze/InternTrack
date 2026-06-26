@@ -92,13 +92,13 @@ export default function AdminReport() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-xl font-bold text-gray-900">รายงานระบบ</h1>
-        <p className="text-sm text-gray-500 mt-0.5">ดูและดาวน์โหลดสรุปชั่วโมงของนักศึกษาทั้งหมด</p>
+        <h1 className="text-xl font-bold text-content">รายงานระบบ</h1>
+        <p className="text-sm text-content-muted mt-0.5">ดูและดาวน์โหลดสรุปชั่วโมงของนักศึกษาทั้งหมด</p>
       </div>
 
       {/* Filters */}
       <div className="card">
-        <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <h2 className="font-semibold text-content mb-4 flex items-center gap-2">
           <Search size={18} className="text-primary-700" /> ตัวกรองรายงาน
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
@@ -142,8 +142,8 @@ export default function AdminReport() {
         ) : (
           <div className="card">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm text-gray-500">
-                รายงานนักศึกษา <span className="font-semibold text-gray-900">{data.length}</span> คน
+              <p className="text-sm text-content-muted">
+                รายงานนักศึกษา <span className="font-semibold text-content">{data.length}</span> คน
               </p>
             </div>
             <div className="table-wrapper">
@@ -160,21 +160,21 @@ export default function AdminReport() {
                 <tbody>
                   {data.map(r => (
                     <tr key={r.id}>
-                      <td className="font-medium text-gray-900">{r.full_name}</td>
+                      <td className="font-medium text-content">{r.full_name}</td>
                       <td>
                         <span className="font-semibold text-primary-700">{r.totalHours.toFixed(1)}</span>
                         <span className="text-xs text-gray-400"> ชม.</span>
                       </td>
-                      <td className="text-gray-600">{r.targetHours} ชม.</td>
+                      <td className="text-content-muted">{r.targetHours} ชม.</td>
                       <td>
                         <div className="flex items-center gap-2">
-                          <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
+                          <div className="w-24 h-2 bg-surface-hover rounded-full overflow-hidden">
                             <div
                               className={`h-full rounded-full ${r.pct >= 100 ? 'bg-success' : r.pct >= 50 ? 'bg-primary-500' : 'bg-warning'}`}
                               style={{ width: `${r.pct}%` }}
                             />
                           </div>
-                          <span className="text-xs text-gray-600 font-medium">{r.pct.toFixed(1)}%</span>
+                          <span className="text-xs text-content-muted font-medium">{r.pct.toFixed(1)}%</span>
                         </div>
                       </td>
                       <td>

@@ -50,9 +50,11 @@ export default function StudentDashboard() {
   const [elapsed, setElapsed] = useState(0)
 
   const [stats, setStats] = useState({ totalHours: 0, weekHours: 0, monthDays: 0 })
+  const [badges, setBadges] = useState([])
   const [statsLoading, setStatsLoading] = useState(true)
 
   const [logText, setLogText] = useState('')
+  const [logMood, setLogMood] = useState('neutral')
   const [logSaved, setLogSaved] = useState(false)
   const [logLoading, setLogLoading] = useState(false)
 
@@ -93,7 +95,7 @@ export default function StudentDashboard() {
     const monthStart = format(startOfMonth(new Date()), 'yyyy-MM-dd')
 
     const [allRes, weekRes, monthRes] = await Promise.all([
-      supabase.from('attendance').select('hours_worked').eq('user_id', effectiveUserId).not('check_out', 'is', null),
+      supabase.from('attendance').select('hours_worked, date, check_in').eq('user_id', effectiveUserId).not('check_out', 'is', null),
       supabase.from('attendance').select('hours_worked').eq('user_id', effectiveUserId).gte('date', weekStart).not('check_out', 'is', null),
       supabase.from('attendance').select('id').eq('user_id', effectiveUserId).gte('date', monthStart).not('check_out', 'is', null),
     ])
@@ -103,6 +105,38 @@ export default function StudentDashboard() {
     const monthDays  = (monthRes.data || []).length
     const totalDays  = (allRes.data || []).length
 
+    // Compute Badges
+    const newBadges = []
+    if (totalHours >= 100) {
+      newBadges.push({ id: 'marathoner', icon: '💯', title: 'Marathoner', desc: 'สะสมชั่วโมงทะลุ 100 ชม.', color: 'text-rose-500 bg-rose-50 border-rose-200' })
+    }
+    
+    // Check all attendance for Early Bird / Weekend Warrior
+    let hasEarly = false
+    let hasWeekend = false
+    ;(allRes.data || []).forEach(r => {
+      if (!hasEarly && r.check_in) {
+        const h = new Date(r.check_in).getHours()
+        const m = new Date(r.check_in).getMinutes()
+        if (h < 8 || (h === 8 && m <= 30)) hasEarly = true
+      }
+      if (!hasWeekend && r.date) {
+        const d = new Date(r.date).getDay()
+        if (d === 0 || d === 6) hasWeekend = true
+      }
+    })
+
+    if (hasEarly) {
+      newBadges.push({ id: 'early', icon: '🌅', title: 'Early Bird', desc: 'เช็คอินก่อน 08:30 น.', color: 'text-amber-500 bg-amber-50 border-amber-200' })
+    }
+    if (hasWeekend) {
+      newBadges.push({ id: 'weekend', icon: '👑', title: 'Weekend Warrior', desc: 'เข้างานวันหยุดเสาร์-อาทิตย์', color: 'text-purple-600 bg-purple-50 border-purple-200' })
+    }
+    if (monthDays >= 5) {
+      newBadges.push({ id: 'fire', icon: '🔥', title: 'On Fire', desc: 'ทำงาน 5+ วันในเดือนนี้', color: 'text-orange-500 bg-orange-50 border-orange-200' })
+    }
+
+    setBadges(newBadges)
     setStats({ totalHours, weekHours, monthDays, totalDays })
     setStatsLoading(false)
   }, [effectiveUserId])
@@ -111,11 +145,12 @@ export default function StudentDashboard() {
     if (!today?.id) return
     const { data } = await supabase
       .from('daily_logs')
-      .select('log_text')
+      .select('log_text, mood')
       .eq('attendance_id', today.id)
       .maybeSingle()
     if (data?.log_text) {
       setLogText(data.log_text)
+      if (data.mood) setLogMood(data.mood)
       setLogSaved(true)
     }
   }, [today?.id])
@@ -298,7 +333,6 @@ export default function StudentDashboard() {
     if (isReadOnly) { toast('โหมดดูอย่างเดียว — ไม่สามารถบันทึกได้', { icon: '🔒' }); return }
     if (!today?.id) { toast.error('ต้องเช็คอินก่อนบันทึกบันทึกประจำวัน'); return }
     if (!logText.trim()) { toast.error('กรุณากรอกสรุปงานประจำวัน'); return }
-
     setLogLoading(true)
     const todayStr = format(new Date(), 'yyyy-MM-dd')
 
@@ -307,6 +341,7 @@ export default function StudentDashboard() {
       user_id: effectiveUserId,
       attendance_id: today.id,
       log_text: logText.trim(),
+      mood: logMood,
       date: todayStr,
     }, { onConflict: 'attendance_id' })
 
@@ -329,7 +364,7 @@ export default function StudentDashboard() {
     <div className="space-y-6 animate-fade-in">
       {/* Page Title */}
       <div>
-        <h1 className="text-xl font-bold text-gray-900">
+        <h1 className="text-xl font-bold text-content">
           {isReadOnly ? (
             <span className="flex items-center gap-2">
               <Eye size={20} className="text-amber-500" />
@@ -337,7 +372,7 @@ export default function StudentDashboard() {
             </span>
           ) : 'แดชบอร์ดนักศึกษา'}
         </h1>
-        <p className="text-sm text-gray-500 mt-0.5">
+        <p className="text-sm text-content-muted mt-0.5">
           {format(new Date(), 'EEEE, d MMMM yyyy', { locale: th })}
         </p>
       </div>
@@ -348,7 +383,7 @@ export default function StudentDashboard() {
       ) : (
         <div className={`card border-2 transition-all duration-300 ${
           clockStatus === 'working' ? 'border-success/30 bg-green-50/30' :
-          clockStatus === 'done'    ? 'border-gray-200' :
+          clockStatus === 'done'    ? 'border-border' :
                                       'border-primary-100'
         }`}>
           <div className="flex flex-col sm:flex-row items-center gap-6">
@@ -356,7 +391,7 @@ export default function StudentDashboard() {
             <div className="flex flex-col items-center gap-2 min-w-[140px]">
               <div className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 ${
                 clockStatus === 'working' ? 'bg-success/10 clock-pulse' :
-                clockStatus === 'done'    ? 'bg-gray-100' :
+                clockStatus === 'done'    ? 'bg-surface-hover' :
                                            'bg-primary-50'
               }`}>
                 {clockStatus === 'working' && <Clock size={32} className="text-success" />}
@@ -367,7 +402,7 @@ export default function StudentDashboard() {
               <div className="text-center">
                 <p className={`font-bold text-lg ${
                   clockStatus === 'working' ? 'text-success' :
-                  clockStatus === 'done'    ? 'text-gray-500' :
+                  clockStatus === 'done'    ? 'text-content-muted' :
                                              'text-gray-400'
                 }`}>
                   {clockStatus === 'working' ? 'กำลังทำงาน' :
@@ -385,20 +420,20 @@ export default function StudentDashboard() {
             {/* Info */}
             <div className="flex-1 space-y-2 text-sm text-center sm:text-left">
               {today?.check_in && (
-                <div className="flex items-center justify-center sm:justify-start gap-2 text-gray-600">
-                  <span className="font-medium text-gray-500">เวลาเข้า:</span>
-                  <span className="font-semibold text-gray-900">{formatThaiTime(today.check_in)}</span>
+                <div className="flex items-center justify-center sm:justify-start gap-2 text-content-muted">
+                  <span className="font-medium text-content-muted">เวลาเข้า:</span>
+                  <span className="font-semibold text-content">{formatThaiTime(today.check_in)}</span>
                 </div>
               )}
               {today?.check_out && (
-                <div className="flex items-center justify-center sm:justify-start gap-2 text-gray-600">
-                  <span className="font-medium text-gray-500">เวลาออก:</span>
-                  <span className="font-semibold text-gray-900">{formatThaiTime(today.check_out)}</span>
+                <div className="flex items-center justify-center sm:justify-start gap-2 text-content-muted">
+                  <span className="font-medium text-content-muted">เวลาออก:</span>
+                  <span className="font-semibold text-content">{formatThaiTime(today.check_out)}</span>
                 </div>
               )}
               {today?.hours_worked && (
                 <div className="flex items-center justify-center sm:justify-start gap-2">
-                  <span className="font-medium text-gray-500">ชั่วโมงวันนี้:</span>
+                  <span className="font-medium text-content-muted">ชั่วโมงวันนี้:</span>
                   <span className="font-semibold text-success">{parseFloat(today.hours_worked).toFixed(1)} ชม.</span>
                   {parseFloat(today.hours_worked) > 4 && (
                     <span className="text-xs text-gray-400">(หักพัก 1 ชม.)</span>
@@ -451,6 +486,18 @@ export default function StudentDashboard() {
         </div>
       )}
 
+      {/* ---- Badges Section ---- */}
+      {!statsLoading && badges.length > 0 && (
+        <div className="flex flex-wrap gap-3">
+          {badges.map(b => (
+            <div key={b.id} className={`flex items-center gap-2 px-3 py-1.5 rounded-full border shadow-sm ${b.color}`} title={b.desc}>
+              <span className="text-xl leading-none">{b.icon}</span>
+              <span className="text-sm font-bold tracking-wide">{b.title}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* ---- Progress Section ---- */}
       {statsLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -463,11 +510,11 @@ export default function StudentDashboard() {
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <Target size={18} className="text-primary-700" />
-                <span className="font-semibold text-gray-900">ความคืบหน้าชั่วโมงสะสม</span>
+                <span className="font-semibold text-content">ความคืบหน้าชั่วโมงสะสม</span>
               </div>
               <span className="text-sm font-bold text-primary-700">
                 {stats.totalHours.toFixed(1)} / {targetHours} ชม.
-                <span className="ml-2 text-gray-500 font-normal hidden sm:inline">({stats.totalDays || 0} / 228 วัน)</span>
+                <span className="ml-2 text-content-muted font-normal hidden sm:inline">({stats.totalDays || 0} / 228 วัน)</span>
               </span>
             </div>
             <div className="progress-bar mb-2">
@@ -514,7 +561,7 @@ export default function StudentDashboard() {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <BookOpen size={18} className="text-primary-700" />
-            <h2 className="font-semibold text-gray-900">บันทึกประจำวัน</h2>
+            <h2 className="font-semibold text-content">บันทึกประจำวัน</h2>
             <span className="text-xs text-gray-400">({format(new Date(), 'd MMM yyyy', { locale: th })})</span>
           </div>
           <div className="flex items-center gap-2">
@@ -536,7 +583,7 @@ export default function StudentDashboard() {
 
         <textarea
           id="daily-log-textarea"
-          className={`textarea h-28 ${isReadOnly ? 'opacity-70 cursor-not-allowed bg-gray-50' : ''}`}
+          className={`textarea h-28 ${isReadOnly ? 'opacity-70 cursor-not-allowed bg-background' : ''}`}
           placeholder={isReadOnly ? 'โหมดดูอย่างเดียว' : 'สรุปงานที่ทำวันนี้... (ไม่เกิน 500 ตัวอักษร)'}
           maxLength={500}
           value={logText}
@@ -544,6 +591,28 @@ export default function StudentDashboard() {
           disabled={!today?.id || isReadOnly}
           readOnly={isReadOnly}
         />
+        <div className="mt-3 flex items-center gap-2">
+          <span className="text-sm font-medium text-content-muted">ความรู้สึกวันนี้:</span>
+          <div className="flex items-center gap-1">
+            {[
+              { id: 'great', emoji: '🤩', label: 'ยอดเยี่ยม' },
+              { id: 'happy', emoji: '😊', label: 'มีความสุข' },
+              { id: 'neutral', emoji: '😐', label: 'เฉยๆ' },
+              { id: 'stressed', emoji: '😫', label: 'เครียด' },
+              { id: 'bad', emoji: '😢', label: 'แย่มาก' }
+            ].map(m => (
+              <button
+                key={m.id}
+                onClick={() => { if (!isReadOnly) { setLogMood(m.id); setLogSaved(false); } }}
+                disabled={!today?.id || isReadOnly}
+                title={m.label}
+                className={`p-1.5 rounded-full text-xl transition-transform hover:scale-110 disabled:opacity-50 disabled:hover:scale-100 ${logMood === m.id ? 'bg-primary-100 ring-2 ring-primary-500 scale-110' : 'grayscale opacity-60 hover:grayscale-0 hover:opacity-100'}`}
+              >
+                {m.emoji}
+              </button>
+            ))}
+          </div>
+        </div>
         <div className="flex items-center justify-between mt-2">
           <span className={`text-xs ${logText.length > 450 ? 'text-danger' : 'text-gray-400'}`}>
             {logText.length} / 500 ตัวอักษร
@@ -564,21 +633,21 @@ export default function StudentDashboard() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
           <div className="flex items-center gap-2">
             <Calendar size={18} className="text-primary-700" />
-            <h2 className="font-semibold text-gray-900">ประวัติการเข้างาน</h2>
+            <h2 className="font-semibold text-content">ประวัติการเข้างาน</h2>
           </div>
           
           <div className="flex flex-wrap items-center gap-4">
             {/* View Toggle */}
-            <div className="flex bg-gray-100 p-1 rounded-lg">
+            <div className="flex bg-surface-hover p-1 rounded-lg">
               <button
                 onClick={() => setViewMode('list')}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${viewMode === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${viewMode === 'list' ? 'bg-card text-content shadow-sm' : 'text-content-muted hover:text-content-muted'}`}
               >
                 รายการ
               </button>
               <button
                 onClick={() => setViewMode('calendar')}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${viewMode === 'calendar' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${viewMode === 'calendar' ? 'bg-card text-content shadow-sm' : 'text-content-muted hover:text-content-muted'}`}
               >
                 ปฏิทิน
               </button>
@@ -588,7 +657,7 @@ export default function StudentDashboard() {
             {viewMode === 'list' && (
               <div className="flex flex-wrap gap-2">
                 <div>
-                  <label className="text-xs text-gray-500 block mb-1">ตั้งแต่</label>
+                  <label className="text-xs text-content-muted block mb-1">ตั้งแต่</label>
                   <input
                     type="date"
                     value={dateFrom}
@@ -597,7 +666,7 @@ export default function StudentDashboard() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500 block mb-1">ถึง</label>
+                  <label className="text-xs text-content-muted block mb-1">ถึง</label>
                   <input
                     type="date"
                     value={dateTo}
@@ -648,7 +717,7 @@ export default function StudentDashboard() {
                     <tbody>
                       {history.map(row => (
                         <tr key={row.id}>
-                          <td className="font-medium text-gray-900">{formatThaiDate(row.date)}</td>
+                          <td className="font-medium text-content">{formatThaiDate(row.date)}</td>
                           <td>{formatThaiTime(row.check_in)}</td>
                           <td>{formatThaiTime(row.check_out)}</td>
                           <td>
@@ -670,7 +739,7 @@ export default function StudentDashboard() {
 
                 {/* Pagination */}
                 <div className="flex items-center justify-between mt-4 text-sm">
-                  <span className="text-gray-500">
+                  <span className="text-content-muted">
                     แสดง {Math.min((historyPage - 1) * ROWS + 1, historyTotal)}–{Math.min(historyPage * ROWS, historyTotal)} จาก {historyTotal} รายการ
                   </span>
                   <div className="flex gap-2">

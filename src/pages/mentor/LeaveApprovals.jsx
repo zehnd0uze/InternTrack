@@ -88,8 +88,8 @@ export default function MentorLeaveApprovals() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-xl font-bold text-gray-900">อนุมัติการลา</h1>
-        <p className="text-sm text-gray-500 mt-0.5">จัดการคำขอลาป่วยและลากิจของนักศึกษาในความดูแล</p>
+        <h1 className="text-xl font-bold text-content">อนุมัติการลา</h1>
+        <p className="text-sm text-content-muted mt-0.5">จัดการคำขอลาป่วยและลากิจของนักศึกษาในความดูแล</p>
       </div>
 
       <div className="card">
@@ -121,9 +121,9 @@ export default function MentorLeaveApprovals() {
         {loading ? (
           <SkeletonTable rows={5} cols={6} />
         ) : filtered.length === 0 ? (
-          <div className="text-center py-16 text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+          <div className="text-center py-16 text-gray-400 bg-background rounded-xl border border-dashed border-border">
             <Calendar size={48} className="mx-auto mb-4 opacity-30" />
-            <p className="text-lg font-medium text-gray-600">ไม่มีคำขอลาที่ตรงกับเงื่อนไข</p>
+            <p className="text-lg font-medium text-content-muted">ไม่มีคำขอลาที่ตรงกับเงื่อนไข</p>
           </div>
         ) : (
           <div className="table-wrapper">
@@ -147,19 +147,19 @@ export default function MentorLeaveApprovals() {
                           {req.users?.full_name?.charAt(0) || <User size={16} />}
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900">{req.users?.full_name}</p>
-                          <p className="text-xs text-gray-500">{req.users?.student_code || 'ไม่มีรหัส'}</p>
+                          <p className="font-medium text-content">{req.users?.full_name}</p>
+                          <p className="text-xs text-content-muted">{req.users?.student_code || 'ไม่มีรหัส'}</p>
                         </div>
                       </div>
                     </td>
-                    <td><span className="font-medium text-gray-700">{TYPE_LABEL[req.leave_type]}</span></td>
+                    <td><span className="font-medium text-content-muted">{TYPE_LABEL[req.leave_type]}</span></td>
                     <td className="text-sm">
                       {req.start_date === req.end_date 
                         ? format(new Date(req.start_date), 'd MMM yyyy', { locale: th })
                         : `${format(new Date(req.start_date), 'd MMM', { locale: th })} - ${format(new Date(req.end_date), 'd MMM yyyy', { locale: th })}`
                       }
                     </td>
-                    <td className="text-sm text-gray-600 max-w-[200px] truncate" title={req.reason}>
+                    <td className="text-sm text-content-muted max-w-[200px] truncate" title={req.reason}>
                       {req.reason}
                     </td>
                     <td>{STATUS_BADGE[req.status]}</td>

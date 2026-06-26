@@ -6,12 +6,16 @@ import toast from 'react-hot-toast'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { SkeletonCard } from '../../components/ui/Skeleton'
+import Confetti from 'react-confetti'
+import { useWindowSize } from 'react-use'
 
 export default function StudentWeeklySubmit() {
   const { user } = useAuth()
   const [weeks, setWeeks] = useState([])
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(null)
+  const [showConfetti, setShowConfetti] = useState(false)
+  const { width, height } = useWindowSize()
 
   const fetchWeeks = useCallback(async () => {
     setLoading(true)
@@ -98,6 +102,8 @@ export default function StudentWeeklySubmit() {
       }
     } else {
       toast.success('ส่งคำขออนุมัติแล้ว!')
+      setShowConfetti(true)
+      setTimeout(() => setShowConfetti(false), 5000)
       fetchWeeks()
     }
   }
@@ -110,9 +116,10 @@ export default function StudentWeeklySubmit() {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      {showConfetti && <Confetti width={width} height={height} recycle={false} numberOfPieces={500} />}
       <div>
-        <h1 className="text-xl font-bold text-gray-900">ส่งชั่วโมงรายสัปดาห์</h1>
-        <p className="text-sm text-gray-500 mt-0.5">ส่งสรุปชั่วโมงทำงานให้อาจารย์นิเทศอนุมัติ</p>
+        <h1 className="text-xl font-bold text-content">ส่งชั่วโมงรายสัปดาห์</h1>
+        <p className="text-sm text-content-muted mt-0.5">ส่งสรุปชั่วโมงทำงานให้อาจารย์นิเทศอนุมัติ</p>
       </div>
 
       {loading ? (
@@ -137,15 +144,15 @@ export default function StudentWeeklySubmit() {
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-gray-900">
+                      <h3 className="font-semibold text-content">
                         {format(wStart, 'd MMM', { locale: th })} – {format(wEnd, 'd MMM yyyy', { locale: th })}
                       </h3>
                       {isCurrentWeek && (
                         <span className="badge badge-info text-xs">สัปดาห์นี้</span>
                       )}
                     </div>
-                    <p className="text-sm text-gray-500">
-                      ชั่วโมงทั้งหมด: <span className="font-semibold text-gray-900">{totalHours.toFixed(1)} ชม.</span>
+                    <p className="text-sm text-content-muted">
+                      ชั่วโมงทั้งหมด: <span className="font-semibold text-content">{totalHours.toFixed(1)} ชม.</span>
                     </p>
                     {approval?.note && (
                       <div className="mt-2 bg-red-50 border border-red-100 rounded-lg px-3 py-2 text-sm text-red-700 flex items-start gap-2">

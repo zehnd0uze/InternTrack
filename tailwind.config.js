@@ -33,14 +33,25 @@ export default {
           dark:    '#18181b',
         },
         sidebar: {
-          DEFAULT: 'var(--bg-sidebar)',
+          bg: 'var(--bg-sidebar)',
           fg: 'var(--text-sidebar)',
           muted: 'var(--text-sidebar-muted)',
           hover: 'var(--bg-sidebar-hover)',
           active: 'var(--bg-sidebar-active)',
-          activeFg: 'var(--text-sidebar-active)',
+          activeFg: 'var(--text-sidebar-activeFg)',
           border: 'var(--border-sidebar)',
-        }
+        },
+        background: 'var(--color-background)',
+        card: 'var(--color-card)',
+        content: {
+          DEFAULT: 'var(--color-content)',
+          muted: 'var(--color-content-muted)',
+        },
+        border: {
+          DEFAULT: 'var(--color-border)',
+          light: 'var(--color-border-light)',
+        },
+        'surface-hover': 'var(--color-surface-hover)',
       },
       fontFamily: {
         sans: ['Inter', 'Sarabun', 'sans-serif'],

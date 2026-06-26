@@ -186,10 +186,10 @@ export default function MentorSchedule() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-content flex items-center gap-2">
             <CalendarIcon className="text-primary-600" /> ตารางงานและนัดหมาย
           </h1>
-          <p className="text-gray-500 mt-1">วางแผนงาน มอบหมายงาน และจัดตารางนัดหมายกับนักศึกษา</p>
+          <p className="text-content-muted mt-1">วางแผนงาน มอบหมายงาน และจัดตารางนัดหมายกับนักศึกษา</p>
         </div>
         <button 
           onClick={() => {
@@ -232,10 +232,10 @@ export default function MentorSchedule() {
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal-content max-w-lg" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-5">
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-content">
                 {editEvent ? 'แก้ไขกิจกรรม' : 'สร้างกิจกรรมใหม่'}
               </h3>
-              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">
+              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-content-muted">
                 <X size={20} />
               </button>
             </div>
@@ -316,7 +316,7 @@ export default function MentorSchedule() {
                 />
               </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-gray-100 mt-6">
+              <div className="flex items-center justify-between pt-4 border-t border-border-light mt-6">
                 {editEvent ? (
                   <button
                     type="button"

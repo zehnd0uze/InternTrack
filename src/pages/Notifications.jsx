@@ -68,15 +68,15 @@ export default function NotificationsPage() {
     <div className="max-w-4xl mx-auto space-y-6 animate-fade-in pb-10">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-content flex items-center gap-2">
             <Bell size={24} className="text-primary-600" /> การแจ้งเตือนทั้งหมด
           </h1>
-          <p className="text-gray-500 mt-1">ประวัติการแจ้งเตือนระบบและการเปลี่ยนแปลงสถานะต่างๆ</p>
+          <p className="text-content-muted mt-1">ประวัติการแจ้งเตือนระบบและการเปลี่ยนแปลงสถานะต่างๆ</p>
         </div>
         {unreadCount > 0 && (
           <button
             onClick={handleMarkAllRead}
-            className="btn-secondary flex items-center gap-2 bg-white"
+            className="btn-secondary flex items-center gap-2 bg-card"
           >
             <CheckCircle2 size={16} className="text-green-600" />
             ทำเครื่องหมายว่าอ่านแล้วทั้งหมด ({unreadCount})
@@ -94,7 +94,7 @@ export default function NotificationsPage() {
           notifications.map(n => (
             <div 
               key={n.id} 
-              className={`p-5 flex gap-4 transition-colors group ${!n.is_read ? 'bg-blue-50/30' : 'hover:bg-gray-50'}`}
+              className={`p-5 flex gap-4 transition-colors group ${!n.is_read ? 'bg-blue-50/30' : 'hover:bg-background'}`}
             >
               <div className="mt-1 flex-shrink-0">
                 {!n.is_read ? (
@@ -104,7 +104,7 @@ export default function NotificationsPage() {
                 )}
               </div>
               <div className="flex-1">
-                <p className={`text-[15px] ${!n.is_read ? 'text-gray-900 font-medium' : 'text-gray-600'}`}>
+                <p className={`text-[15px] ${!n.is_read ? 'text-content font-medium' : 'text-content-muted'}`}>
                   {n.message}
                 </p>
                 <div className="flex items-center gap-2 mt-1.5 text-xs text-gray-400">

@@ -194,7 +194,7 @@ export default function PrintableLog() {
   }
 
   return (
-    <div className="bg-white text-black min-h-screen text-sm print-container">
+    <div className="bg-card text-black min-h-screen text-sm print-container">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap');
         

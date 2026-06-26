@@ -12,9 +12,17 @@
     --text-sidebar: #ffffff;
     --text-sidebar-muted: rgba(255, 255, 255, 0.7);
     --bg-sidebar-hover: rgba(255, 255, 255, 0.1);
-    --bg-sidebar-active: #ffffff;
-    --text-sidebar-active: #1B3A6B;
-    --border-sidebar: #2e509e; /* primary-600 */
+    --bg-sidebar-active: rgba(255, 255, 255, 0.2);
+    --text-sidebar-activeFg: #ffffff;
+    --border-sidebar: rgba(255, 255, 255, 0.1);
+    
+    --color-background: #f9fafb; /* gray-50 */
+    --color-card: #ffffff;
+    --color-content: #111827; /* gray-900 */
+    --color-content-muted: #6b7280; /* gray-500 */
+    --color-border: #e5e7eb; /* gray-200 */
+    --color-border-light: #f3f4f6; /* gray-100 */
+    --color-surface-hover: #f3f4f6; /* gray-100 */
 
     --radius-btn: 0.5rem; /* rounded-lg */
     --radius-card: 0.75rem; /* rounded-xl */
@@ -26,10 +34,18 @@
     --bg-sidebar: #ffffff;
     --text-sidebar: #111827; /* gray-900 */
     --text-sidebar-muted: #6b7280; /* gray-500 */
-    --bg-sidebar-hover: #f9fafb; /* gray-50 */
-    --bg-sidebar-active: #f3f4f6; /* gray-100 */
-    --text-sidebar-active: #111827;
+    --bg-sidebar-hover: #f3f4f6; /* gray-100 */
+    --bg-sidebar-active: #f3f4f6;
+    --text-sidebar-activeFg: #111827;
     --border-sidebar: #e5e7eb; /* gray-200 */
+
+    --color-background: #f9fafb; /* gray-50 */
+    --color-card: #ffffff;
+    --color-content: #111827; /* gray-900 */
+    --color-content-muted: #6b7280; /* gray-500 */
+    --color-border: #e5e7eb; /* gray-200 */
+    --color-border-light: #f3f4f6; /* gray-100 */
+    --color-surface-hover: #f3f4f6; /* gray-100 */
 
     --radius-btn: 0.375rem; /* rounded-md */
     --radius-card: 0.5rem; /* rounded-lg */
@@ -37,12 +53,30 @@
     --border-card: #e5e7eb; /* gray-200 */
   }
 
+  :root[data-theme="dark"] {
+    --bg-sidebar: #0f172a; /* slate-900 */
+    --text-sidebar: #f8fafc; /* slate-50 */
+    --text-sidebar-muted: #94a3b8; /* slate-400 */
+    --bg-sidebar-hover: #1e293b; /* slate-800 */
+    --bg-sidebar-active: #1e293b;
+    --text-sidebar-activeFg: #ffffff;
+    --border-sidebar: #1e293b; /* slate-800 */
+
+    --color-background: #020617; /* slate-950 */
+    --color-card: #0f172a; /* slate-900 */
+    --color-content: #f8fafc; /* slate-50 */
+    --color-content-muted: #94a3b8; /* slate-400 */
+    --color-border: #1e293b; /* slate-800 */
+    --color-border-light: #0f172a;
+    --color-surface-hover: #1e293b; /* slate-800 */
+  }
+
   html {
     scroll-behavior: smooth;
   }
 
   body {
-    @apply font-sans bg-surface text-gray-800 antialiased;
+    @apply antialiased text-content bg-background selection:bg-primary-200 selection:text-primary-900;
     min-height: 100vh;
   }
 
@@ -96,10 +130,7 @@
 
   /* Cards */
   .card {
-    @apply bg-white p-6 transition-shadow duration-200;
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-card);
-    border: 1px solid var(--border-card);
+    @apply bg-card rounded-2xl shadow-sm border border-border p-5 md:p-6 transition-all duration-200;
   }
 
   .card-hover {

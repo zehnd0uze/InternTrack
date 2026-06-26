@@ -112,29 +112,29 @@ export default function AttendanceCalendar() {
   const weekDays = ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.']
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden animate-fade-in">
+    <div className="bg-card rounded-xl border border-border-light shadow-sm overflow-hidden animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50/50">
-        <h2 className="text-lg font-bold text-gray-800 capitalize">
+      <div className="flex items-center justify-between p-4 border-b border-border-light bg-gray-50/50">
+        <h2 className="text-lg font-bold text-content capitalize">
           {format(currentDate, dateFormat, { locale: th })}
         </h2>
         <div className="flex items-center gap-2">
           <button onClick={prevMonth} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
-            <ChevronLeft size={20} className="text-gray-600" />
+            <ChevronLeft size={20} className="text-content-muted" />
           </button>
           <button onClick={() => setCurrentDate(new Date())} className="px-3 py-1.5 text-sm font-medium text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors">
             วันนี้
           </button>
           <button onClick={nextMonth} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
-            <ChevronRight size={20} className="text-gray-600" />
+            <ChevronRight size={20} className="text-content-muted" />
           </button>
         </div>
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-7 border-b border-gray-100 bg-gray-50">
+      <div className="grid grid-cols-7 border-b border-border-light bg-background">
         {weekDays.map((day, i) => (
-          <div key={i} className={`p-3 text-center text-sm font-semibold ${i === 0 || i === 6 ? 'text-danger' : 'text-gray-600'}`}>
+          <div key={i} className={`p-3 text-center text-sm font-semibold ${i === 0 || i === 6 ? 'text-danger' : 'text-content-muted'}`}>
             {day}
           </div>
         ))}
@@ -153,7 +153,7 @@ export default function AttendanceCalendar() {
           return (
             <div 
               key={i} 
-              className={`bg-white p-2 flex flex-col gap-1 transition-colors hover:bg-gray-50
+              className={`bg-card p-2 flex flex-col gap-1 transition-colors hover:bg-background
                 ${!isCurrentMonth ? 'opacity-50 bg-gray-50/50' : ''}
                 ${leaveType ? 'bg-orange-50/30' : ''}
               `}
@@ -161,7 +161,7 @@ export default function AttendanceCalendar() {
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-1.5 overflow-hidden">
                   <span className={`text-sm font-medium w-7 h-7 flex items-center justify-center rounded-full shrink-0
-                    ${isToday ? 'bg-primary-500 text-white shadow-sm' : 'text-gray-700'}
+                    ${isToday ? 'bg-primary-500 text-white shadow-sm' : 'text-content-muted'}
                   `}>
                     {format(day, 'd')}
                   </span>
@@ -185,10 +185,10 @@ export default function AttendanceCalendar() {
               {/* Data Block */}
               <div className="flex-1 mt-1 overflow-y-auto hide-scrollbar space-y-1">
                 {loading ? (
-                  isCurrentMonth && <div className="h-4 bg-gray-100 rounded animate-pulse w-3/4"></div>
+                  isCurrentMonth && <div className="h-4 bg-surface-hover rounded animate-pulse w-3/4"></div>
                 ) : record ? (
                   <>
-                    <div className="text-xs flex items-center gap-1 text-gray-600 bg-gray-50 p-1 rounded border border-gray-100">
+                    <div className="text-xs flex items-center gap-1 text-content-muted bg-background p-1 rounded border border-border-light">
                       <Clock size={12} className="text-primary-500 shrink-0" />
                       <span className="truncate">{formatThaiTime(record.check_in)}</span>
                       {record.check_out && (

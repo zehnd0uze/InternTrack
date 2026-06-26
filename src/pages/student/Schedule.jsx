@@ -159,10 +159,10 @@ export default function StudentSchedule() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-content flex items-center gap-2">
             <CalendarIcon className="text-primary-600" /> ตารางงานและกิจกรรม
           </h1>
-          <p className="text-gray-500 mt-1">ดูกำหนดการจากพี่เลี้ยง และสร้างตารางงานส่วนตัว</p>
+          <p className="text-content-muted mt-1">ดูกำหนดการจากพี่เลี้ยง และสร้างตารางงานส่วนตัว</p>
         </div>
         <button 
           onClick={() => {
@@ -205,11 +205,11 @@ export default function StudentSchedule() {
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal-content max-w-lg" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-5">
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-content flex items-center gap-2">
                 {isReadonly && <Lock size={16} className="text-gray-400" />}
                 {isReadonly ? 'รายละเอียดกิจกรรม' : editEvent ? 'แก้ไขกิจกรรมส่วนตัว' : 'สร้างกิจกรรมส่วนตัว'}
               </h3>
-              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">
+              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-content-muted">
                 <X size={20} />
               </button>
             </div>
@@ -222,15 +222,15 @@ export default function StudentSchedule() {
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-4 h-4 rounded-full" style={{ backgroundColor: editEvent.color || '#3b82f6' }} />
-                  <h4 className="text-base font-bold text-gray-900">{editEvent.title}</h4>
+                  <h4 className="text-base font-bold text-content">{editEvent.title}</h4>
                 </div>
                 
-                <div className="bg-gray-50 rounded-lg p-3 text-sm flex flex-col gap-2 border border-gray-100">
+                <div className="bg-background rounded-lg p-3 text-sm flex flex-col gap-2 border border-border-light">
                   <div className="flex items-start gap-2">
                     <Clock size={16} className="text-gray-400 mt-0.5" />
                     <div>
-                      <span className="text-gray-500 text-xs block mb-0.5">เวลาเริ่ม</span>
-                      <span className="font-medium text-gray-900">
+                      <span className="text-content-muted text-xs block mb-0.5">เวลาเริ่ม</span>
+                      <span className="font-medium text-content">
                         {format(new Date(editEvent.start_time), 'EEEE d MMMM yyyy HH:mm', { locale: th })} น.
                       </span>
                     </div>
@@ -238,8 +238,8 @@ export default function StudentSchedule() {
                   <div className="flex items-start gap-2">
                     <Clock size={16} className="text-gray-400 mt-0.5 opacity-0" />
                     <div>
-                      <span className="text-gray-500 text-xs block mb-0.5">เวลาสิ้นสุด</span>
-                      <span className="font-medium text-gray-900">
+                      <span className="text-content-muted text-xs block mb-0.5">เวลาสิ้นสุด</span>
+                      <span className="font-medium text-content">
                         {format(new Date(editEvent.end_time), 'EEEE d MMMM yyyy HH:mm', { locale: th })} น.
                       </span>
                     </div>
@@ -248,10 +248,10 @@ export default function StudentSchedule() {
 
                 {editEvent.description && (
                   <div>
-                    <h4 className="text-sm font-medium text-gray-700 flex items-center gap-1 mb-2">
+                    <h4 className="text-sm font-medium text-content-muted flex items-center gap-1 mb-2">
                       <FileText size={14} /> รายละเอียด
                     </h4>
-                    <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-700 whitespace-pre-wrap border border-gray-100">
+                    <div className="bg-background rounded-lg p-3 text-sm text-content-muted whitespace-pre-wrap border border-border-light">
                       {editEvent.description}
                     </div>
                   </div>
@@ -323,7 +323,7 @@ export default function StudentSchedule() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between pt-4 border-t border-gray-100 mt-6">
+                <div className="flex items-center justify-between pt-4 border-t border-border-light mt-6">
                   {editEvent ? (
                     <button
                       type="button"

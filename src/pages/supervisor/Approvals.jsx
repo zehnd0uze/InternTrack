@@ -121,17 +121,17 @@ export default function SupervisorApprovals() {
     const details = expandedData[approval.id] || []
 
     return (
-      <div className="border border-gray-100 rounded-xl overflow-hidden shadow-card hover:shadow-card-hover transition-shadow">
+      <div className="border border-border-light rounded-xl overflow-hidden shadow-card hover:shadow-card-hover transition-shadow">
         <div
-          className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 bg-white cursor-pointer"
+          className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 bg-card cursor-pointer"
           onClick={() => toggleExpand(approval)}
         >
           <div className="flex-1">
-            <p className="font-semibold text-gray-900">{approval.student?.full_name}</p>
+            <p className="font-semibold text-content">{approval.student?.full_name}</p>
             <p className="text-xs text-gray-400 mt-0.5">
               สัปดาห์: <WeekRange weekStart={approval.week_start} />
             </p>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-sm text-content-muted mt-1">
               รวม <span className="font-bold text-primary-700">{parseFloat(approval.total_hours).toFixed(1)} ชั่วโมง</span>
             </p>
           </div>
@@ -147,25 +147,25 @@ export default function SupervisorApprovals() {
 
         {/* Expanded Detail */}
         {isExpanded && (
-          <div className="border-t border-gray-100 bg-gray-50 p-4 space-y-3">
-            <h4 className="text-sm font-semibold text-gray-700">รายละเอียดรายวัน</h4>
+          <div className="border-t border-border-light bg-background p-4 space-y-3">
+            <h4 className="text-sm font-semibold text-content-muted">รายละเอียดรายวัน</h4>
             {details.length === 0 ? (
               <p className="text-sm text-gray-400">ไม่มีข้อมูล</p>
             ) : (
               <div className="space-y-2">
                 {details.map(d => (
-                  <div key={d.id} className="bg-white rounded-lg p-3 border border-gray-100">
+                  <div key={d.id} className="bg-card rounded-lg p-3 border border-border-light">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="font-medium text-gray-900">
+                      <span className="font-medium text-content">
                         {format(new Date(d.date), 'd MMM yyyy', { locale: th })}
                       </span>
                       <span className="text-success font-semibold">{parseFloat(d.hours_worked || 0).toFixed(1)} ชม.</span>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-content-muted mt-1">
                       {format(new Date(d.check_in), 'HH:mm', { locale: th })} – {d.check_out ? format(new Date(d.check_out), 'HH:mm', { locale: th }) : '-'}
                     </p>
                     {d.daily_logs?.[0]?.log_text && (
-                      <p className="text-xs text-gray-600 mt-1.5 bg-gray-50 rounded p-2 italic">
+                      <p className="text-xs text-content-muted mt-1.5 bg-background rounded p-2 italic">
                         "{d.daily_logs[0].log_text}"
                       </p>
                     )}
@@ -225,14 +225,14 @@ export default function SupervisorApprovals() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-xl font-bold text-gray-900">อนุมัติชั่วโมงทำงาน</h1>
-        <p className="text-sm text-gray-500 mt-0.5">ตรวจสอบและอนุมัติคำขอชั่วโมงทำงานของนักศึกษา</p>
+        <h1 className="text-xl font-bold text-content">อนุมัติชั่วโมงทำงาน</h1>
+        <p className="text-sm text-content-muted mt-0.5">ตรวจสอบและอนุมัติคำขอชั่วโมงทำงานของนักศึกษา</p>
       </div>
 
       {/* Pending */}
       <div>
         <div className="flex items-center gap-2 mb-4">
-          <h2 className="font-semibold text-gray-900">รอการอนุมัติ</h2>
+          <h2 className="font-semibold text-content">รอการอนุมัติ</h2>
           {pending.length > 0 && (
             <span className="badge badge-warning">{pending.length}</span>
           )}
@@ -254,7 +254,7 @@ export default function SupervisorApprovals() {
       {/* History */}
       {history.length > 0 && (
         <div>
-          <h2 className="font-semibold text-gray-900 mb-4">ประวัติการอนุมัติ</h2>
+          <h2 className="font-semibold text-content mb-4">ประวัติการอนุมัติ</h2>
           <div className="space-y-3">
             {history.map(a => <ApprovalCard key={a.id} approval={a} showActions={false} />)}
           </div>

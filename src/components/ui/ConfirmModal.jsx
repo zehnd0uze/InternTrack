@@ -10,10 +10,10 @@ export default function ConfirmModal({ title, message, confirmLabel = 'ยืน
             <AlertTriangle size={20} className={danger ? 'text-danger' : 'text-warning'} />
           </div>
           <div className="flex-1">
-            <h3 className="text-base font-semibold text-gray-900">{title}</h3>
-            {message && <p className="text-sm text-gray-500 mt-1">{message}</p>}
+            <h3 className="text-base font-semibold text-content">{title}</h3>
+            {message && <p className="text-sm text-content-muted mt-1">{message}</p>}
           </div>
-          <button onClick={onCancel} className="text-gray-400 hover:text-gray-600 transition-colors p-1">
+          <button onClick={onCancel} className="text-gray-400 hover:text-content-muted transition-colors p-1">
             <X size={18} />
           </button>
         </div>

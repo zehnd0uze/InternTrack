@@ -98,7 +98,7 @@ function AttendanceTab() {
       </div>
 
       {loading ? <SkeletonTable rows={6} cols={6} /> : (
-        <div className="table-wrapper bg-white">
+        <div className="table-wrapper bg-card">
           <table className="table text-sm">
             <thead>
               <tr>
@@ -117,14 +117,14 @@ function AttendanceTab() {
                 <tr key={r.id}>
                   <td>
                     <div>
-                      <p className="font-medium text-gray-900">{r.user?.full_name || '-'}</p>
+                      <p className="font-medium text-content">{r.user?.full_name || '-'}</p>
                       <p className="text-xs text-gray-400">{r.user?.email}</p>
                     </div>
                   </td>
-                  <td className="text-gray-600">{r.date}</td>
-                  <td className="text-gray-600">{r.check_in ? r.check_in.slice(0, 5) : <span className="text-gray-300">-</span>}</td>
-                  <td className="text-gray-600">{r.check_out ? r.check_out.slice(0, 5) : <span className="text-gray-300">-</span>}</td>
-                  <td className="text-gray-600">
+                  <td className="text-content-muted">{r.date}</td>
+                  <td className="text-content-muted">{r.check_in ? r.check_in.slice(0, 5) : <span className="text-gray-300">-</span>}</td>
+                  <td className="text-content-muted">{r.check_out ? r.check_out.slice(0, 5) : <span className="text-gray-300">-</span>}</td>
+                  <td className="text-content-muted">
                     {r.hours_worked ? `${parseFloat(r.hours_worked).toFixed(2)} ชม.` : <span className="text-gray-300">-</span>}
                   </td>
                   <td>
@@ -145,10 +145,10 @@ function AttendanceTab() {
         <div className="modal-overlay" onClick={() => setEditRow(null)}>
           <div className="modal-content max-w-md" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-5">
-              <h3 className="text-lg font-semibold text-gray-900">แก้ไขข้อมูลการเข้างาน</h3>
-              <button onClick={() => setEditRow(null)} className="text-gray-400 hover:text-gray-600 p-1"><X size={18} /></button>
+              <h3 className="text-lg font-semibold text-content">แก้ไขข้อมูลการเข้างาน</h3>
+              <button onClick={() => setEditRow(null)} className="text-gray-400 hover:text-content-muted p-1"><X size={18} /></button>
             </div>
-            <p className="text-sm text-gray-500 mb-4 font-medium">{editRow.user?.full_name}</p>
+            <p className="text-sm text-content-muted mb-4 font-medium">{editRow.user?.full_name}</p>
             <div className="space-y-3">
               <div>
                 <label className="label">วันที่</label>
@@ -247,7 +247,7 @@ function DailyLogsTab() {
       </div>
 
       {loading ? <SkeletonTable rows={6} cols={4} /> : (
-        <div className="table-wrapper bg-white">
+        <div className="table-wrapper bg-card">
           <table className="table text-sm">
             <thead>
               <tr>
@@ -264,12 +264,12 @@ function DailyLogsTab() {
                 <tr key={r.id}>
                   <td>
                     <div>
-                      <p className="font-medium text-gray-900">{r.user?.full_name || '-'}</p>
+                      <p className="font-medium text-content">{r.user?.full_name || '-'}</p>
                       <p className="text-xs text-gray-400">{r.user?.email}</p>
                     </div>
                   </td>
-                  <td className="text-gray-600 whitespace-nowrap">{r.log_date}</td>
-                  <td className="text-gray-600 max-w-xs">
+                  <td className="text-content-muted whitespace-nowrap">{r.log_date}</td>
+                  <td className="text-content-muted max-w-xs">
                     <p className="truncate">{r.log_text || <span className="text-gray-300">ไม่มีบันทึก</span>}</p>
                   </td>
                   <td>
@@ -289,10 +289,10 @@ function DailyLogsTab() {
         <div className="modal-overlay" onClick={() => setEditRow(null)}>
           <div className="modal-content max-w-lg" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-5">
-              <h3 className="text-lg font-semibold text-gray-900">แก้ไขบันทึกประจำวัน</h3>
-              <button onClick={() => setEditRow(null)} className="text-gray-400 hover:text-gray-600 p-1"><X size={18} /></button>
+              <h3 className="text-lg font-semibold text-content">แก้ไขบันทึกประจำวัน</h3>
+              <button onClick={() => setEditRow(null)} className="text-gray-400 hover:text-content-muted p-1"><X size={18} /></button>
             </div>
-            <p className="text-sm text-gray-500 mb-1">{editRow.user?.full_name} — {editRow.log_date}</p>
+            <p className="text-sm text-content-muted mb-1">{editRow.user?.full_name} — {editRow.log_date}</p>
             <textarea
               value={editLog}
               onChange={e => setEditLog(e.target.value)}
@@ -416,7 +416,7 @@ function ApprovalsTab() {
       </div>
 
       {loading ? <SkeletonTable rows={6} cols={7} /> : (
-        <div className="table-wrapper bg-white">
+        <div className="table-wrapper bg-card">
           <table className="table text-sm">
             <thead>
               <tr>
@@ -436,13 +436,13 @@ function ApprovalsTab() {
                 <tr key={r.id}>
                   <td>
                     <div>
-                      <p className="font-medium text-gray-900">{r.student?.full_name || '-'}</p>
+                      <p className="font-medium text-content">{r.student?.full_name || '-'}</p>
                       <p className="text-xs text-gray-400">{r.student?.email}</p>
                     </div>
                   </td>
-                  <td className="text-gray-600 whitespace-nowrap">{r.week_start}</td>
-                  <td className="text-gray-600">{parseFloat(r.total_hours || 0).toFixed(1)} ชม.</td>
-                  <td className="text-gray-600">{r.supervisor?.full_name || <span className="text-gray-300">-</span>}</td>
+                  <td className="text-content-muted whitespace-nowrap">{r.week_start}</td>
+                  <td className="text-content-muted">{parseFloat(r.total_hours || 0).toFixed(1)} ชม.</td>
+                  <td className="text-content-muted">{r.supervisor?.full_name || <span className="text-gray-300">-</span>}</td>
                   <td>
                     <span className={`badge ${STATUS_COLORS[r.status] || 'badge-gray'}`}>
                       {STATUS_LABELS[r.status] || r.status}
@@ -477,10 +477,10 @@ function ApprovalsTab() {
         <div className="modal-overlay" onClick={() => setEditRow(null)}>
           <div className="modal-content max-w-md" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-5">
-              <h3 className="text-lg font-semibold text-gray-900">แก้ไขสถานะการอนุมัติ</h3>
-              <button onClick={() => setEditRow(null)} className="text-gray-400 hover:text-gray-600 p-1"><X size={18} /></button>
+              <h3 className="text-lg font-semibold text-content">แก้ไขสถานะการอนุมัติ</h3>
+              <button onClick={() => setEditRow(null)} className="text-gray-400 hover:text-content-muted p-1"><X size={18} /></button>
             </div>
-            <p className="text-sm text-gray-500 mb-4">{editRow.student?.full_name} — สัปดาห์ {editRow.week_start}</p>
+            <p className="text-sm text-content-muted mb-4">{editRow.student?.full_name} — สัปดาห์ {editRow.week_start}</p>
             <div className="space-y-3">
               <div>
                 <label className="label">สถานะ</label>
@@ -533,9 +533,9 @@ export default function AdminDataManager() {
       <div>
         <div className="flex items-center gap-2 mb-1">
           <Database size={20} className="text-primary-700" />
-          <h1 className="text-xl font-bold text-gray-900">จัดการข้อมูลระบบ</h1>
+          <h1 className="text-xl font-bold text-content">จัดการข้อมูลระบบ</h1>
         </div>
-        <p className="text-sm text-gray-500">ดู แก้ไข และจัดการข้อมูลดิบในฐานข้อมูล (สำหรับผู้ดูแลระบบ)</p>
+        <p className="text-sm text-content-muted">ดู แก้ไข และจัดการข้อมูลดิบในฐานข้อมูล (สำหรับผู้ดูแลระบบ)</p>
       </div>
 
       {/* Warning */}
@@ -547,7 +547,7 @@ export default function AdminDataManager() {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-border">
         <nav className="flex gap-1 -mb-px">
           {TABS.map(({ id, label, icon: Icon }) => (
             <button
@@ -556,7 +556,7 @@ export default function AdminDataManager() {
               className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === id
                   ? 'border-primary-700 text-primary-700'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-content-muted hover:text-content-muted hover:border-gray-300'
               }`}
             >
               <Icon size={15} />
