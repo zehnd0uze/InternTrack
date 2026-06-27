@@ -129,36 +129,7 @@ export default function PrintableLog() {
         console.error('Error fetching logs for print:', error)
       } else {
         const enrichedRecords = [...(records || [])]
-        const currentYear = new Date().getFullYear()
-        const holidays = getThaiHolidays(currentYear)
-        
-        holidays.forEach(h => {
-          const dateObj = new Date(h.date)
-          const day = dateObj.getDay()
-          if (day !== 0 && day !== 6) { // Weekday
-            const exists = enrichedRecords.find(r => r.date === h.date)
-            if (!exists) {
-              let inRange = true
-              if (placementData && placementData.start_date && placementData.end_date) {
-                inRange = dateObj >= new Date(placementData.start_date) && dateObj <= new Date(placementData.end_date)
-              } else if (records && records.length > 0) {
-                inRange = dateObj >= new Date(records[0].date) && dateObj <= new Date(records[records.length-1].date)
-              }
-              
-              if (inRange) {
-                enrichedRecords.push({
-                  id: 'holiday-' + h.date,
-                  date: h.date,
-                  check_in: null,
-                  check_out: null,
-                  hours_worked: 0,
-                  daily_logs: [{ log_text: `หยุดนักขัตฤกษ์: ${h.name}` }]
-                })
-              }
-            }
-          }
-        })
-        
+        // Removed automatic injection of Thai holidays into the print table as per user request
         enrichedRecords.sort((a, b) => new Date(a.date) - new Date(b.date))
         setData(enrichedRecords)
       }
