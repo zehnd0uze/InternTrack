@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { ClipboardList, Eye, EyeOff } from 'lucide-react'
+import { ClipboardList, Eye, EyeOff, AlertCircle } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
 export default function Login() {
@@ -11,6 +11,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showCMUModal, setShowCMUModal] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -32,14 +33,8 @@ export default function Login() {
     }
   }
 
-  const handleOAuthLogin = async () => {
-    setLoading(true)
-    const { error } = await signInWithOAuth('azure')
-    if (error) {
-      setLoading(false)
-      setError('ไม่สามารถเข้าสู่ระบบด้วย CMU Account ได้')
-      toast.error('เข้าสู่ระบบล้มเหลว')
-    }
+  const handleOAuthLogin = () => {
+    setShowCMUModal(true)
   }
 
   return (
@@ -164,6 +159,28 @@ export default function Login() {
           © 2025 InternTrack. สงวนลิขสิทธิ์
         </p>
       </div>
+
+      {showCMUModal && (
+        <div className="modal-overlay" onClick={() => setShowCMUModal(false)}>
+          <div className="modal-content max-w-sm" onClick={e => e.stopPropagation()}>
+            <div className="flex flex-col items-center text-center">
+              <div className="w-14 h-14 bg-amber-100 dark:bg-amber-500/20 rounded-full flex items-center justify-center mb-4">
+                <AlertCircle size={28} className="text-amber-600 dark:text-amber-400" />
+              </div>
+              <h3 className="text-xl font-bold text-content mb-2">ยังไม่เปิดให้บริการ</h3>
+              <p className="text-content-muted text-sm mb-6 text-balance">
+                การเข้าสู่ระบบด้วย CMU Account กำลังอยู่ในขั้นตอนประสานงานกับ ITSC มหาวิทยาลัยเชียงใหม่ กรุณารอการอัปเดตในภายหลัง
+              </p>
+              <button 
+                onClick={() => setShowCMUModal(false)}
+                className="btn-primary w-full"
+              >
+                เข้าใจแล้ว
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
