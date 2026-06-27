@@ -1,13 +1,16 @@
 import { AlertTriangle, X } from 'lucide-react'
 
-export default function ConfirmModal({ title, message, confirmLabel = 'ยืนยัน', cancelLabel = 'ยกเลิก', onConfirm, onCancel, danger = false, children }) {
+export default function ConfirmModal({ title, message, confirmLabel = 'ยืนยัน', cancelLabel = 'ยกเลิก', onConfirm, onCancel, danger = false, confirmClass, confirmStyle, children }) {
+  const isDanger = danger || confirmStyle === 'danger' || confirmClass === 'btn-danger';
+  const buttonClass = confirmClass || (isDanger ? 'btn-danger btn-sm' : 'btn-primary btn-sm');
+
   return (
     <div className="modal-overlay" onClick={onCancel}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-start gap-4 mb-4">
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${danger ? 'bg-red-100' : 'bg-yellow-100'}`}>
-            <AlertTriangle size={20} className={danger ? 'text-danger' : 'text-warning'} />
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${isDanger ? 'bg-red-100' : 'bg-yellow-100'}`}>
+            <AlertTriangle size={20} className={isDanger ? 'text-danger' : 'text-warning'} />
           </div>
           <div className="flex-1">
             <h3 className="text-base font-semibold text-content">{title}</h3>
@@ -27,7 +30,7 @@ export default function ConfirmModal({ title, message, confirmLabel = 'ยืน
           </button>
           <button
             onClick={onConfirm}
-            className={danger ? 'btn-danger btn-sm' : 'btn-primary btn-sm'}
+            className={buttonClass}
           >
             {confirmLabel}
           </button>
