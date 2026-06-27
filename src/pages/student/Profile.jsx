@@ -5,7 +5,7 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 
 export default function StudentProfile() {
-  const { user, profile, refreshProfile } = useAuth()
+  const { user, profile, refreshProfile, isStudent, activeRole } = useAuth()
 
   // ---- Profile fields ----
   const [fullName, setFullName] = useState(profile?.full_name || '')
@@ -216,7 +216,7 @@ export default function StudentProfile() {
           <p className="text-sm text-content-muted">{user?.email}</p>
           <div className="flex items-center gap-2 mt-2 flex-wrap">
             <span className="px-2 py-0.5 bg-primary-50 text-primary-700 text-xs font-semibold rounded-full border border-primary-200">
-              นักศึกษา
+              {activeRole === 'student' ? 'นักศึกษา' : activeRole === 'supervisor' ? 'พี่เลี้ยง' : activeRole === 'admin' ? 'ผู้ดูแลระบบ' : activeRole}
             </span>
             {badges.map(b => (
               <span key={b.id} title={b.desc} className={`flex items-center gap-1 px-2 py-0.5 rounded-full border text-xs font-semibold ${b.color}`}>
@@ -254,23 +254,25 @@ export default function StudentProfile() {
             </div>
           </div>
 
-          {/* Student ID */}
-          <div>
-            <label htmlFor="profile-student-code" className="block text-sm font-medium text-content-muted mb-1.5">
-              รหัสนักศึกษา
-            </label>
-            <div className="relative">
-              <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-              <input
-                id="profile-student-code"
-                type="text"
-                value={studentCode}
-                onChange={e => setStudentCode(e.target.value)}
-                placeholder="รหัสนักศึกษา"
-                className="input pl-9"
-              />
+          {/* Student ID (Only for students) */}
+          {isStudent && (
+            <div>
+              <label htmlFor="profile-student-code" className="block text-sm font-medium text-content-muted mb-1.5">
+                รหัสนักศึกษา
+              </label>
+              <div className="relative">
+                <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                <input
+                  id="profile-student-code"
+                  type="text"
+                  value={studentCode}
+                  onChange={e => setStudentCode(e.target.value)}
+                  placeholder="รหัสนักศึกษา"
+                  className="input pl-9"
+                />
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Email */}
           <div>
