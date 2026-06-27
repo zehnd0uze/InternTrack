@@ -65,6 +65,16 @@ export function AuthProvider({ children }) {
     return { data, error }
   }
 
+  const signInWithOAuth = async (provider) => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${window.location.origin}/student/dashboard`,
+      }
+    })
+    return { data, error }
+  }
+
   const signUp = async (email, password, fullName) => {
     const { data, error } = await supabase.auth.signUp({ email, password })
     if (!error && data.user) {
@@ -116,6 +126,7 @@ export function AuthProvider({ children }) {
     profile,
     loading,
     signIn,
+    signInWithOAuth,
     signUp,
     signOut,
     refreshProfile,

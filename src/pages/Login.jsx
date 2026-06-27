@@ -5,7 +5,7 @@ import { ClipboardList, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
 export default function Login() {
-  const { signIn } = useAuth()
+  const { signIn, signInWithOAuth } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -29,6 +29,16 @@ export default function Login() {
       toast.error('เข้าสู่ระบบล้มเหลว กรุณาตรวจสอบข้อมูล')
     } else {
       toast.success('เข้าสู่ระบบสำเร็จ!')
+    }
+  }
+
+  const handleOAuthLogin = async () => {
+    setLoading(true)
+    const { error } = await signInWithOAuth('azure')
+    if (error) {
+      setLoading(false)
+      setError('ไม่สามารถเข้าสู่ระบบด้วย CMU Account ได้')
+      toast.error('เข้าสู่ระบบล้มเหลว')
     }
   }
 
@@ -113,6 +123,30 @@ export default function Login() {
               ) : 'เข้าสู่ระบบ'}
             </button>
           </form>
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-border"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-card text-content-muted">หรือ</span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleOAuthLogin}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-3 py-3 px-4 border border-border rounded-xl text-content font-medium hover:bg-surface-hover transition-colors disabled:opacity-60"
+          >
+            <svg width="20" height="20" viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg">
+              <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
+              <rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
+              <rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
+              <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
+            </svg>
+            เข้าสู่ระบบด้วย CMU Account
+          </button>
 
           <p className="text-center text-xs text-gray-400 mt-6">
             ติดต่อผู้ดูแลระบบหากไม่สามารถเข้าสู่ระบบได้
