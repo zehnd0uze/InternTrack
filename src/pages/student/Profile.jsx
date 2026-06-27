@@ -178,6 +178,27 @@ export default function StudentProfile() {
     }
   }
 
+  const DEFAULT_BACKGROUNDS = [
+    { id: 'warm', url: '/backgrounds/bg_warm.png', label: 'Warm Pastel' },
+    { id: 'cool', url: '/backgrounds/bg_cool.png', label: 'Cool Blue' },
+    { id: 'landscape', url: '/backgrounds/bg_landscape.png', label: 'Minimal Landscape' },
+    { id: 'dark', url: '/backgrounds/bg_dark.png', label: 'Dark Mode Glow' },
+  ]
+
+  const handleSelectDefaultBackground = async (bgUrl) => {
+    try {
+      setBgUploading(true)
+      const { error } = await supabase.from('users').update({ background_url: bgUrl }).eq('id', user.id)
+      if (error) throw error
+      toast.success('อัปเดตรูปพื้นหลังสำเร็จ')
+      await refreshProfile()
+    } catch (err) {
+      toast.error('อัปเดตรูปพื้นหลังล้มเหลว')
+    } finally {
+      setBgUploading(false)
+    }
+  }
+
   const handleBackgroundUpload = async (e) => {
     try {
       if (!e.target.files || e.target.files.length === 0) return
@@ -306,7 +327,7 @@ export default function StudentProfile() {
                 ) : (
                   <ImageIcon size={15} />
                 )}
-                {bgUploading ? 'กำลังอัปโหลด...' : 'เลือกรูปภาพ'}
+                {bgUploading ? 'กำลังอัปโหลด...' : 'อัปโหลดรูปของฉัน'}
                 <input type="file" accept="image/*" onChange={handleBackgroundUpload} disabled={bgUploading} className="hidden" />
               </label>
             )}
@@ -332,6 +353,26 @@ export default function StudentProfile() {
                 ลบรูปภาพพื้นหลัง
               </button>
             )}
+          </div>
+        </div>
+
+        <div className="mt-6 border-t border-border pt-5">
+          <p className="text-sm font-semibold text-content mb-3">หรือเลือกจากรูปภาพเริ่มต้น:</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {DEFAULT_BACKGROUNDS.map((bg) => (
+              <button
+                key={bg.id}
+                type="button"
+                onClick={() => handleSelectDefaultBackground(bg.url)}
+                disabled={bgUploading}
+                className={`relative rounded-xl overflow-hidden border-2 transition-all h-24 group ${profile?.background_url === bg.url ? 'border-primary-600 shadow-md ring-2 ring-primary-100 ring-offset-1' : 'border-border hover:border-primary-400'}`}
+              >
+                <img src={bg.url} alt={bg.label} className="w-full h-full object-cover" />
+                <div className={`absolute inset-0 bg-black/40 flex flex-col items-center justify-center transition-opacity ${profile?.background_url === bg.url ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                  <span className="text-white text-[10px] font-bold px-2 py-1 bg-black/60 rounded-full backdrop-blur-sm shadow-sm">{profile?.background_url === bg.url ? 'ใช้อยู่' : 'เลือกรูปนี้'}</span>
+                </div>
+              </button>
+            ))}
           </div>
         </div>
       </div>
