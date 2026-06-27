@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { User, Mail, Save, Lock, Eye, EyeOff, ShieldCheck } from 'lucide-react'
+import { User, Mail, Save, Lock, Eye, EyeOff, ShieldCheck, Image as ImageIcon } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
@@ -13,6 +13,7 @@ export default function StudentProfile() {
   const [email, setEmail]       = useState(user?.email || '')
   const [profileLoading, setProfileLoading] = useState(false)
   const [avatarUploading, setAvatarUploading] = useState(false)
+  const [bgUploading, setBgUploading] = useState(false)
   const [badges, setBadges] = useState([])
 
   // ---- Fetch Badges ----
@@ -177,6 +178,49 @@ export default function StudentProfile() {
     }
   }
 
+  const handleBackgroundUpload = async (e) => {
+    try {
+      if (!e.target.files || e.target.files.length === 0) return
+      
+      const file = e.target.files[0]
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`
+      const filePath = `${user.id}/${fileName}`
+
+      setBgUploading(true)
+
+      // Upload to Storage
+      const { error: uploadError } = await supabase.storage
+        .from('backgrounds')
+        .upload(filePath, file)
+
+      if (uploadError) throw uploadError
+
+      // Get Public URL
+      const { data } = supabase.storage
+        .from('backgrounds')
+        .getPublicUrl(filePath)
+
+      const bgUrl = data.publicUrl
+
+      // Update users table
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({ background_url: bgUrl })
+        .eq('id', user.id)
+
+      if (updateError) throw updateError
+
+      toast.success('อัปเดตรูปพื้นหลังสำเร็จ')
+      await refreshProfile()
+    } catch (error) {
+      console.error('Error uploading background:', error)
+      toast.error('อัปโหลดรูปพื้นหลังล้มเหลว กรุณาลองใหม่')
+    } finally {
+      setBgUploading(false)
+    }
+  }
+
   return (
     <div className="space-y-6 animate-fade-in max-w-2xl">
       {/* Page Title */}
@@ -223,6 +267,71 @@ export default function StudentProfile() {
                 {b.icon} {b.title}
               </span>
             ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ---- Change Background ---- */}
+      <div className="card">
+        <div className="flex items-center gap-2 mb-4">
+          <ImageIcon size={18} className="text-primary-700" />
+          <h2 className="font-semibold text-content">รูปภาพพื้นหลัง</h2>
+        </div>
+        <div className="flex items-center gap-4">
+          {profile?.background_url ? (
+            <div className="h-24 w-40 rounded-xl overflow-hidden shadow border border-border relative group">
+              <img src={profile.background_url} alt="Background" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <label className="text-white text-xs font-medium cursor-pointer py-1 px-3 bg-black/40 rounded-full hover:bg-black/60 transition-colors">
+                  {bgUploading ? 'กำลังอัปโหลด...' : 'เปลี่ยนรูป'}
+                  <input type="file" accept="image/*" onChange={handleBackgroundUpload} disabled={bgUploading} className="hidden" />
+                </label>
+              </div>
+            </div>
+          ) : (
+            <div className="h-24 w-40 rounded-xl bg-surface-hover border-2 border-dashed border-border flex flex-col items-center justify-center text-content-muted">
+              <ImageIcon size={24} className="mb-2 opacity-50" />
+              <span className="text-xs">ไม่มีรูปพื้นหลัง</span>
+            </div>
+          )}
+          
+          <div className="flex-1">
+            <p className="text-sm text-content-muted mb-3">
+              เพิ่มรูปภาพพื้นหลังที่ต้องการเพื่อปรับแต่งหน้าแดชบอร์ดให้เป็นสไตล์ของคุณ
+            </p>
+            {!profile?.background_url && (
+              <label className="btn-primary btn-sm inline-flex items-center gap-2 cursor-pointer">
+                {bgUploading ? (
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <ImageIcon size={15} />
+                )}
+                {bgUploading ? 'กำลังอัปโหลด...' : 'เลือกรูปภาพ'}
+                <input type="file" accept="image/*" onChange={handleBackgroundUpload} disabled={bgUploading} className="hidden" />
+              </label>
+            )}
+            {profile?.background_url && (
+              <button
+                type="button"
+                disabled={bgUploading}
+                onClick={async () => {
+                  try {
+                    setBgUploading(true)
+                    const { error } = await supabase.from('users').update({ background_url: null }).eq('id', user.id)
+                    if (error) throw error
+                    toast.success('ลบรูปพื้นหลังสำเร็จ')
+                    await refreshProfile()
+                  } catch (err) {
+                    toast.error('ลบรูปพื้นหลังล้มเหลว')
+                  } finally {
+                    setBgUploading(false)
+                  }
+                }}
+                className="text-xs text-danger hover:underline font-medium"
+              >
+                ลบรูปภาพพื้นหลัง
+              </button>
+            )}
           </div>
         </div>
       </div>

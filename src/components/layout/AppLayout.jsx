@@ -3,18 +3,30 @@ import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import TopBar from './TopBar'
 import BottomNav from './BottomNav'
+import { useAuth } from '../../contexts/AuthContext'
 
 export default function AppLayout({ role }) {
+  const { profile } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
 
   // In view-as mode, hide sidebar entirely for a clean preview
   const isViewAs = role === 'view-as'
 
+  const bgStyle = profile?.background_url 
+    ? { backgroundImage: `url(${profile.background_url})` }
+    : {}
+
   return (
-    <div className="flex h-screen bg-background overflow-hidden">
-      {/* Desktop Sidebar — hidden in view-as mode */}
-      {!isViewAs && (
+    <div className="relative flex h-screen bg-background overflow-hidden bg-cover bg-center bg-fixed" style={bgStyle}>
+      {/* Background Overlay to ensure text readability */}
+      {profile?.background_url && (
+        <div className="absolute inset-0 bg-background/80 backdrop-blur-[2px] z-0" />
+      )}
+      
+      <div className="relative z-10 flex w-full h-full">
+        {/* Desktop Sidebar — hidden in view-as mode */}
+        {!isViewAs && (
         <div className={`hidden md:flex flex-col transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-16'}`}>
           <Sidebar
             role={role}
@@ -62,6 +74,7 @@ export default function AppLayout({ role }) {
 
       {/* Student Bottom Navigation (mobile) */}
       {role === 'student' && <BottomNav />}
+      </div>
     </div>
   )
 }
