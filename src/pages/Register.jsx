@@ -52,11 +52,11 @@ export default function Register() {
         <div className="bg-card rounded-2xl shadow-card-lg p-8 animate-fade-in">
           {/* Logo */}
           <div className="flex flex-col items-center mb-8">
-            <div className="w-16 h-16 bg-primary-700 rounded-2xl flex items-center justify-center shadow-lg mb-4">
-              <UserPlus size={28} className="text-white" />
+            <div className="w-14 h-14 bg-black rounded-[14px] flex items-center justify-center shadow-md mb-5 ring-1 ring-black/5">
+              <UserPlus size={24} className="text-white" strokeWidth={2.5} />
             </div>
-            <h1 className="text-2xl font-bold text-content">สมัครสมาชิก</h1>
-            <p className="text-content-muted text-sm mt-1">InternTrack — ระบบติดตามการฝึกประสบการณ์</p>
+            <h1 className="text-2xl font-bold text-content tracking-tight">สมัครสมาชิก</h1>
+            <p className="text-content-muted text-sm mt-1.5 font-medium">InternTrack — ระบบติดตามการฝึกประสบการณ์</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4" id="register-form">
@@ -169,7 +169,7 @@ export default function Register() {
         </div>
 
         <p className="text-center text-white/50 text-xs mt-4">
-          © 2025 InternTrack. สงวนลิขสิทธิ์
+          © 2026 InternTrack by Zehntin Co. สงวนลิขสิทธิ์
         </p>
       </div>
     </div>
