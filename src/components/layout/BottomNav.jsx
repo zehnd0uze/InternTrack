@@ -1,9 +1,10 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Clock } from 'lucide-react'
+import { LayoutDashboard, Clock, User } from 'lucide-react'
 
 const BOTTOM_NAV = [
   { to: '/student', label: 'หน้าหลัก', icon: LayoutDashboard, end: true },
   { to: '/student/weekly', label: 'ส่งชั่วโมง', icon: Clock },
+  { to: '/student/profile', label: 'โปรไฟล์', icon: User },
 ]
 
 export default function BottomNav() {
