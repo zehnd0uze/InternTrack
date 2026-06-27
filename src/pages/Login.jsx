@@ -156,7 +156,7 @@ export default function Login() {
         </div>
 
         <p className="text-center text-white/50 text-xs mt-4">
-          © 2025 InternTrack. สงวนลิขสิทธิ์
+          © 2026 InternTrack by Zehntin Co. สงวนลิขสิทธิ์
         </p>
       </div>
 
