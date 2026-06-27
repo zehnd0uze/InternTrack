@@ -318,3 +318,53 @@
 .clock-pulse-red {
   animation: redPulse 2s ease-in-out infinite;
 }
+
+/* React Big Calendar Overrides for Dark Mode */
+.rbc-calendar {
+  color: var(--color-content);
+}
+
+.rbc-header,
+.rbc-month-view, .rbc-month-row, .rbc-day-bg, 
+.rbc-time-view, .rbc-time-header, .rbc-time-content, 
+.rbc-timeslot-group, .rbc-day-slot .rbc-time-slot,
+.rbc-agenda-view table.rbc-agenda-table,
+.rbc-agenda-view table.rbc-agenda-table thead > tr > th,
+.rbc-agenda-view table.rbc-agenda-table tbody > tr > td,
+.rbc-header + .rbc-header,
+.rbc-month-row + .rbc-month-row,
+.rbc-day-bg + .rbc-day-bg {
+  border-color: var(--color-border) !important;
+}
+
+.rbc-off-range-bg {
+  background-color: var(--color-surface-hover) !important;
+}
+
+.rbc-today {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+.rbc-btn-group > button {
+  color: var(--color-content) !important;
+  background-color: var(--color-card) !important;
+  border-color: var(--color-border) !important;
+}
+
+.rbc-btn-group > button:hover {
+  background-color: var(--color-surface-hover) !important;
+}
+
+.rbc-btn-group > button.rbc-active {
+  background-color: var(--color-surface-hover) !important;
+  box-shadow: inset 0 3px 5px rgba(0,0,0,0.2) !important;
+}
+
+.rbc-toolbar button {
+  color: var(--color-content);
+}
+
+.rbc-agenda-empty {
+  color: var(--color-content-muted);
+}
+
