@@ -8,67 +8,72 @@
   }
 
   :root[data-theme="classic"] {
-    --bg-sidebar: #1B3A6B; /* primary-700 */
-    --text-sidebar: #ffffff;
-    --text-sidebar-muted: rgba(255, 255, 255, 0.7);
-    --bg-sidebar-hover: rgba(255, 255, 255, 0.1);
-    --bg-sidebar-active: rgba(255, 255, 255, 0.2);
-    --text-sidebar-activeFg: #ffffff;
-    --border-sidebar: rgba(255, 255, 255, 0.1);
+    --bg-sidebar: #ffffff;
+    --text-sidebar: #101828; /* gray-900 */
+    --text-sidebar-muted: #475467; /* gray-600 */
+    --bg-sidebar-hover: #f9fafb; /* gray-50 */
+    --bg-sidebar-active: #f9fafb;
+    --text-sidebar-activeFg: #101828;
+    --border-sidebar: #eaecf0; /* gray-200 */
     
     --color-background: #f9fafb; /* gray-50 */
     --color-card: #ffffff;
-    --color-content: #111827; /* gray-900 */
-    --color-content-muted: #6b7280; /* gray-500 */
-    --color-border: #e5e7eb; /* gray-200 */
-    --color-border-light: #f3f4f6; /* gray-100 */
-    --color-surface-hover: #f3f4f6; /* gray-100 */
+    --color-content: #101828; /* gray-900 */
+    --color-content-muted: #475467; /* gray-600 */
+    --color-border: #eaecf0; /* gray-200 */
+    --color-border-light: #f2f4f7; /* gray-100 */
+    --color-surface-hover: #f9fafb; /* gray-50 */
 
     --radius-btn: 0.5rem; /* rounded-lg */
     --radius-card: 0.75rem; /* rounded-xl */
-    --shadow-card: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
-    --border-card: #f3f4f6; /* gray-100 */
+    --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    --border-card: #eaecf0; /* gray-200 */
   }
 
   :root[data-theme="minimal"] {
     --bg-sidebar: #ffffff;
-    --text-sidebar: #111827; /* gray-900 */
-    --text-sidebar-muted: #6b7280; /* gray-500 */
-    --bg-sidebar-hover: #f3f4f6; /* gray-100 */
-    --bg-sidebar-active: #f3f4f6;
-    --text-sidebar-activeFg: #111827;
-    --border-sidebar: #e5e7eb; /* gray-200 */
+    --text-sidebar: #101828; /* gray-900 */
+    --text-sidebar-muted: #475467; /* gray-600 */
+    --bg-sidebar-hover: #f9fafb; /* gray-50 */
+    --bg-sidebar-active: #f9fafb;
+    --text-sidebar-activeFg: #101828;
+    --border-sidebar: #eaecf0; /* gray-200 */
 
-    --color-background: #f9fafb; /* gray-50 */
+    --color-background: #ffffff;
     --color-card: #ffffff;
-    --color-content: #111827; /* gray-900 */
-    --color-content-muted: #6b7280; /* gray-500 */
-    --color-border: #e5e7eb; /* gray-200 */
-    --color-border-light: #f3f4f6; /* gray-100 */
-    --color-surface-hover: #f3f4f6; /* gray-100 */
+    --color-content: #101828; /* gray-900 */
+    --color-content-muted: #475467; /* gray-600 */
+    --color-border: #eaecf0; /* gray-200 */
+    --color-border-light: #f2f4f7; /* gray-100 */
+    --color-surface-hover: #f9fafb; /* gray-50 */
 
-    --radius-btn: 0.375rem; /* rounded-md */
-    --radius-card: 0.5rem; /* rounded-lg */
-    --shadow-card: 0 1px 2px 0 rgba(0,0,0,0.05);
-    --border-card: #e5e7eb; /* gray-200 */
+    --radius-btn: 0.5rem;
+    --radius-card: 0.75rem;
+    --shadow-card: 0 1px 2px 0 rgba(16, 24, 40, 0.05);
+    --border-card: #eaecf0;
   }
 
   :root[data-theme="dark"] {
-    --bg-sidebar: #0f172a; /* slate-900 */
-    --text-sidebar: #f8fafc; /* slate-50 */
-    --text-sidebar-muted: #94a3b8; /* slate-400 */
-    --bg-sidebar-hover: #1e293b; /* slate-800 */
-    --bg-sidebar-active: #1e293b;
+    --bg-sidebar: #101828; /* gray-900 */
+    --text-sidebar: #f2f4f7; /* gray-100 */
+    --text-sidebar-muted: #98a2b3; /* gray-400 */
+    --bg-sidebar-hover: #1d2939; /* gray-800 */
+    --bg-sidebar-active: #1d2939;
     --text-sidebar-activeFg: #ffffff;
-    --border-sidebar: #1e293b; /* slate-800 */
+    --border-sidebar: #1d2939;
 
-    --color-background: #020617; /* slate-950 */
-    --color-card: #0f172a; /* slate-900 */
-    --color-content: #f8fafc; /* slate-50 */
-    --color-content-muted: #94a3b8; /* slate-400 */
-    --color-border: #334155; /* slate-700 */
-    --color-border-light: #1e293b; /* slate-800 */
-    --color-surface-hover: #1e293b; /* slate-800 */
+    --color-background: #000000;
+    --color-card: #101828;
+    --color-content: #f2f4f7;
+    --color-content-muted: #98a2b3;
+    --color-border: #1d2939;
+    --color-border-light: #101828;
+    --color-surface-hover: #1d2939;
+    
+    --radius-btn: 0.5rem;
+    --radius-card: 0.75rem;
+    --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+    --border-card: #1d2939;
   }
 
   html {
@@ -88,12 +93,12 @@
 @layer components {
   /* Buttons */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2 font-medium text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 font-semibold text-sm transition-all duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed;
     border-radius: var(--radius-btn);
   }
 
   .btn-primary {
-    @apply btn bg-primary-900 text-white hover:bg-black focus:ring-primary-500 shadow-sm active:scale-95;
+    @apply btn bg-content text-background border border-content hover:opacity-90 shadow-[0_1px_2px_rgba(16,24,40,0.05)] active:scale-[0.98];
   }
 
   .btn-secondary {
@@ -232,7 +237,7 @@
 
   /* Sidebar */
   .sidebar-link {
-    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150;
+    @apply flex items-center gap-3 px-3 py-2 rounded-md text-sm font-semibold transition-all duration-150;
     color: var(--text-sidebar-muted);
   }
 
@@ -319,36 +324,109 @@
   animation: redPulse 2s ease-in-out infinite;
 }
 
-/* React Big Calendar Overrides for Dark Mode */
+/* React Big Calendar Overrides for Untitled UI Style */
 .rbc-calendar {
   color: var(--color-content);
+  font-family: inherit;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
 }
 
-.rbc-header,
+.rbc-header {
+  border-bottom: 1px solid var(--color-border) !important;
+  border-left: 1px solid var(--color-border) !important;
+  padding: 10px 0 !important;
+  font-weight: 600 !important;
+  font-size: 0.8rem;
+  color: var(--color-content-muted);
+  text-transform: capitalize;
+}
+
 .rbc-month-view, .rbc-month-row, .rbc-day-bg, 
 .rbc-time-view, .rbc-time-header, .rbc-time-content, 
 .rbc-timeslot-group, .rbc-day-slot .rbc-time-slot,
 .rbc-agenda-view table.rbc-agenda-table,
 .rbc-agenda-view table.rbc-agenda-table thead > tr > th,
-.rbc-agenda-view table.rbc-agenda-table tbody > tr > td,
-.rbc-header + .rbc-header,
-.rbc-month-row + .rbc-month-row,
-.rbc-day-bg + .rbc-day-bg {
+.rbc-agenda-view table.rbc-agenda-table tbody > tr > td {
   border-color: var(--color-border) !important;
 }
 
+.rbc-month-row + .rbc-month-row {
+  border-top: 1px solid var(--color-border) !important;
+}
+
+.rbc-day-bg + .rbc-day-bg {
+  border-left: 1px solid var(--color-border) !important;
+}
+
+.rbc-header + .rbc-header {
+  border-left: 1px solid var(--color-border) !important;
+}
+
+/* Date Cell in top-left */
+.rbc-month-row .rbc-date-cell {
+  text-align: left !important;
+  padding: 8px 10px !important;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-content);
+}
+
 .rbc-off-range-bg {
-  background-color: var(--color-surface-hover) !important;
+  background-color: var(--color-background) !important;
+}
+.rbc-off-range .rbc-date-cell {
+  color: var(--color-content-muted) !important;
+  opacity: 0.5;
 }
 
 .rbc-today {
-  background-color: rgba(59, 130, 246, 0.1) !important;
+  background-color: var(--color-background) !important;
+}
+.rbc-today .rbc-date-cell {
+  color: var(--color-content);
+  background-color: #f2f4f7;
+  border-radius: 9999px;
+  display: inline-block;
+  padding: 4px 8px !important;
+  margin: 4px;
+}
+[data-theme="dark"] .rbc-today .rbc-date-cell {
+  background-color: #334155;
+}
+
+/* Event Pills styling */
+.rbc-event {
+  background-color: #f2f4f7 !important;
+  color: #101828 !important;
+  border: 1px solid #eaecf0 !important;
+  border-radius: 4px !important;
+  padding: 3px 6px !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  margin: 1px 6px !important;
+  box-shadow: none !important;
+}
+[data-theme="dark"] .rbc-event {
+  background-color: #1d2939 !important;
+  color: #f2f4f7 !important;
+  border-color: #334155 !important;
+}
+
+.rbc-event-content {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .rbc-btn-group > button {
   color: var(--color-content) !important;
   background-color: var(--color-card) !important;
   border-color: var(--color-border) !important;
+  font-weight: 600 !important;
+  padding: 6px 12px !important;
+  font-size: 0.875rem !important;
 }
 
 .rbc-btn-group > button:hover {
@@ -357,7 +435,7 @@
 
 .rbc-btn-group > button.rbc-active {
   background-color: var(--color-surface-hover) !important;
-  box-shadow: inset 0 3px 5px rgba(0,0,0,0.2) !important;
+  box-shadow: inset 0 3px 5px rgba(0,0,0,0.05) !important;
 }
 
 .rbc-toolbar button {

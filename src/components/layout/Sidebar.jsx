@@ -106,15 +106,15 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
       <div className={`flex items-center h-16 px-4 border-b border-sidebar-border ${collapsed ? 'justify-center' : 'justify-between'}`}>
         {!collapsed && (
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-primary-50 rounded-md flex items-center justify-center">
-              <ClipboardList size={18} className="text-primary-600" />
+            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+              <ClipboardList size={18} className="text-white" />
             </div>
             <span className="text-sidebar-fg font-bold text-lg tracking-tight">InternTrack</span>
           </div>
         )}
         {collapsed && (
-          <div className="w-8 h-8 bg-primary-50 rounded-md flex items-center justify-center">
-            <ClipboardList size={18} className="text-primary-600" />
+          <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+            <ClipboardList size={18} className="text-white" />
           </div>
         )}
 
@@ -132,40 +132,6 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
         )}
       </div>
 
-      {/* User Info */}
-      {!collapsed && (
-        <div className="px-4 py-4 border-b border-sidebar-border">
-          <div className="flex items-center gap-3">
-            {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="Profile" className="w-10 h-10 rounded-full object-cover flex-shrink-0 border border-sidebar-border shadow-sm" />
-            ) : (
-              <div className="w-10 h-10 rounded-full bg-sidebar-hover flex items-center justify-center text-sidebar-fg font-bold text-sm flex-shrink-0 border border-sidebar-border">
-                {profile?.full_name?.charAt(0)?.toUpperCase() || '?'}
-              </div>
-            )}
-            <div className="min-w-0 flex-1">
-              <p className="text-sidebar-fg font-semibold text-sm truncate">{profile?.full_name || 'กำลังโหลด...'}</p>
-              {/* Active role pill */}
-              <span className={`inline-block mt-1 text-xs font-semibold px-2 py-0.5 rounded-md ${ROLE_COLORS[activeRole] || 'bg-sidebar-hover text-sidebar-fg border border-sidebar-border'}`}>
-                {ROLE_LABELS[activeRole] || activeRole}
-              </span>
-            </div>
-          </div>
-
-          {/* Switch Role Button — shown only if user has a secondary role */}
-          {hasDualRole && (
-            <button
-              onClick={handleSwitchRole}
-              className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md bg-sidebar-hover hover:bg-sidebar-active transition-all duration-200 text-sidebar-fg text-xs font-semibold border border-sidebar-border"
-              title={`สลับไปยัง ${ROLE_LABELS[alternateRole]}`}
-            >
-              <RefreshCw size={13} />
-              สลับเป็น {ROLE_LABELS[alternateRole] || alternateRole}
-            </button>
-          )}
-        </div>
-      )}
-
       {/* Switch Role (collapsed state — icon only) */}
       {collapsed && hasDualRole && (
         <div className="px-2 py-2 border-b border-sidebar-border">
@@ -180,7 +146,10 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
       )}
 
       {/* Nav Items */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto sidebar-scroll">
+      <nav className="flex-1 px-3 py-6 space-y-1 overflow-y-auto sidebar-scroll">
+        {!collapsed && items.length > 0 && (
+          <p className="px-3 text-xs font-bold tracking-wider text-sidebar-muted mb-3 mt-2 uppercase">Menu</p>
+        )}
         {items.map(({ to, label, icon: Icon, end }) => {
           let badgeCount = 0
           if (label === 'อนุมัติชั่วโมง') badgeCount = unreadApprovals
@@ -212,16 +181,52 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
         })}
       </nav>
 
-      {/* Sign Out */}
+      {/* User Info & Sign Out (Bottom) */}
       <div className="p-3 border-t border-sidebar-border">
-        <button
-          onClick={handleSignOut}
-          className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-sm font-medium text-sidebar-muted hover:text-red-600 hover:bg-red-50 transition-all duration-150 ${collapsed ? 'justify-center' : ''}`}
-          title={collapsed ? 'ออกจากระบบ' : undefined}
-        >
-          <LogOut size={18} className="flex-shrink-0" />
-          {!collapsed && <span>ออกจากระบบ</span>}
-        </button>
+        {!collapsed && hasDualRole && (
+          <button
+            onClick={handleSwitchRole}
+            className="mb-2 w-full flex items-center justify-center gap-2 px-3 py-1.5 rounded-md hover:bg-sidebar-hover transition-colors text-sidebar-muted hover:text-sidebar-fg text-xs font-medium"
+          >
+            <RefreshCw size={13} />
+            สลับเป็น {ROLE_LABELS[alternateRole]}
+          </button>
+        )}
+
+        <div className={`flex items-center ${collapsed ? 'justify-center flex-col gap-2' : 'gap-3'} px-2 py-2 rounded-md hover:bg-sidebar-hover transition-colors cursor-pointer relative group`}>
+          {profile?.avatar_url ? (
+            <img src={profile.avatar_url} alt="Profile" className="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-sidebar-border" />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-sidebar-hover border border-sidebar-border flex items-center justify-center text-sidebar-fg font-bold text-xs flex-shrink-0">
+              {profile?.full_name?.charAt(0)?.toUpperCase() || '?'}
+            </div>
+          )}
+          {!collapsed && (
+            <div className="min-w-0 flex-1 flex items-center justify-between">
+              <div className="truncate">
+                <p className="text-sidebar-fg font-semibold text-sm truncate">{profile?.full_name || 'Loading...'}</p>
+                <p className="text-sidebar-muted text-xs truncate">{profile?.email}</p>
+              </div>
+              <button
+                onClick={handleSignOut}
+                className="p-1.5 text-sidebar-muted hover:text-danger hover:bg-red-50 rounded-md transition-colors"
+                title="ออกจากระบบ"
+              >
+                <LogOut size={16} />
+              </button>
+            </div>
+          )}
+          
+          {collapsed && (
+            <button
+              onClick={handleSignOut}
+              className="p-1.5 text-sidebar-muted hover:text-danger hover:bg-red-50 rounded-md transition-colors w-full flex justify-center"
+              title="ออกจากระบบ"
+            >
+              <LogOut size={16} />
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )

@@ -18,13 +18,13 @@ export default function AppLayout({ role }) {
     : {}
 
   return (
-    <div className="relative flex h-screen bg-background overflow-hidden bg-cover bg-center bg-fixed" style={bgStyle}>
+    <div className="relative flex h-screen w-full bg-background overflow-hidden bg-cover bg-center bg-fixed justify-center items-center md:p-4 lg:p-6" style={bgStyle}>
       {/* Background Overlay to ensure text readability */}
       {profile?.background_url && (
-        <div className="absolute inset-0 bg-background/80 backdrop-blur-[2px] z-0" />
+        <div className="absolute inset-0 bg-black/30 backdrop-blur-sm z-0" />
       )}
       
-      <div className="relative z-10 flex w-full h-full">
+      <div className="relative z-10 flex w-full h-full max-w-[1600px] bg-background md:rounded-2xl md:border md:border-border md:shadow-2xl overflow-hidden">
         {/* Desktop Sidebar — hidden in view-as mode */}
         {!isViewAs && (
         <div className={`hidden md:flex flex-col transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-16'}`}>

@@ -16,19 +16,20 @@ export default function TopBar({ onMenuClick }) {
   const navigate = useNavigate()
   const location = useLocation()
   const [notifOpen, setNotifOpen] = useState(false)
-  const [userOpen, setUserOpen] = useState(false)
   const notifRef = useRef(null)
-  const userRef = useRef(null)
 
   // Close dropdowns on outside click
   useEffect(() => {
     const handler = (e) => {
       if (notifRef.current && !notifRef.current.contains(e.target)) setNotifOpen(false)
-      if (userRef.current && !userRef.current.contains(e.target)) setUserOpen(false)
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [])
+
+  // Generate breadcrumbs from path
+  const pathSegments = location.pathname.split('/').filter(Boolean)
+  const breadcrumbs = ['Home', ...pathSegments.map(s => s.charAt(0).toUpperCase() + s.slice(1))]
 
   const ROLE_LABELS = {
     student: 'นักศึกษา',
@@ -74,13 +75,18 @@ export default function TopBar({ onMenuClick }) {
           <Menu size={20} />
         </button>
 
-        <div className="hidden md:flex items-center">
-          <h1 className="text-sm text-content-muted font-medium">
-            ยินดีต้อนรับ, <span className="text-content font-semibold">{profile?.full_name}</span>
-          </h1>
+        <div className="hidden md:flex items-center text-sm font-medium text-content-muted">
+          {breadcrumbs.map((crumb, idx) => (
+            <div key={idx} className="flex items-center">
+              {idx > 0 && <span className="mx-2 text-border">/</span>}
+              <span className={idx === breadcrumbs.length - 1 ? "text-content font-semibold" : ""}>
+                {crumb}
+              </span>
+            </div>
+          ))}
         </div>
 
-        {/* Right: Notifications + Theme + User */}
+        {/* Right: Notifications + Theme */}
         <div className="flex items-center gap-2 ml-auto">
           {/* Theme Toggle */}
           <button
@@ -158,51 +164,6 @@ export default function TopBar({ onMenuClick }) {
             )}
           </div>
 
-          {/* User Menu */}
-          <div className="relative" ref={userRef}>
-            <button
-              id="user-menu"
-              onClick={() => { setUserOpen(v => !v); setNotifOpen(false) }}
-              className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-surface-hover transition-colors"
-            >
-              {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="Profile" className="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-border" />
-              ) : (
-                <div className="w-8 h-8 rounded-full bg-primary-700 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                  {profile?.full_name?.charAt(0)?.toUpperCase() || '?'}
-                </div>
-              )}
-              <div className="hidden sm:block text-left">
-                <p className="text-sm font-semibold text-content leading-tight">{profile?.full_name}</p>
-                <p className="text-xs text-gray-400">{ROLE_LABELS[activeRole] || activeRole}</p>
-              </div>
-              <ChevronDown size={14} className="text-gray-400 hidden sm:block" />
-            </button>
-
-            {userOpen && (
-              <div className="absolute right-0 top-full mt-2 w-48 bg-card rounded-xl shadow-card-lg border border-border-light z-50 animate-slide-in py-1">
-                <div className="px-3 py-2 border-b border-gray-50">
-                  <p className="text-xs text-gray-400">เข้าสู่ระบบในฐานะ</p>
-                  <p className="text-sm font-semibold text-content truncate">{profile?.full_name}</p>
-                </div>
-                {activeRole === 'student' && (
-                  <NavLink
-                    to="/student/profile"
-                    onClick={() => setUserOpen(false)}
-                    className="w-full text-left px-3 py-2 text-sm text-content-muted hover:bg-background transition-colors flex items-center gap-2"
-                  >
-                    <UserCircle size={15} className="text-gray-400" />
-                    แก้ไขโปรไฟล์
-                  </NavLink>
-                )}
-                <button
-                  onClick={signOut}
-                  className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
-                >
-                  ออกจากระบบ
-                </button>
-              </div>
-            )}
           </div>
         </div>
       </div>

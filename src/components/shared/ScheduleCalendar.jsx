@@ -39,29 +39,30 @@ export default function ScheduleCalendar({ events, onSelectEvent, onSelectSlot, 
   const eventPropGetter = (event) => {
     if (event.isHoliday) {
       return {
+        className: 'bg-red-50 text-red-700 border-l-2 border-l-red-500 font-medium text-xs',
         style: {
-          backgroundColor: '#ef4444', // Red for holidays
-          borderRadius: '6px',
-          opacity: 0.9,
-          color: 'white',
-          border: 'none',
-          display: 'block',
-          fontSize: '0.85rem',
+          backgroundColor: '#fef2f2',
+          color: '#b91c1c',
+          border: '1px solid #fee2e2',
+          borderLeft: '3px solid #ef4444',
+          borderRadius: '4px',
           padding: '2px 6px',
-          fontWeight: 'bold'
+          fontSize: '0.75rem',
+          fontWeight: '600'
         }
       }
     }
     return {
+      className: 'bg-blue-50 text-blue-700 border-l-2 border-l-blue-500 font-medium text-xs',
       style: {
-        backgroundColor: event.color || '#3b82f6',
-        borderRadius: '6px',
-        opacity: 0.9,
-        color: 'white',
-        border: 'none',
-        display: 'block',
-        fontSize: '0.85rem',
-        padding: '2px 6px'
+        backgroundColor: event.color ? `${event.color}15` : '#eff6ff',
+        color: event.color || '#1d4ed8',
+        border: `1px solid ${event.color ? event.color + '30' : '#dbeafe'}`,
+        borderLeft: `3px solid ${event.color || '#3b82f6'}`,
+        borderRadius: '4px',
+        padding: '2px 6px',
+        fontSize: '0.75rem',
+        fontWeight: '600'
       }
     }
   }
