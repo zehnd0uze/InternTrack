@@ -177,7 +177,7 @@ function AddPlacementModal({ onClose, onSuccess }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-fade-in">
       <div className="bg-card rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-slide-up flex flex-col max-h-[90vh]">
-        <div className="px-6 py-4 border-b border-border-light flex items-center justify-between bg-gray-50/50 flex-shrink-0">
+        <div className="px-6 py-4 border-b border-border-light flex items-center justify-between bg-surface-hover flex-shrink-0">
           <h2 className="text-lg font-bold text-content flex items-center gap-2">
             <Plus className="text-primary-600" size={20} /> เพิ่มสถานที่ฝึกงาน
           </h2>
@@ -403,7 +403,7 @@ export default function AdminPlacements() {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {filtered.map(p => (
-                  <tr key={p.id} className="hover:bg-gray-50/50">
+                  <tr key={p.id} className="hover:bg-surface-hover">
                     <td className="px-4 py-3">
                       <div className="font-semibold text-content">{p.student?.full_name}</div>
                       <div className="text-xs text-content-muted">{p.student?.student_code || p.student?.email}</div>

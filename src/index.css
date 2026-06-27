@@ -97,7 +97,7 @@
   }
 
   .btn-secondary {
-    @apply btn bg-white text-primary-700 border border-primary-200 hover:bg-primary-50 focus:ring-primary-300;
+    @apply btn bg-card text-content border border-border hover:bg-surface-hover focus:ring-primary-300;
   }
 
   .btn-success {
@@ -113,7 +113,7 @@
   }
 
   .btn-ghost {
-    @apply btn text-gray-600 hover:bg-gray-100 focus:ring-gray-300;
+    @apply btn text-content-muted hover:text-content hover:bg-surface-hover focus:ring-gray-300 dark:focus:ring-gray-700;
   }
 
   .btn-lg {
@@ -143,16 +143,16 @@
   }
 
   .stat-card .stat-label {
-    @apply text-sm text-gray-500 font-medium;
+    @apply text-sm text-content-muted font-medium;
   }
 
   .stat-card .stat-value {
-    @apply text-2xl font-bold text-gray-900;
+    @apply text-2xl font-bold text-content;
   }
 
   /* Form Elements */
   .input {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 placeholder-gray-400 bg-white transition-all duration-150 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500;
+    @apply w-full px-3 py-2 border border-border rounded-md text-sm text-content placeholder-content-muted bg-background transition-all duration-150 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500;
   }
 
   .input-error {
@@ -160,7 +160,7 @@
   }
 
   .label {
-    @apply block text-sm font-medium text-gray-700 mb-1;
+    @apply block text-sm font-medium text-content mb-1;
   }
 
   .select {
@@ -173,7 +173,7 @@
 
   /* Tables */
   .table-wrapper {
-    @apply overflow-x-auto rounded-xl border border-gray-100 shadow-card;
+    @apply overflow-x-auto rounded-xl border border-border shadow-card;
   }
 
   .table {
@@ -181,19 +181,19 @@
   }
 
   .table thead {
-    @apply bg-gray-50 border-b border-gray-100;
+    @apply bg-surface-hover border-b border-border;
   }
 
   .table th {
-    @apply px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider;
+    @apply px-4 py-3 text-left text-xs font-semibold text-content-muted uppercase tracking-wider;
   }
 
   .table td {
-    @apply px-4 py-3 text-gray-700;
+    @apply px-4 py-3 text-content;
   }
 
   .table tbody tr {
-    @apply border-b border-gray-50 transition-colors duration-100 hover:bg-gray-50;
+    @apply border-b border-border transition-colors duration-100 hover:bg-surface-hover;
   }
 
   .table tbody tr:last-child {
@@ -206,42 +206,49 @@
   }
 
   .badge-success {
-    @apply badge bg-green-100 text-green-800;
+    @apply badge bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-400;
   }
 
   .badge-warning {
-    @apply badge bg-yellow-100 text-yellow-800;
+    @apply badge bg-yellow-100 text-yellow-800 dark:bg-yellow-500/20 dark:text-yellow-400;
   }
 
   .badge-danger {
-    @apply badge bg-red-100 text-red-800;
+    @apply badge bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-400;
   }
 
   .badge-info {
-    @apply badge bg-blue-100 text-blue-800;
+    @apply badge bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-400;
   }
 
   .badge-gray {
-    @apply badge bg-gray-100 text-gray-700;
+    @apply badge bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300;
   }
 
   /* Skeleton */
   .skeleton {
-    @apply animate-pulse bg-gray-200 rounded;
+    @apply animate-pulse bg-surface-hover rounded;
   }
 
   /* Sidebar */
   .sidebar-link {
-    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 transition-all duration-150 hover:bg-primary-50 hover:text-primary-700;
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150;
+    color: var(--text-sidebar-muted);
+  }
+
+  .sidebar-link:hover {
+    background-color: var(--bg-sidebar-hover);
+    color: var(--text-sidebar);
   }
 
   .sidebar-link.active {
-    @apply bg-primary-700 text-white hover:bg-primary-800;
+    background-color: var(--bg-sidebar-active);
+    color: var(--text-sidebar-activeFg);
   }
 
   /* Progress Bar */
   .progress-bar {
-    @apply w-full h-3 bg-gray-100 rounded-full overflow-hidden;
+    @apply w-full h-3 bg-surface-hover rounded-full overflow-hidden;
   }
 
   .progress-fill {
@@ -254,7 +261,7 @@
   }
 
   .modal-content {
-    @apply bg-white rounded-2xl shadow-card-lg w-full max-w-md p-6 animate-slide-in;
+    @apply bg-card border border-border rounded-2xl shadow-card-lg w-full max-w-md p-6 animate-slide-in;
   }
 
   /* Notification Dot */

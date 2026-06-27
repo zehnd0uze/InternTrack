@@ -575,7 +575,7 @@ export default function StudentDashboard() {
         </div>
 
         {!today?.id && (
-          <div className="bg-yellow-50 border border-yellow-100 rounded-lg px-4 py-3 text-sm text-yellow-700 flex items-center gap-2 mb-4">
+          <div className="bg-yellow-50 dark:bg-yellow-500/10 border border-yellow-100 dark:border-yellow-500/20 rounded-lg px-4 py-3 text-sm text-yellow-700 dark:text-yellow-400 flex items-center gap-2 mb-4">
             <AlertTriangle size={16} />
             ต้องเช็คอินก่อนจึงจะบันทึกบันทึกประจำวันได้
           </div>

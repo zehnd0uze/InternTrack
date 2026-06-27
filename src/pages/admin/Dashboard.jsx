@@ -49,8 +49,8 @@ function StatCard({ icon: Icon, label, value, color, borderColor, loading }) {
     <div className={`stat-card border-l-4 ${borderColor}`}>
       {loading ? (
         <div className="animate-pulse space-y-2">
-          <div className="h-4 bg-gray-200 rounded w-24" />
-          <div className="h-8 bg-gray-200 rounded w-16" />
+          <div className="h-4 bg-surface-hover rounded w-24" />
+          <div className="h-8 bg-surface-hover rounded w-16" />
         </div>
       ) : (
         <>
@@ -298,9 +298,9 @@ export default function AdminDashboard() {
           {attLoading ? (
             <div className="space-y-3">{[1,2,3].map(i=>(
               <div key={i} className="animate-pulse flex gap-3 items-center">
-                <div className="w-8 h-8 bg-gray-200 rounded-full" />
+                <div className="w-8 h-8 bg-surface-hover rounded-full" />
                 <div className="flex-1 space-y-1.5">
-                  <div className="h-3.5 bg-gray-200 rounded w-32" />
+                  <div className="h-3.5 bg-surface-hover rounded w-32" />
                   <div className="h-2.5 bg-surface-hover rounded w-24" />
                 </div>
               </div>
@@ -347,7 +347,7 @@ export default function AdminDashboard() {
           {pendingLoading ? (
             <div className="space-y-3">{[1,2,3].map(i=>(
               <div key={i} className="animate-pulse space-y-1.5">
-                <div className="h-3.5 bg-gray-200 rounded w-40" />
+                <div className="h-3.5 bg-surface-hover rounded w-40" />
                 <div className="h-2.5 bg-surface-hover rounded w-28" />
               </div>
             ))}</div>
@@ -398,7 +398,7 @@ export default function AdminDashboard() {
         {progressLoading ? (
           <div className="space-y-3">{[1,2,3,4].map(i=>(
             <div key={i} className="animate-pulse space-y-1.5">
-              <div className="flex justify-between"><div className="h-3.5 bg-gray-200 rounded w-36" /><div className="h-3.5 bg-surface-hover rounded w-16" /></div>
+              <div className="flex justify-between"><div className="h-3.5 bg-surface-hover rounded w-36" /><div className="h-3.5 bg-surface-hover rounded w-16" /></div>
               <div className="h-1.5 bg-surface-hover rounded-full" />
             </div>
           ))}</div>
@@ -458,7 +458,7 @@ export default function AdminDashboard() {
         {logsLoading ? (
           <div className="space-y-3">{[1,2,3].map(i=>(
             <div key={i} className="animate-pulse space-y-1.5">
-              <div className="h-3 bg-gray-200 rounded w-48" />
+              <div className="h-3 bg-surface-hover rounded w-48" />
               <div className="h-3 bg-surface-hover rounded w-full" />
             </div>
           ))}</div>

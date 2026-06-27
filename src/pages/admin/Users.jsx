@@ -522,7 +522,7 @@ export default function AdminUsers() {
                 <span>กำลังดำเนินการ... {importProgress.current} / {importProgress.total}</span>
                 <span>{Math.round((importProgress.current / (importProgress.total || 1)) * 100)}%</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <div className="w-full bg-surface-hover rounded-full h-2.5">
                 <div 
                   className="bg-primary-600 h-2.5 rounded-full transition-all duration-300" 
                   style={{ width: `${(importProgress.current / (importProgress.total || 1)) * 100}%` }}

@@ -647,7 +647,7 @@ export default function MentorInternships() {
                 className={`btn-sm px-3 rounded-lg text-sm font-medium transition-all ${
                   statusFilter === opt.value
                     ? 'bg-primary-700 text-white shadow-sm'
-                    : 'bg-surface-hover text-content-muted hover:bg-gray-200'
+                    : 'bg-surface-hover text-content-muted hover:bg-surface-hover'
                 }`}
               >
                 {opt.label}

@@ -114,18 +114,18 @@ export default function AttendanceCalendar() {
   return (
     <div className="bg-card rounded-xl border border-border-light shadow-sm overflow-hidden animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border-light bg-gray-50/50">
+      <div className="flex items-center justify-between p-4 border-b border-border bg-surface-hover">
         <h2 className="text-lg font-bold text-content capitalize">
           {format(currentDate, dateFormat, { locale: th })}
         </h2>
         <div className="flex items-center gap-2">
-          <button onClick={prevMonth} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
+          <button onClick={prevMonth} className="p-2 hover:bg-surface-hover rounded-full transition-colors">
             <ChevronLeft size={20} className="text-content-muted" />
           </button>
           <button onClick={() => setCurrentDate(new Date())} className="px-3 py-1.5 text-sm font-medium text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors">
             วันนี้
           </button>
-          <button onClick={nextMonth} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
+          <button onClick={nextMonth} className="p-2 hover:bg-surface-hover rounded-full transition-colors">
             <ChevronRight size={20} className="text-content-muted" />
           </button>
         </div>
@@ -140,7 +140,7 @@ export default function AttendanceCalendar() {
         ))}
       </div>
 
-      <div className="grid grid-cols-7 auto-rows-[100px] sm:auto-rows-[120px] bg-gray-200 gap-[1px]">
+      <div className="grid grid-cols-7 auto-rows-[100px] sm:auto-rows-[120px] bg-border gap-[1px]">
         {days.map((day, i) => {
           const dateStr = format(day, 'yyyy-MM-dd')
           const mmdd = dateStr.substring(5)
@@ -154,7 +154,7 @@ export default function AttendanceCalendar() {
             <div 
               key={i} 
               className={`bg-card p-2 flex flex-col gap-1 transition-colors hover:bg-background
-                ${!isCurrentMonth ? 'opacity-50 bg-gray-50/50' : ''}
+                ${!isCurrentMonth ? 'opacity-50 bg-surface-hover' : ''}
                 ${leaveType ? 'bg-orange-50/30' : ''}
               `}
             >
