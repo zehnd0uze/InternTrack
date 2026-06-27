@@ -18,6 +18,7 @@ export default function StudentProfile() {
   // ---- Fetch Badges ----
   useEffect(() => {
     async function fetchBadges() {
+      if (!user?.id) return
       const { data } = await supabase.from('attendance').select('hours_worked, date, check_in').eq('user_id', user.id)
       if (!data) return
       
@@ -47,7 +48,7 @@ export default function StudentProfile() {
       setBadges(newBadges)
     }
     fetchBadges()
-  }, [user.id])
+  }, [user?.id])
 
   // ---- Password fields ----
   const [currentPassword, setCurrentPassword] = useState('')
