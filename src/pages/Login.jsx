@@ -50,11 +50,11 @@ export default function Login() {
         <div className="bg-card rounded-2xl shadow-card-lg p-8 animate-fade-in">
           {/* Logo */}
           <div className="flex flex-col items-center mb-8">
-            <div className="w-16 h-16 bg-primary-700 rounded-2xl flex items-center justify-center shadow-lg mb-4">
-              <ClipboardList size={28} className="text-white" />
+            <div className="w-14 h-14 bg-black rounded-[14px] flex items-center justify-center shadow-md mb-5 ring-1 ring-black/5">
+              <ClipboardList size={24} className="text-white" strokeWidth={2.5} />
             </div>
-            <h1 className="text-2xl font-bold text-content">InternTrack</h1>
-            <p className="text-content-muted text-sm mt-1">ระบบติดตามการฝึกประสบการณ์วิชาชีพ</p>
+            <h1 className="text-2xl font-bold text-content tracking-tight">InternTrack</h1>
+            <p className="text-content-muted text-sm mt-1.5 font-medium">ระบบติดตามการฝึกประสบการณ์วิชาชีพ</p>
           </div>
 
           {/* Form */}
