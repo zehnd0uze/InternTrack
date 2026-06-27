@@ -163,8 +163,6 @@ export default function TopBar({ onMenuClick }) {
               </div>
             )}
           </div>
-
-          </div>
         </div>
       </div>
     </header>
