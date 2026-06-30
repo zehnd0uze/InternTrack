@@ -398,9 +398,9 @@
 
 /* Event Pills styling */
 .rbc-event {
-  background-color: #f2f4f7 !important;
-  color: #101828 !important;
-  border: 1px solid #eaecf0 !important;
+  background-color: #f2f4f7;
+  color: #101828;
+  border: 1px solid #eaecf0;
   border-radius: 4px !important;
   padding: 3px 6px !important;
   font-size: 0.75rem !important;
@@ -409,9 +409,9 @@
   box-shadow: none !important;
 }
 [data-theme="dark"] .rbc-event {
-  background-color: #1d2939 !important;
-  color: #f2f4f7 !important;
-  border-color: #334155 !important;
+  background-color: #1d2939;
+  color: #f2f4f7;
+  border-color: #334155;
 }
 
 .rbc-event-content {

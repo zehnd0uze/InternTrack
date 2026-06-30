@@ -55,9 +55,17 @@ export default function NotificationsPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mb-4"></div>
-        <p>กำลังโหลด...</p>
+      <div className="max-w-4xl mx-auto space-y-4 animate-fade-in pb-10 pt-4">
+        <div className="h-8 w-64 bg-gray-200 dark:bg-gray-700/50 rounded animate-pulse mb-6"></div>
+        {[1, 2, 3, 4].map(i => (
+          <div key={i} className="card p-5 flex gap-4 border border-gray-100 dark:border-gray-800">
+            <div className="w-3 h-3 rounded-full bg-gray-200 dark:bg-gray-700/50 animate-pulse mt-1.5" />
+            <div className="flex-1 space-y-3">
+              <div className="h-4 bg-gray-200 dark:bg-gray-700/50 rounded animate-pulse w-3/4"></div>
+              <div className="h-3 bg-gray-200 dark:bg-gray-700/50 rounded animate-pulse w-1/4"></div>
+            </div>
+          </div>
+        ))}
       </div>
     )
   }

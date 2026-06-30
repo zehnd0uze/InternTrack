@@ -1,21 +1,21 @@
 export default function PageLoader() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-surface">
-      <div className="flex flex-col items-center gap-4">
-        <div className="w-12 h-12 rounded-xl bg-primary-700 flex items-center justify-center">
-          <span className="text-white font-bold text-lg">IT</span>
-        </div>
-        <div className="flex gap-1.5">
-          {[0, 1, 2].map(i => (
-            <div
-              key={i}
-              className="w-2 h-2 bg-primary-700 rounded-full animate-bounce"
-              style={{ animationDelay: `${i * 0.15}s` }}
-            />
-          ))}
-        </div>
-        <p className="text-gray-400 text-sm font-medium">กำลังโหลด...</p>
+    <div className="p-6 md:p-8 space-y-6 min-h-screen bg-surface animate-fade-in max-w-7xl mx-auto w-full pt-20 lg:pt-8">
+      {/* Skeleton Header */}
+      <div className="space-y-3">
+        <div className="h-8 w-48 sm:w-64 bg-gray-200 dark:bg-gray-700/50 rounded-lg animate-pulse" />
+        <div className="h-4 w-32 sm:w-48 bg-gray-200 dark:bg-gray-700/50 rounded-lg animate-pulse" />
       </div>
+
+      {/* Skeleton Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="h-28 bg-gray-200 dark:bg-gray-700/50 rounded-xl animate-pulse" />
+        <div className="h-28 bg-gray-200 dark:bg-gray-700/50 rounded-xl animate-pulse" />
+        <div className="h-28 bg-gray-200 dark:bg-gray-700/50 rounded-xl animate-pulse" />
+      </div>
+
+      {/* Skeleton Main Content area */}
+      <div className="h-[400px] bg-gray-200 dark:bg-gray-700/50 rounded-xl animate-pulse" />
     </div>
   )
 }
