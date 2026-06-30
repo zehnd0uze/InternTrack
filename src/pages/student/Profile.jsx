@@ -34,7 +34,7 @@ export default function StudentProfile() {
         if (!hasEarly && r.check_in) {
           const h = new Date(r.check_in).getHours()
           const m = new Date(r.check_in).getMinutes()
-          if (h < 8 || (h === 8 && m <= 30)) hasEarly = true
+          if (h < 8 || (h === 8 && m === 0)) hasEarly = true
         }
         if (!hasWeekend && r.date) {
           const d = new Date(r.date).getDay()
@@ -42,7 +42,7 @@ export default function StudentProfile() {
         }
       })
 
-      if (hasEarly) newBadges.push({ id: 'early', icon: '🌅', title: 'Early Bird', color: 'text-amber-500 bg-amber-50 border-amber-200', desc: 'เช็คอินก่อน 08:30 น.' })
+      if (hasEarly) newBadges.push({ id: 'early', icon: '🌅', title: 'Early Bird', color: 'text-amber-500 bg-amber-50 border-amber-200', desc: 'เช็คอินก่อน 08:00 น.' })
       if (hasWeekend) newBadges.push({ id: 'weekend', icon: '👑', title: 'Weekend Warrior', color: 'text-purple-600 bg-purple-50 border-purple-200', desc: 'เข้างานวันหยุดเสาร์-อาทิตย์' })
       if (monthDays >= 5) newBadges.push({ id: 'fire', icon: '🔥', title: 'On Fire', color: 'text-orange-500 bg-orange-50 border-orange-200', desc: 'ทำงาน 5+ วันในเดือนนี้' })
       
