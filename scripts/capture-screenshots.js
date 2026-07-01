@@ -81,11 +81,7 @@ export const supabase = {
   from: (table) => {
     let data = [];
     if (table === 'users') {
-      if (mockRole === 'student') {
-        data = [mockUser];
-      } else {
-        data = mockStudents;
-      }
+      data = [mockUser, ...mockStudents];
     } else if (table === 'attendance') {
       data = mockAttendance;
     } else if (table === 'daily_logs') {
@@ -96,9 +92,15 @@ export const supabase = {
       data = mockLeaves;
     }
 
+    let chainData = data;
     const chain = {
       select: () => chain,
-      eq: () => chain,
+      eq: (col, val) => {
+        if (table === 'users' && col === 'id') {
+          chainData = chainData.filter(item => item[col] === val);
+        }
+        return chain;
+      },
       neq: () => chain,
       in: () => chain,
       gte: () => chain,
@@ -107,9 +109,9 @@ export const supabase = {
       order: () => chain,
       limit: () => chain,
       range: () => chain,
-      single: () => Promise.resolve({ data: data[0] || null, error: null }),
-      maybeSingle: () => Promise.resolve({ data: data[0] || null, error: null }),
-      then: (resolve) => resolve({ data, count: data.length, error: null }),
+      single: () => Promise.resolve({ data: chainData[0] || null, error: null }),
+      maybeSingle: () => Promise.resolve({ data: chainData[0] || null, error: null }),
+      then: (resolve) => resolve({ data: chainData, count: chainData.length, error: null }),
       insert: (payload) => Promise.resolve({ data: payload, error: null }),
       update: (payload) => Promise.resolve({ data: payload, error: null }),
       delete: () => Promise.resolve({ error: null }),
