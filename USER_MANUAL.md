@@ -1,3 +1,81 @@
+---
+style: |
+  @import url('https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap');
+  
+  body {
+    font-family: 'Sarabun', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #2d3748;
+    padding: 2cm;
+  }
+  
+  h1 {
+    font-size: 26px;
+    color: #1a365d;
+    text-align: center;
+    margin-top: 1cm;
+    margin-bottom: 2cm;
+    font-weight: 700;
+  }
+  
+  h2 {
+    font-size: 20px;
+    color: #2b6cb0;
+    margin-top: 1.5cm;
+    margin-bottom: 0.8cm;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 0.3cm;
+    page-break-before: always;
+    font-weight: 600;
+  }
+  
+  h3 {
+    font-size: 16px;
+    color: #2d3748;
+    margin-top: 0.8cm;
+    margin-bottom: 0.4cm;
+    font-weight: 600;
+  }
+  
+  p, li {
+    margin-bottom: 0.3cm;
+  }
+  
+  img {
+    max-width: 90%;
+    max-height: 15cm;
+    display: block;
+    margin: 0.8cm auto;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    page-break-inside: avoid;
+  }
+  
+  /* Avoid page breaks inside paragraphs and lists where possible */
+  p, li, blockquote {
+    page-break-inside: avoid;
+  }
+  
+  /* Heading page-break fixes */
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+  
+  hr {
+    border: 0;
+    border-top: 1px solid #e2e8f0;
+    margin: 1.5cm 0;
+  }
+  
+  .page-number {
+    font-size: 10px;
+    color: #a0aec0;
+    text-align: center;
+  }
+---
+
 # คู่มือการใช้งานระบบ TernieTrack (Internship Time Tracking System)
 
 ---
@@ -61,7 +139,7 @@
 ![Student Leave Request](public/manual_images/student_leave_request.png)
 
 ### 3.5 ตารางการปฏิบัติงาน (Schedule)
-นักศึกษาสามารถตรวจสอบกิจกรรมหรือตารางงานที่พี่เลี้ยงกำหนดไว้ และสามารถสร้างกิจกรรมส่วนบุคคลเพิ่มเติมได้ในเมนูนี้ เพื่อบริหารจัดการเวลาทำงานให้มีประสิทธิภาพยิ่งขึ้น
+นักศึกษาก็สามารถตรวจสอบกิจกรรมหรือตารางงานที่พี่เลี้ยงกำหนดไว้ และสามารถสร้างกิจกรรมส่วนบุคคลเพิ่มเติมได้ในเมนูนี้ เพื่อบริหารจัดการเวลาทำงานให้มีประสิทธิภาพยิ่งขึ้น
 
 ![Student Schedule](public/manual_images/student_schedule.png)
 
