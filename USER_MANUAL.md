@@ -116,6 +116,8 @@ style: |
 
 ![Student Dashboard](public/manual_images/student_dashboard.png)
 
+<div style="page-break-before: always;"></div>
+
 ### 3.2 การเขียนบันทึกการปฏิบัติงานประจำวัน (Daily Log)
 หลังจากบันทึกเวลาเข้างานเรียบร้อยแล้ว นักศึกษาต้องดำเนินการดังนี้:
 1. เลือกระดับความพึงพอใจในการปฏิบัติงานของวันนั้น
@@ -125,6 +127,8 @@ style: |
 
 ![Student Edit Log Modal](public/manual_images/student_edit_log_modal.png)
 
+<div style="page-break-before: always;"></div>
+
 ### 3.3 การยื่นคำร้องขอลาหยุด (Leave Request)
 1. ไปที่เมนู **"แจ้งลา ป่วย/กิจ"**
 2. เลือกประเภทการลา (ลาป่วย หรือ ลากิจ) และระบุวันที่ต้องการลา
@@ -132,10 +136,14 @@ style: |
 
 ![Student Leave Request](public/manual_images/student_leave_request.png)
 
+<div style="page-break-before: always;"></div>
+
 ### 3.4 ตารางการปฏิบัติงาน (Schedule)
 นักศึกษาก็สามารถตรวจสอบกิจกรรมหรือตารางงานที่พี่เลี้ยงกำหนดไว้ และสามารถสร้างกิจกรรมส่วนบุคคลเพิ่มเติมได้ในเมนูนี้ เพื่อบริหารจัดการเวลาทำงานให้มีประสิทธิภาพยิ่งขึ้น
 
 ![Student Schedule](public/manual_images/student_schedule.png)
+
+<div style="page-break-before: always;"></div>
 
 ### 3.5 การจัดการข้อมูลส่วนตัว (Profile)
 นักศึกษาสามารถเข้ามาอัปเดตข้อมูลส่วนบุคคล เปลี่ยนรหัสผ่าน หรืออัปโหลดรูปภาพโปรไฟล์ใหม่ได้ผ่านเมนู **"โปรไฟล์ของฉัน"**
@@ -153,10 +161,14 @@ style: |
 
 ![Mentor Dashboard](public/manual_images/mentor_dashboard.png)
 
+<div style="page-break-before: always;"></div>
+
 ### 4.2 การอนุมัติคำร้องขอลา (Leave Approvals)
 ตรวจสอบและพิจารณาอนุมัติคำร้องการลาหยุดของนักศึกษา หากปฏิเสธการลาสามารถระบุเหตุผลเพิ่มเติมได้
 
 ![Mentor Leave Approvals](public/manual_images/mentor_leave_approvals.png)
+
+<div style="page-break-before: always;"></div>
 
 ### 4.3 การกำหนดตารางงาน (Schedule)
 มอบหมายภาระงาน นัดหมายประชุม หรือจัดตารางกิจกรรมล่วงหน้าให้นักศึกษาผ่านเมนู **"ตารางงาน"** เพื่อให้นักศึกษาได้เตรียมตัว
@@ -174,6 +186,8 @@ style: |
 
 ![Supervisor Dashboard](public/manual_images/supervisor_dashboard.png)
 
+<div style="page-break-before: always;"></div>
+
 ### 5.2 การออกรายงานผล (Reports)
 สามารถสร้างและดาวน์โหลดรายงานผลการปฏิบัติงาน โดยคลิกปุ่ม **"พิมพ์รายงาน"** ระบบจะสร้างเอกสารข้อมูลที่มีรูปแบบเป็นทางการสำหรับการรายงานผลทางวิชาการ
 
@@ -190,20 +204,28 @@ style: |
 
 ![Admin Dashboard](public/manual_images/admin_dashboard.png)
 
+<div style="page-break-before: always;"></div>
+
 ### 6.2 การจัดการผู้ใช้งาน (User Management)
 เพิ่ม แก้ไข ระงับสิทธิ์การใช้งานบัญชีผู้ใช้ จัดการรหัสผ่าน หรือนำเข้าข้อมูลบัญชีทีละหลายรายการผ่านไฟล์ Excel ได้
 
 ![Admin Users](public/manual_images/admin_users.png)
+
+<div style="page-break-before: always;"></div>
 
 ### 6.3 การจัดสรรข้อมูลการฝึกงาน (Placements)
 กำหนดความสัมพันธ์ระหว่าง นักศึกษา สถานประกอบการ พี่เลี้ยง และอาจารย์นิเทศ ผ่านเมนู **"จับคู่นักศึกษา"** เพื่อให้ข้อมูลในระบบแสดงผลและเชื่อมโยงกันอย่างถูกต้อง
 
 ![Admin Placements](public/manual_images/admin_placements.png)
 
+<div style="page-break-before: always;"></div>
+
 ### 6.4 การแก้ไขข้อมูลการเข้างาน (Attendance Edit)
 แอดมินสามารถเข้าไปที่หน้าแดชบอร์ดของนักศึกษา (โดยใช้โหมดมุมมอง View As) แล้วกดปุ่มรูปหนังสือ 📖 ในตารางประวัติการเข้างาน เพื่อแก้ไข "เวลาเข้า-ออกงาน" และ "ข้อความบันทึกประจำวัน" ย้อนหลังของนักศึกษาได้โดยตรง โดยหน้าต่างแก้ไขสำหรับแอดมินจะมีฟิลด์สีแดงพิเศษสำหรับการกรอกเปลี่ยนเวลาเช็คอินและเช็คเอาท์เพื่อคำนวณชั่วโมงงานใหม่ให้โดยอัตโนมัติ
 
 ![Admin Edit Log Modal](public/manual_images/admin_edit_log_modal.png)
+
+<div style="page-break-before: always;"></div>
 
 ### 6.5 การจัดการฐานข้อมูล (Data Manager)
 เข้าถึงระบบข้อมูลเชิงลึกเพื่อตรวจสอบและปรับปรุงความคลาดเคลื่อนของข้อมูลโดยตรงในระดับฐานข้อมูล เหมาะสำหรับการตรวจสอบขั้นสูง
