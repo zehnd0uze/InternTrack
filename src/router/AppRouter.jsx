@@ -13,7 +13,6 @@ import Register from '../pages/Register'
 
 // Student pages
 import StudentDashboard from '../pages/student/Dashboard'
-import StudentWeeklySubmit from '../pages/student/WeeklySubmit'
 import PrintableLog from '../pages/student/PrintableLog'
 import StudentLeaveRequest from '../pages/student/LeaveRequest'
 import StudentProfile from '../pages/student/Profile'
@@ -21,7 +20,6 @@ import StudentSchedule from '../pages/student/Schedule'
 
 // Supervisor pages
 import SupervisorDashboard from '../pages/supervisor/Dashboard'
-import SupervisorApprovals from '../pages/supervisor/Approvals'
 import SupervisorReport from '../pages/supervisor/Report'
 import SupervisorStudentDetail from '../pages/supervisor/StudentDetail'
 
@@ -36,7 +34,6 @@ import AdminDataManager from '../pages/admin/DataManager'
 
 // Mentor pages
 import MentorDashboard from '../pages/mentor/Dashboard'
-import MentorApprovals from '../pages/mentor/Approvals'
 import MentorLeaveApprovals from '../pages/mentor/LeaveApprovals'
 import MentorInternships from '../pages/mentor/Internships'
 import MentorStudentDetail from '../pages/mentor/StudentDetail'
@@ -145,7 +142,6 @@ export default function AppRouter() {
             }
           >
             <Route index element={<StudentDashboard />} />
-            <Route path="weekly" element={<StudentWeeklySubmit />} />
             <Route path="leave" element={<StudentLeaveRequest />} />
             <Route path="profile" element={<StudentProfile />} />
             <Route path="schedule" element={<StudentSchedule />} />
@@ -164,7 +160,6 @@ export default function AppRouter() {
             }
           >
             <Route index element={<SupervisorDashboard />} />
-            <Route path="approvals" element={<SupervisorApprovals />} />
             <Route path="report" element={<SupervisorReport />} />
             <Route path="students/:studentId" element={<SupervisorStudentDetail />} />
             <Route path="notifications" element={<NotificationsPage />} />
@@ -201,7 +196,6 @@ export default function AppRouter() {
             }
           >
             <Route index element={<MentorDashboard />} />
-            <Route path="approvals" element={<MentorApprovals />} />
             <Route path="leave" element={<MentorLeaveApprovals />} />
             <Route path="internships" element={<MentorInternships />} />
             <Route path="schedule" element={<MentorSchedule />} />

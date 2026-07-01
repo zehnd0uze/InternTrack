@@ -70,12 +70,10 @@ const COLORS = ['#1B3A6B','#3b82f6','#10B981','#F59E0B','#EF4444','#8b5cf6','#f9
 export default function AdminDashboard() {
   const navigate = useNavigate()
   const { setViewingAs } = useViewAs()
-  const [stats, setStats] = useState({ totalStudents: 0, clockedToday: 0, pendingApprovals: 0, approvedThisWeek: 0 })
+  const [stats, setStats] = useState({ totalStudents: 0, clockedToday: 0 })
   const [statsLoading, setStatsLoading] = useState(true)
   const [liveAttendance, setLiveAttendance] = useState([])
   const [attLoading, setAttLoading] = useState(true)
-  const [pendingList, setPendingList] = useState([])
-  const [pendingLoading, setPendingLoading] = useState(true)
   const [studentsProgress, setStudentsProgress] = useState([])
   const [progressLoading, setProgressLoading] = useState(true)
   const [recentLogs, setRecentLogs] = useState([])
@@ -84,24 +82,18 @@ export default function AdminDashboard() {
   const [chartStudents, setChartStudents] = useState([])
   const [chartLoading, setChartLoading] = useState(true)
   const [isLive, setIsLive] = useState(false)
-  const [approvingId, setApprovingId] = useState(null)
   const channelRef = useRef(null)
 
   // ── Fetch helpers ──────────────────────────────────────────────────────────
   const fetchStats = useCallback(async () => {
     const todayStr = format(new Date(), 'yyyy-MM-dd')
-    const weekStart = format(startOfWeek(new Date(), { weekStartsOn: 1 }), 'yyyy-MM-dd')
-    const [studRes, todayRes, pendRes, approvedRes] = await Promise.all([
+    const [studRes, todayRes] = await Promise.all([
       supabase.from('users').select('id', { count: 'exact' }).eq('role', 'student').eq('is_active', true),
       supabase.from('attendance').select('id', { count: 'exact' }).eq('date', todayStr),
-      supabase.from('weekly_approvals').select('id', { count: 'exact' }).eq('status', 'pending'),
-      supabase.from('weekly_approvals').select('id', { count: 'exact' }).eq('status', 'approved').gte('approved_at', weekStart),
     ])
     setStats({
       totalStudents: studRes.count || 0,
       clockedToday: todayRes.count || 0,
-      pendingApprovals: pendRes.count || 0,
-      approvedThisWeek: approvedRes.count || 0,
     })
     setStatsLoading(false)
   }, [])
@@ -115,17 +107,6 @@ export default function AdminDashboard() {
       .order('check_in', { ascending: false })
     setLiveAttendance(data || [])
     setAttLoading(false)
-  }, [])
-
-  const fetchPending = useCallback(async () => {
-    const { data } = await supabase
-      .from('weekly_approvals')
-      .select('id, student_id, week_start, total_hours, status, users:student_id(full_name)')
-      .eq('status', 'pending')
-      .order('created_at', { ascending: false })
-      .limit(20)
-    setPendingList(data || [])
-    setPendingLoading(false)
   }, [])
 
   const fetchStudentsProgress = useCallback(async () => {
@@ -195,11 +176,10 @@ export default function AdminDashboard() {
   const fetchAll = useCallback(() => {
     fetchStats()
     fetchLiveAttendance()
-    fetchPending()
     fetchStudentsProgress()
     fetchRecentLogs()
     fetchChart()
-  }, [fetchStats, fetchLiveAttendance, fetchPending, fetchStudentsProgress, fetchRecentLogs, fetchChart])
+  }, [fetchStats, fetchLiveAttendance, fetchStudentsProgress, fetchRecentLogs, fetchChart])
 
   // ── Initial load ────────────────────────────────────────────────────────────
   useEffect(() => { fetchAll() }, [fetchAll])
@@ -210,9 +190,7 @@ export default function AdminDashboard() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'attendance' }, () => {
         fetchStats(); fetchLiveAttendance(); fetchStudentsProgress()
       })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'weekly_approvals' }, () => {
-        fetchStats(); fetchPending()
-      })
+
       .on('postgres_changes', { event: '*', schema: 'public', table: 'daily_logs' }, () => {
         fetchRecentLogs()
       })
@@ -232,23 +210,9 @@ export default function AdminDashboard() {
       supabase.removeChannel(channel)
       clearInterval(chartTimer)
     }
-  }, [fetchStats, fetchLiveAttendance, fetchPending, fetchStudentsProgress, fetchRecentLogs, fetchChart])
+  }, [fetchStats, fetchLiveAttendance, fetchStudentsProgress, fetchRecentLogs, fetchChart])
 
-  // ── Approve / Reject ────────────────────────────────────────────────────────
-  const handleApproval = async (id, action) => {
-    setApprovingId(id)
-    const { error } = await supabase.from('weekly_approvals').update({
-      status: action,
-      approved_at: new Date().toISOString(),
-    }).eq('id', id)
-    setApprovingId(null)
-    if (error) {
-      toast.error('ดำเนินการล้มเหลว')
-    } else {
-      toast.success(action === 'approved' ? '✅ อนุมัติแล้ว' : '❌ ปฏิเสธแล้ว')
-      fetchPending(); fetchStats()
-    }
-  }
+
 
   const fmt = (ts) => ts ? format(new Date(ts), 'HH:mm', { locale: th }) : '—'
 
@@ -276,117 +240,56 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         <StatCard icon={Users} label="นักศึกษาทั้งหมด" value={stats.totalStudents} color="text-primary-500" borderColor="border-primary-500" loading={statsLoading} />
         <StatCard icon={UserCheck} label="เข้างานวันนี้" value={stats.clockedToday} color="text-green-500" borderColor="border-green-500" loading={statsLoading} />
-        <StatCard icon={AlertCircle} label="รออนุมัติ" value={stats.pendingApprovals} color="text-amber-500" borderColor="border-amber-500" loading={statsLoading} />
-        <StatCard icon={CheckCircle} label="อนุมัติสัปดาห์นี้" value={stats.approvedThisWeek} color="text-blue-500" borderColor="border-blue-500" loading={statsLoading} />
       </div>
 
-      {/* Live Attendance + Pending side-by-side */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-        {/* Live Attendance Feed */}
-        <div className="card">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Activity size={18} className="text-green-600" />
-              <h2 className="font-semibold text-content">การเข้างานวันนี้</h2>
-            </div>
-            <span className="text-xs text-gray-400">{format(new Date(), 'dd/MM/yyyy')}</span>
+      {/* Live Attendance */}
+      <div className="card">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Activity size={18} className="text-green-600" />
+            <h2 className="font-semibold text-content">การเข้างานวันนี้</h2>
           </div>
-          {attLoading ? (
-            <div className="space-y-3">{[1,2,3].map(i=>(
-              <div key={i} className="animate-pulse flex gap-3 items-center">
-                <div className="w-8 h-8 bg-surface-hover rounded-full" />
-                <div className="flex-1 space-y-1.5">
-                  <div className="h-3.5 bg-surface-hover rounded w-32" />
-                  <div className="h-2.5 bg-surface-hover rounded w-24" />
-                </div>
-              </div>
-            ))}</div>
-          ) : liveAttendance.length === 0 ? (
-            <div className="py-10 text-center text-gray-400 text-sm">ยังไม่มีนักศึกษาเข้างานวันนี้</div>
-          ) : (
-            <div className="space-y-2 max-h-72 overflow-y-auto">
-              {liveAttendance.map(a => (
-                <div key={a.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-background hover:bg-surface-hover transition-colors">
-                  <div className={`w-2 h-2 rounded-full flex-shrink-0 ${a.check_out ? 'bg-gray-400' : 'bg-green-500 animate-pulse'}`} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-content truncate">{a.users?.full_name || '—'}</p>
-                    <p className="text-xs text-gray-400">
-                      เข้า {fmt(a.check_in)}
-                      {a.check_out ? ` · ออก ${fmt(a.check_out)}` : ' · กำลังทำงาน'}
-                    </p>
-                  </div>
-                  {a.hours_worked && (
-                    <span className="text-xs font-semibold text-blue-600 flex-shrink-0">
-                      {parseFloat(a.hours_worked).toFixed(1)} ชม.
-                    </span>
-                  )}
-                  {!a.check_out && (
-                    <span className="text-xs text-green-600 font-medium flex-shrink-0">ใช้งานอยู่</span>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
+          <span className="text-xs text-gray-400">{format(new Date(), 'dd/MM/yyyy')}</span>
         </div>
-
-        {/* Pending Approvals */}
-        <div className="card">
-          <div className="flex items-center gap-2 mb-4">
-            <AlertCircle size={18} className="text-amber-500" />
-            <h2 className="font-semibold text-content">รายการรออนุมัติ</h2>
-            {pendingList.length > 0 && (
-              <span className="ml-auto text-xs font-bold text-white bg-amber-500 rounded-full w-5 h-5 flex items-center justify-center">
-                {pendingList.length}
-              </span>
-            )}
+        {attLoading ? (
+          <div className="space-y-3">{[1,2,3].map(i=>(
+            <div key={i} className="animate-pulse flex gap-3 items-center">
+              <div className="w-8 h-8 bg-surface-hover rounded-full" />
+              <div className="flex-1 space-y-1.5">
+                <div className="h-3.5 bg-surface-hover rounded w-32" />
+                <div className="h-2.5 bg-surface-hover rounded w-24" />
+              </div>
+            </div>
+          ))}</div>
+        ) : liveAttendance.length === 0 ? (
+          <div className="py-10 text-center text-gray-400 text-sm">ยังไม่มีนักศึกษาเข้างานวันนี้</div>
+        ) : (
+          <div className="space-y-2 max-h-72 overflow-y-auto">
+            {liveAttendance.map(a => (
+              <div key={a.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-background hover:bg-surface-hover transition-colors">
+                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${a.check_out ? 'bg-gray-400' : 'bg-green-500 animate-pulse'}`} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-content truncate">{a.users?.full_name || '—'}</p>
+                  <p className="text-xs text-gray-400">
+                    เข้า {fmt(a.check_in)}
+                    {a.check_out ? ` · ออก ${fmt(a.check_out)}` : ' · กำลังทำงาน'}
+                  </p>
+                </div>
+                {a.hours_worked && (
+                  <span className="text-xs font-semibold text-blue-600 flex-shrink-0">
+                    {parseFloat(a.hours_worked).toFixed(1)} ชม.
+                  </span>
+                )}
+                {!a.check_out && (
+                  <span className="text-xs text-green-600 font-medium flex-shrink-0">ใช้งานอยู่</span>
+                )}
+              </div>
+            ))}
           </div>
-          {pendingLoading ? (
-            <div className="space-y-3">{[1,2,3].map(i=>(
-              <div key={i} className="animate-pulse space-y-1.5">
-                <div className="h-3.5 bg-surface-hover rounded w-40" />
-                <div className="h-2.5 bg-surface-hover rounded w-28" />
-              </div>
-            ))}</div>
-          ) : pendingList.length === 0 ? (
-            <div className="py-10 text-center text-gray-400 text-sm">ไม่มีรายการรออนุมัติ ✅</div>
-          ) : (
-            <div className="space-y-2 max-h-72 overflow-y-auto">
-              {pendingList.map(a => (
-                <div key={a.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-amber-50 border border-amber-100">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-content truncate">{a.users?.full_name || '—'}</p>
-                    <p className="text-xs text-content-muted">
-                      สัปดาห์ {format(new Date(a.week_start), 'd MMM yyyy', { locale: th })}
-                      {a.total_hours && ` · ${parseFloat(a.total_hours).toFixed(1)} ชม.`}
-                    </p>
-                  </div>
-                  <div className="flex gap-1.5 flex-shrink-0">
-                    <button
-                      onClick={() => handleApproval(a.id, 'approved')}
-                      disabled={approvingId === a.id}
-                      className="p-1.5 rounded-lg bg-green-100 hover:bg-green-200 text-green-700 transition-colors disabled:opacity-50"
-                      title="อนุมัติ"
-                    >
-                      <Check size={14} />
-                    </button>
-                    <button
-                      onClick={() => handleApproval(a.id, 'rejected')}
-                      disabled={approvingId === a.id}
-                      className="p-1.5 rounded-lg bg-red-100 hover:bg-red-200 text-red-700 transition-colors disabled:opacity-50"
-                      title="ปฏิเสธ"
-                    >
-                      <XIcon size={14} />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        )}
       </div>
 
       {/* All Students Progress */}

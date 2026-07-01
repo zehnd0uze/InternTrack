@@ -13,7 +13,7 @@ export default function SupervisorDashboard() {
   const navigate = useNavigate()
   const { setViewingAs } = useViewAs()
   const [students, setStudents] = useState([])
-  const [stats, setStats] = useState({ total: 0, clockedInToday: 0, pendingCount: 0 })
+  const [stats, setStats] = useState({ total: 0, clockedInToday: 0 })
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
 
@@ -56,13 +56,6 @@ export default function SupervisorDashboard() {
       .in('user_id', studentIds)
       .not('check_out', 'is', null)
 
-    // Pending approvals
-    const { count: pendingCount } = await supabase
-      .from('weekly_approvals')
-      .select('id', { count: 'exact' })
-      .eq('supervisor_id', user.id)
-      .eq('status', 'pending')
-
     const todayMap = {}
     ;(todayAtt || []).forEach(r => { todayMap[r.user_id] = r })
 
@@ -87,7 +80,6 @@ export default function SupervisorDashboard() {
     setStats({
       total: studentList.length,
       clockedInToday: Object.keys(todayMap).length,
-      pendingCount: pendingCount || 0,
     })
     setLoading(false)
   }, [user.id])
@@ -116,11 +108,11 @@ export default function SupervisorDashboard() {
 
       {/* Stats */}
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <SkeletonCard /><SkeletonCard /><SkeletonCard />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <SkeletonCard /><SkeletonCard />
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="stat-card border-l-4 border-primary-500">
             <div className="flex items-center gap-2">
               <Users size={16} className="text-primary-500" />
@@ -134,16 +126,6 @@ export default function SupervisorDashboard() {
               <span className="stat-label">เข้างานวันนี้</span>
             </div>
             <span className="stat-value">{stats.clockedInToday} <span className="text-sm font-normal text-gray-400">คน</span></span>
-          </div>
-          <div className="stat-card border-l-4 border-warning">
-            <div className="flex items-center gap-2">
-              <AlertCircle size={16} className="text-warning" />
-              <span className="stat-label">รออนุมัติ</span>
-              {stats.pendingCount > 0 && (
-                <span className="ml-auto badge badge-warning">{stats.pendingCount}</span>
-              )}
-            </div>
-            <span className="stat-value">{stats.pendingCount} <span className="text-sm font-normal text-gray-400">รายการ</span></span>
           </div>
         </div>
       )}

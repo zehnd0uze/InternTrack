@@ -25,14 +25,12 @@ import toast from 'react-hot-toast'
 const NAV_ITEMS = {
   student: [
     { to: '/student', label: 'แดชบอร์ด', icon: LayoutDashboard, end: true },
-    { to: '/student/weekly', label: 'บันทึกรายสัปดาห์', icon: FileText },
     { to: '/student/leave', label: 'แจ้งลา ป่วย/กิจ', icon: Clock },
     { to: '/student/schedule', label: 'ตารางงาน', icon: CalendarDays },
     { to: '/student/profile', label: 'โปรไฟล์ของฉัน', icon: UserCircle },
   ],
   supervisor: [
     { to: '/supervisor', label: 'แดชบอร์ด', icon: LayoutDashboard, end: true },
-    { to: '/supervisor/approvals', label: 'อนุมัติชั่วโมง', icon: CheckSquare },
     { to: '/supervisor/report', label: 'รายงาน', icon: FileText },
   ],
   admin: [
@@ -44,7 +42,6 @@ const NAV_ITEMS = {
   ],
   mentor: [
     { to: '/mentor', label: 'แดชบอร์ด', icon: LayoutDashboard, end: true },
-    { to: '/mentor/approvals', label: 'อนุมัติเวลา', icon: CheckSquare },
     { to: '/mentor/leave', label: 'อนุมัติการลา', icon: CalendarDays },
     { to: '/mentor/schedule', label: 'ตารางงาน', icon: CalendarDays },
     { to: '/mentor/internships', label: 'สถานที่ฝึกงาน', icon: Building2 },
@@ -74,7 +71,6 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
   const items = NAV_ITEMS[role] || []
 
   // Calculate unread counts by type
-  const unreadApprovals = notifications.filter(n => !n.is_read && n.type === 'approval_request').length
   const unreadLeaves = notifications.filter(n => !n.is_read && n.type === 'leave_request').length
 
   const handleSignOut = async () => {
@@ -152,7 +148,6 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
         )}
         {items.map(({ to, label, icon: Icon, end }) => {
           let badgeCount = 0
-          if (label === 'อนุมัติชั่วโมง') badgeCount = unreadApprovals
           if (label === 'อนุมัติการลา') badgeCount = unreadLeaves
 
           return (
