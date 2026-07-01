@@ -109,7 +109,7 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
             <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
               <ClipboardList size={18} className="text-white" />
             </div>
-            <span className="text-sidebar-fg font-bold text-lg tracking-tight">InternTrack</span>
+            <span className="text-sidebar-fg font-bold text-lg tracking-tight">TernieTrack</span>
           </div>
         )}
         {collapsed && (

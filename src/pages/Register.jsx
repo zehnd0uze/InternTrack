@@ -56,7 +56,7 @@ export default function Register() {
               <UserPlus size={24} className="text-white" strokeWidth={2.5} />
             </div>
             <h1 className="text-2xl font-bold text-content tracking-tight">สมัครสมาชิก</h1>
-            <p className="text-content-muted text-sm mt-1.5 font-medium">InternTrack — ระบบติดตามการฝึกประสบการณ์</p>
+            <p className="text-content-muted text-sm mt-1.5 font-medium">TernieTrack — ระบบติดตามการฝึกประสบการณ์</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4" id="register-form">
@@ -169,7 +169,7 @@ export default function Register() {
         </div>
 
         <p className="text-center text-white/50 text-xs mt-4">
-          © 2026 InternTrack by Zehntin Co. สงวนลิขสิทธิ์
+          © 2026 TernieTrack by Zehntin Co. สงวนลิขสิทธิ์
         </p>
       </div>
     </div>

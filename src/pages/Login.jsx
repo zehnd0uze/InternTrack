@@ -53,7 +53,7 @@ export default function Login() {
             <div className="w-14 h-14 bg-black rounded-[14px] flex items-center justify-center shadow-md mb-5 ring-1 ring-black/5">
               <ClipboardList size={24} className="text-white" strokeWidth={2.5} />
             </div>
-            <h1 className="text-2xl font-bold text-content tracking-tight">InternTrack</h1>
+            <h1 className="text-2xl font-bold text-content tracking-tight">TernieTrack</h1>
             <p className="text-content-muted text-sm mt-1.5 font-medium">ระบบติดตามการฝึกประสบการณ์วิชาชีพ</p>
           </div>
 
@@ -156,7 +156,7 @@ export default function Login() {
         </div>
 
         <p className="text-center text-white/50 text-xs mt-4">
-          © 2026 InternTrack by Zehntin Co. สงวนลิขสิทธิ์
+          © 2026 TernieTrack by Zehntin Co. สงวนลิขสิทธิ์
         </p>
       </div>
 

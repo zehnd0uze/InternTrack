@@ -1,4 +1,4 @@
-# 🎓 InternTrack — Internship Time Tracking System
+# 🎓 TernieTrack — Internship Time Tracking System
 
 A full-featured internship time-tracking web application built with **React + Vite** and **Supabase**. Designed for organizations that need to track intern attendance, daily logs, and weekly report approvals across three user roles.
 
