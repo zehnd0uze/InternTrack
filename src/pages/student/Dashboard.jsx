@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { format, startOfWeek, startOfMonth, differenceInSeconds, parseISO } from 'date-fns'
 import { th } from 'date-fns/locale'
-import { Clock, CheckCircle, XCircle, BookOpen, Calendar, Target, AlertTriangle, Printer, Eye, Download } from 'lucide-react'
+import { Clock, CheckCircle, XCircle, BookOpen, Calendar, Target, AlertTriangle, Printer, Eye, Download, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { supabase } from '../../lib/supabase'
@@ -30,6 +30,14 @@ function formatThaiDate(dt) {
   return format(new Date(dt), 'd MMM yyyy', { locale: th })
 }
 
+function toLocalDatetimeInput(dtStr) {
+  if (!dtStr) return ''
+  const d = new Date(dtStr)
+  if (isNaN(d.getTime())) return ''
+  const tzoffset = d.getTimezoneOffset() * 60000 
+  return new Date(d.getTime() - tzoffset).toISOString().slice(0, 16)
+}
+
 const STATUS_MAP = {
   approved: { label: 'อนุมัติแล้ว', cls: 'badge-success' },
   pending:  { label: 'รอการอนุมัติ', cls: 'badge-warning' },
@@ -38,11 +46,12 @@ const STATUS_MAP = {
 }
 
 export default function StudentDashboard() {
-  const { user, profile } = useAuth()
+  const { user, profile, isAdmin } = useAuth()
   const { viewingAs } = useViewAs()
   // In preview mode, fetch data for the viewed student instead of the logged-in user
   const effectiveUserId = viewingAs?.id ?? user.id
   const isReadOnly = !!viewingAs
+  const canEditLog = !isReadOnly || isAdmin
 
   // --- State ---
   const [today, setToday] = useState(null) // today's attendance record
@@ -70,6 +79,16 @@ export default function StudentDashboard() {
 
   const [clockOutModal, setClockOutModal] = useState(false)
   const [clockLoading, setClockLoading] = useState(false)
+
+  // Edit Log Modal
+  const [editLogModal, setEditLogModal] = useState(false)
+  const [editingAttendance, setEditingAttendance] = useState(null)
+  const [editLogText, setEditLogText] = useState('')
+  const [editLogMood, setEditLogMood] = useState('neutral')
+  const [editCheckIn, setEditCheckIn] = useState('')
+  const [editCheckOut, setEditCheckOut] = useState('')
+  const [editLogLoading, setEditLogLoading] = useState(false)
+  const [editLogSaving, setEditLogSaving] = useState(false)
 
   const timerRef = useRef(null)
 
@@ -330,7 +349,7 @@ export default function StudentDashboard() {
 
   // ---- Save Log ----
   const handleSaveLog = async () => {
-    if (isReadOnly) { toast('โหมดดูอย่างเดียว — ไม่สามารถบันทึกได้', { icon: '🔒' }); return }
+    if (!canEditLog) { toast('โหมดดูอย่างเดียว — ไม่สามารถบันทึกได้', { icon: '🔒' }); return }
     if (!today?.id) { toast.error('ต้องเช็คอินก่อนบันทึกบันทึกประจำวัน'); return }
     if (!logText.trim()) { toast.error('กรุณากรอกสรุปงานประจำวัน'); return }
     setLogLoading(true)
@@ -351,6 +370,82 @@ export default function StudentDashboard() {
     } else {
       toast.success('บันทึกประจำวันบันทึกแล้ว ✅')
       setLogSaved(true)
+    }
+  }
+
+  // ---- Edit Log from History ----
+  const handleOpenEditLog = async (attendance) => {
+    setEditingAttendance(attendance)
+    setEditLogText('')
+    setEditLogMood('neutral')
+    setEditCheckIn(toLocalDatetimeInput(attendance.check_in))
+    setEditCheckOut(toLocalDatetimeInput(attendance.check_out))
+    setEditLogModal(true)
+    setEditLogLoading(true)
+
+    const { data } = await supabase
+      .from('daily_logs')
+      .select('log_text, mood')
+      .eq('attendance_id', attendance.id)
+      .maybeSingle()
+    
+    if (data) {
+      setEditLogText(data.log_text || '')
+      setEditLogMood(data.mood || 'neutral')
+    }
+    setEditLogLoading(false)
+  }
+
+  const handleSaveEditLog = async () => {
+    if (!canEditLog) { toast('โหมดดูอย่างเดียว — ไม่สามารถบันทึกได้', { icon: '🔒' }); return }
+    if (!editLogText.trim()) { toast.error('กรุณากรอกสรุปงานประจำวัน'); return }
+    setEditLogSaving(true)
+    const todayStr = editingAttendance.date
+
+    // Save Daily Log
+    const { error: logError } = await supabase.from('daily_logs').upsert({
+      user_id: effectiveUserId,
+      attendance_id: editingAttendance.id,
+      log_text: editLogText.trim(),
+      mood: editLogMood,
+      date: todayStr,
+    }, { onConflict: 'attendance_id' })
+
+    let attError = null
+    if (isAdmin) {
+      let hoursWorked = 0
+      const tIn = editCheckIn ? new Date(editCheckIn) : null
+      const tOut = editCheckOut ? new Date(editCheckOut) : null
+
+      if (tIn && tOut) {
+         const diffHours = (tOut - tIn) / 3600000
+         const lunchDeduct = diffHours > 4 ? 1 : 0
+         hoursWorked = Math.max(0, diffHours - lunchDeduct)
+      }
+      
+      const payload = {}
+      payload.check_in = tIn ? tIn.toISOString() : null
+      payload.check_out = tOut ? tOut.toISOString() : null
+      payload.hours_worked = parseFloat(hoursWorked.toFixed(2))
+
+      const { error } = await supabase.from('attendance').update(payload).eq('id', editingAttendance.id)
+      attError = error
+    }
+
+    setEditLogSaving(false)
+    if (logError || attError) {
+      toast.error('บันทึกล้มเหลว กรุณาลองใหม่')
+    } else {
+      toast.success('อัปเดตข้อมูลแล้ว ✅')
+      setEditLogModal(false)
+      fetchHistory()
+      fetchStats()
+      // Update today's log view if editing today's attendance
+      if (today?.id === editingAttendance.id) {
+        fetchToday()
+        setLogText(editLogText.trim())
+        setLogMood(editLogMood)
+      }
     }
   }
 
@@ -583,13 +678,13 @@ export default function StudentDashboard() {
 
         <textarea
           id="daily-log-textarea"
-          className={`textarea h-28 ${isReadOnly ? 'opacity-70 cursor-not-allowed bg-background' : ''}`}
-          placeholder={isReadOnly ? 'โหมดดูอย่างเดียว' : 'สรุปงานที่ทำวันนี้... (ไม่เกิน 500 ตัวอักษร)'}
+          className={`textarea h-28 ${!canEditLog ? 'opacity-70 cursor-not-allowed bg-background' : ''}`}
+          placeholder={!canEditLog ? 'โหมดดูอย่างเดียว' : 'สรุปงานที่ทำวันนี้... (ไม่เกิน 500 ตัวอักษร)'}
           maxLength={500}
           value={logText}
-          onChange={e => { if (!isReadOnly) { setLogText(e.target.value); setLogSaved(false) } }}
-          disabled={!today?.id || isReadOnly}
-          readOnly={isReadOnly}
+          onChange={e => { if (canEditLog) { setLogText(e.target.value); setLogSaved(false) } }}
+          disabled={!today?.id || !canEditLog}
+          readOnly={!canEditLog}
         />
         <div className="mt-3 flex items-center gap-2">
           <span className="text-sm font-medium text-content-muted">ความรู้สึกวันนี้:</span>
@@ -603,8 +698,8 @@ export default function StudentDashboard() {
             ].map(m => (
               <button
                 key={m.id}
-                onClick={() => { if (!isReadOnly) { setLogMood(m.id); setLogSaved(false); } }}
-                disabled={!today?.id || isReadOnly}
+                onClick={() => { if (canEditLog) { setLogMood(m.id); setLogSaved(false); } }}
+                disabled={!today?.id || !canEditLog}
                 title={m.label}
                 className={`p-1.5 rounded-full text-xl transition-transform hover:scale-110 disabled:opacity-50 disabled:hover:scale-100 ${logMood === m.id ? 'bg-primary-100 ring-2 ring-primary-500 scale-110' : 'grayscale opacity-60 hover:grayscale-0 hover:opacity-100'}`}
               >
@@ -712,6 +807,7 @@ export default function StudentDashboard() {
                         <th>เวลาออก</th>
                         <th>ชั่วโมง</th>
                         <th>สถานะ</th>
+                        <th className="text-center">จัดการ</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -730,6 +826,15 @@ export default function StudentDashboard() {
                             <span className={`badge ${row.check_out ? 'badge-success' : 'badge-warning'}`}>
                               {row.check_out ? 'เสร็จสิ้น' : 'กำลังทำงาน'}
                             </span>
+                          </td>
+                          <td className="text-center">
+                            <button
+                              onClick={() => handleOpenEditLog(row)}
+                              className="btn-ghost btn-sm text-primary-600 hover:text-primary-700 p-1"
+                              title="แก้ไข/ดู บันทึกประจำวัน"
+                            >
+                              <BookOpen size={16} />
+                            </button>
                           </td>
                         </tr>
                       ))}
@@ -774,6 +879,98 @@ export default function StudentDashboard() {
           onConfirm={doClockOut}
           onCancel={() => setClockOutModal(false)}
         />
+      )}
+
+      {/* Edit Log Modal */}
+      {editLogModal && (
+        <div className="modal-overlay" onClick={() => !editLogSaving && setEditLogModal(false)}>
+          <div className="modal-content max-w-lg" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-content flex items-center gap-2">
+                <BookOpen size={20} className="text-primary-600" />
+                บันทึกประจำวัน ({formatThaiDate(editingAttendance?.date)})
+              </h3>
+              <button onClick={() => setEditLogModal(false)} disabled={editLogSaving} className="text-gray-400 hover:text-content-muted">
+                <X size={20} />
+              </button>
+            </div>
+            
+            {editLogLoading ? (
+               <div className="py-8 text-center text-gray-400">กำลังโหลด...</div>
+            ) : (
+               <div className="space-y-4">
+                  {isAdmin && (
+                    <div className="grid grid-cols-2 gap-4 bg-red-50/50 border border-red-100 rounded-lg p-3 mb-2">
+                      <div className="col-span-2 text-xs font-semibold text-red-600 flex items-center gap-1">
+                        <AlertTriangle size={14} /> ส่วนสำหรับแอดมิน: แก้ไขเวลาเข้า-ออก
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium text-gray-700 block mb-1">เวลาเข้างาน</label>
+                        <input
+                          type="datetime-local"
+                          className="input py-1.5 text-sm"
+                          value={editCheckIn}
+                          onChange={e => setEditCheckIn(e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium text-gray-700 block mb-1">เวลาออกงาน</label>
+                        <input
+                          type="datetime-local"
+                          className="input py-1.5 text-sm"
+                          value={editCheckOut}
+                          onChange={e => setEditCheckOut(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  <textarea
+                    className={`textarea h-32 ${!canEditLog ? 'opacity-70 cursor-not-allowed bg-background' : ''}`}
+                    placeholder={!canEditLog ? 'โหมดดูอย่างเดียว' : 'สรุปงานที่ทำ... (ไม่เกิน 500 ตัวอักษร)'}
+                    maxLength={500}
+                    value={editLogText}
+                    onChange={e => { if (canEditLog) setEditLogText(e.target.value) }}
+                    readOnly={!canEditLog}
+                  />
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-content-muted">ความรู้สึก:</span>
+                    <div className="flex items-center gap-1">
+                      {[
+                        { id: 'great', emoji: '🤩', label: 'ยอดเยี่ยม' },
+                        { id: 'happy', emoji: '😊', label: 'มีความสุข' },
+                        { id: 'neutral', emoji: '😐', label: 'เฉยๆ' },
+                        { id: 'stressed', emoji: '😫', label: 'เครียด' },
+                        { id: 'bad', emoji: '😢', label: 'แย่มาก' }
+                      ].map(m => (
+                        <button
+                          key={m.id}
+                          onClick={() => { if (canEditLog) setEditLogMood(m.id) }}
+                          disabled={!canEditLog}
+                          title={m.label}
+                          className={`p-1.5 rounded-full text-xl transition-transform hover:scale-110 disabled:opacity-50 disabled:hover:scale-100 ${editLogMood === m.id ? 'bg-primary-100 ring-2 ring-primary-500 scale-110' : 'grayscale opacity-60 hover:grayscale-0 hover:opacity-100'}`}
+                        >
+                          {m.emoji}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between pt-4 border-t border-border mt-6">
+                    <span className={`text-xs ${editLogText.length > 450 ? 'text-danger' : 'text-gray-400'}`}>
+                      {editLogText.length} / 500 ตัวอักษร
+                    </span>
+                    <div className="flex gap-2">
+                      <button onClick={() => setEditLogModal(false)} disabled={editLogSaving} className="btn-secondary btn-sm">ปิด</button>
+                      {canEditLog && (
+                        <button onClick={handleSaveEditLog} disabled={editLogSaving} className="btn-primary btn-sm">
+                          {editLogSaving ? 'กำลังบันทึก...' : 'บันทึก'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+               </div>
+            )}
+          </div>
+        </div>
       )}
     </div>
   )
