@@ -1,13 +1,22 @@
 ---
+pdf_options:
+  format: A4
+  margin:
+    top: 25mm
+    right: 25mm
+    bottom: 25mm
+    left: 25mm
+  displayHeaderFooter: true
+  headerTemplate: "<span></span>"
+  footerTemplate: "<div style=\"font-size: 12px; width: 100%; text-align: center; font-family: 'Sarabun', sans-serif; margin-bottom: 10px;\">หน้า <span class=\"pageNumber\"></span> / <span class=\"totalPages\"></span></div>"
 style: |
   @import url('https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap');
   
   body {
     font-family: 'Sarabun', sans-serif;
-    font-size: 14px;
+    font-size: 16px;
     line-height: 1.6;
     color: #2d3748;
-    padding: 2cm;
   }
   
   h1 {
@@ -76,9 +85,23 @@ style: |
   }
 ---
 
-# คู่มือการใช้งานระบบ TernieTrack (Internship Time Tracking System)
+<div style="text-align: center; padding-top: 8cm; padding-bottom: 8cm;">
+  <h1 style="font-size: 36px; color: #1a365d; margin-bottom: 10px;">คู่มือการใช้งานระบบ</h1>
+  <h2 style="font-size: 26px; color: #2b6cb0; border-bottom: none; padding-bottom: 0; page-break-before: auto;">TernieTrack (Internship Time Tracking System)</h2>
+</div>
 
----
+<div style="page-break-before: always;"></div>
+
+## สารบัญ (Table of Contents)
+
+1. [บทนำ (Introduction)](#1-บทนำ-introduction)
+2. [การเริ่มต้นใช้งานระบบ (Getting Started)](#2-การเริ่มต้นใช้งานระบบ-getting-started)
+3. [คู่มือสำหรับนักศึกษา (Student)](#3-คู่มือสำหรับนักศึกษา-student)
+4. [คู่มือสำหรับพี่เลี้ยง (Mentor)](#4-คู่มือสำหรับพี่เลี้ยง-mentor)
+5. [คู่มือสำหรับอาจารย์นิเทศ (Supervisor)](#5-คู่มือสำหรับอาจารย์นิเทศ-supervisor)
+6. [คู่มือสำหรับผู้ดูแลระบบ (Admin)](#6-คู่มือสำหรับผู้ดูแลระบบ-admin)
+
+<div style="page-break-before: always;"></div>
 
 ## 1. บทนำ (Introduction)
 ระบบ TernieTrack ถูกพัฒนาขึ้นเพื่อบริหารจัดการและติดตามเวลาการปฏิบัติงานของนักศึกษาฝึกงาน โดยลดขั้นตอนการใช้เอกสารแบบดั้งเดิม ผู้ใช้งานสามารถบันทึกเวลาการปฏิบัติงาน เขียนบันทึกประจำวัน และส่งขออนุมัติชั่วโมงการทำงานผ่านระบบออนไลน์ได้ 
