@@ -51,15 +51,28 @@ serve(async (req) => {
 
     console.log(`Found ${matchedAlerts.length} scheduled alerts to send.`);
 
-    // Get all users and their subscriptions
+    // Get all users
     const { data: users, error: userError } = await supabaseClient
       .from('users')
-      .select(`
-        id, role,
-        push_subscriptions ( endpoint, p256dh, auth )
-      `);
+      .select('id, role');
 
     if (userError) throw userError;
+
+    // Fetch their push subscriptions
+    const userIds = users?.map((u) => u.id) || [];
+    const { data: subscriptions, error: subError } = await supabaseClient
+      .from("push_subscriptions")
+      .select("user_id, endpoint, p256dh, auth")
+      .in("user_id", userIds);
+
+    if (subError) throw subError;
+
+    // Group subscriptions by user
+    const subsByUserId: Record<string, any[]> = {};
+    for (const sub of subscriptions || []) {
+      if (!subsByUserId[sub.user_id]) subsByUserId[sub.user_id] = [];
+      subsByUserId[sub.user_id].push(sub);
+    }
 
     let pushCount = 0;
     const errors: any[] = [];
@@ -79,10 +92,11 @@ serve(async (req) => {
           continue; // Skip
         }
 
-        if (!user.push_subscriptions || user.push_subscriptions.length === 0) continue;
+        const userSubs = subsByUserId[user.id];
+        if (!userSubs || userSubs.length === 0) continue;
 
         // Send to all their devices
-        for (const sub of user.push_subscriptions) {
+        for (const sub of userSubs) {
           try {
             const pushSubscription = {
               endpoint: sub.endpoint,
