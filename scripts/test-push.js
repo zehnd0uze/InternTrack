@@ -46,7 +46,7 @@ async function testPush() {
   const payload = JSON.stringify({
     title: 'ทดสอบการแจ้งเตือนจากระบบ',
     body: 'นี่คือข้อความทดสอบ ส่งตรงเข้ามือถือ/คอมพิวเตอร์ของคุณ!',
-    icon: '/favicon.svg',
+    icon: '/pwa-192x192.png',
     badge: '/badge.svg'
   });
 
