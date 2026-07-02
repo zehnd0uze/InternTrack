@@ -15,9 +15,20 @@ export default function AdminAlerts() {
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
   const [targetRole, setTargetRole] = useState('all')
-  const [isRecurring, setIsRecurring] = useState(true)
+  const [sendPattern, setSendPattern] = useState('everyday') // 'everyday', 'custom', 'once'
+  const [selectedDays, setSelectedDays] = useState([]) // 0=Sun, 1=Mon, etc.
   const [scheduleTime, setScheduleTime] = useState('09:00')
   const [scheduleDate, setScheduleDate] = useState('')
+
+  const WEEKDAYS = [
+    { id: 1, label: 'จ.' },
+    { id: 2, label: 'อ.' },
+    { id: 3, label: 'พ.' },
+    { id: 4, label: 'พฤ.' },
+    { id: 5, label: 'ศ.' },
+    { id: 6, label: 'ส.' },
+    { id: 0, label: 'อา.' }
+  ]
   const [saving, setSaving] = useState(false)
 
   const fetchAlerts = useCallback(async () => {
@@ -42,7 +53,8 @@ export default function AdminAlerts() {
     setTitle('')
     setBody('')
     setTargetRole('all')
-    setIsRecurring(true)
+    setSendPattern('everyday')
+    setSelectedDays([])
     setScheduleTime('09:00')
     setScheduleDate('')
   }
@@ -52,7 +64,11 @@ export default function AdminAlerts() {
     setTitle(alert.title)
     setBody(alert.body)
     setTargetRole(alert.target_role)
-    setIsRecurring(alert.is_recurring)
+    setSendPattern(
+      !alert.is_recurring ? 'once' :
+      (alert.days_of_week && alert.days_of_week.length > 0) ? 'custom' : 'everyday'
+    )
+    setSelectedDays(alert.days_of_week || [])
     setScheduleTime(alert.scheduled_time.substring(0, 5))
     setScheduleDate(alert.scheduled_date || '')
     setShowModal(true)
@@ -64,8 +80,12 @@ export default function AdminAlerts() {
       toast.error('กรุณากรอกข้อมูลให้ครบถ้วน')
       return
     }
-    if (!isRecurring && !scheduleDate) {
+    if (sendPattern === 'once' && !scheduleDate) {
       toast.error('กรุณาระบุวันที่แจ้งเตือน')
+      return
+    }
+    if (sendPattern === 'custom' && selectedDays.length === 0) {
+      toast.error('กรุณาเลือกวันอย่างน้อย 1 วัน')
       return
     }
 
@@ -74,9 +94,10 @@ export default function AdminAlerts() {
       title: title.trim(),
       body: body.trim(),
       target_role: targetRole,
-      is_recurring: isRecurring,
+      is_recurring: sendPattern !== 'once',
+      days_of_week: sendPattern === 'custom' ? selectedDays : (sendPattern === 'everyday' ? [] : null),
       scheduled_time: scheduleTime.length === 5 ? scheduleTime + ':00' : scheduleTime,
-      scheduled_date: isRecurring ? null : scheduleDate,
+      scheduled_date: sendPattern === 'once' ? scheduleDate : null,
       is_active: true
     }
 
@@ -195,7 +216,7 @@ export default function AdminAlerts() {
                         </span>
                         <span className="text-xs text-content-muted flex items-center gap-1 mt-0.5">
                           {a.is_recurring ? (
-                            <><RefreshCw size={12} /> ทุกวัน</>
+                            <><RefreshCw size={12} /> {(!a.days_of_week || a.days_of_week.length === 0) ? 'ทุกวัน' : `ส่งเฉพาะ ${a.days_of_week.length} วัน/สัปดาห์`}</>
                           ) : (
                             <><CalendarIcon size={12} /> {a.scheduled_date ? format(new Date(a.scheduled_date), 'd MMM yyyy', { locale: th }) : ''}</>
                           )}
@@ -270,21 +291,53 @@ export default function AdminAlerts() {
 
                 <div className="border rounded-xl p-4 bg-surface mt-4">
                   <label className="block text-sm font-medium text-content mb-3">รูปแบบการส่ง</label>
-                  <div className="flex gap-4">
+                  <div className="flex gap-4 flex-wrap">
                     <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="radio" name="recurring" checked={isRecurring} onChange={() => setIsRecurring(true)} className="text-primary-600 focus:ring-primary-500" />
+                      <input type="radio" name="recurring" checked={sendPattern === 'everyday'} onChange={() => setSendPattern('everyday')} className="text-primary-600 focus:ring-primary-500" />
                       <span className="text-sm">ส่งทุกวัน</span>
                     </label>
                     <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="radio" name="recurring" checked={!isRecurring} onChange={() => setIsRecurring(false)} className="text-primary-600 focus:ring-primary-500" />
+                      <input type="radio" name="recurring" checked={sendPattern === 'custom'} onChange={() => setSendPattern('custom')} className="text-primary-600 focus:ring-primary-500" />
+                      <span className="text-sm">เลือกวันส่งเอง</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input type="radio" name="recurring" checked={sendPattern === 'once'} onChange={() => setSendPattern('once')} className="text-primary-600 focus:ring-primary-500" />
                       <span className="text-sm">ส่งแค่วันเดียว</span>
                     </label>
                   </div>
                   
-                  {!isRecurring && (
-                    <div className="mt-3 pt-3 border-t">
+                  {sendPattern === 'custom' && (
+                    <div className="mt-4 pt-3 border-t">
+                      <label className="block text-sm font-medium text-content-muted mb-2">เลือกวันในสัปดาห์</label>
+                      <div className="flex gap-2 flex-wrap">
+                        {WEEKDAYS.map(day => {
+                          const isSelected = selectedDays.includes(day.id)
+                          return (
+                            <button
+                              key={day.id}
+                              type="button"
+                              onClick={() => {
+                                if (isSelected) setSelectedDays(prev => prev.filter(d => d !== day.id))
+                                else setSelectedDays(prev => [...prev, day.id])
+                              }}
+                              className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
+                                isSelected 
+                                  ? 'bg-primary-600 text-white shadow-sm' 
+                                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                              }`}
+                            >
+                              {day.label}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {sendPattern === 'once' && (
+                    <div className="mt-4 pt-3 border-t">
                       <label className="block text-sm font-medium text-content-muted mb-1">วันที่ต้องการส่ง</label>
-                      <input type="date" required={!isRecurring} value={scheduleDate} onChange={e => setScheduleDate(e.target.value)} className="input" />
+                      <input type="date" required={sendPattern === 'once'} value={scheduleDate} onChange={e => setScheduleDate(e.target.value)} className="input" />
                     </div>
                   )}
                 </div>

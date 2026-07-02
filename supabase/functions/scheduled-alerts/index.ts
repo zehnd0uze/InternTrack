@@ -38,7 +38,15 @@ serve(async (req) => {
     if (alertError) throw alertError;
 
     const matchedAlerts = (alerts || []).filter(a => {
-      if (a.is_recurring) return true;
+      if (a.is_recurring) {
+        // If days_of_week is specified and not empty, check if today is included
+        if (a.days_of_week && Array.isArray(a.days_of_week) && a.days_of_week.length > 0) {
+          const currentDayOfWeek = bkkTime.getDay(); // 0 = Sun, 1 = Mon, ..., 6 = Sat
+          if (a.days_of_week.includes(currentDayOfWeek)) return true;
+          return false;
+        }
+        return true; // Fallback for 'everyday' if days_of_week is not set
+      }
       if (a.scheduled_date === todayStr) return true;
       return false;
     });
