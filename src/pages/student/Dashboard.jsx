@@ -618,7 +618,31 @@ export default function StudentDashboard() {
   // ---- Status Indicator ----
   const clockStatus = !today ? 'none' : today.check_out ? 'done' : 'working'
 
-  const targetHours = profile?.target_hours || 1596
+  let targetDays = 228
+  let targetHours = profile?.target_hours || 1596
+
+  if (profile?.internship_start_date && profile?.internship_end_date && profile?.work_start_time && profile?.work_end_time) {
+    const start = parseISO(profile.internship_start_date)
+    const end = parseISO(profile.internship_end_date)
+    let count = 0
+    let curr = new Date(start)
+    while (curr <= end) {
+      const day = curr.getDay()
+      if (day >= 1 && day <= 5) count++
+      curr.setDate(curr.getDate() + 1)
+    }
+    targetDays = count > 0 ? count : 1 // prevent 0
+    
+    const [h1, m1] = profile.work_start_time.split(':').map(Number)
+    const [h2, m2] = profile.work_end_time.split(':').map(Number)
+    let dailyHours = (h2 + m2/60) - (h1 + m1/60)
+    if (dailyHours < 0) dailyHours += 24
+    if (dailyHours > 4) dailyHours -= 1
+    
+    targetHours = targetDays * Math.max(0, dailyHours)
+    if (targetHours === 0) targetHours = 1 // prevent division by zero
+  }
+
   const progressPct = Math.min(100, (stats.totalHours / targetHours) * 100)
 
   return (
@@ -787,8 +811,8 @@ export default function StudentDashboard() {
                 <span className="font-semibold text-content">ความคืบหน้าชั่วโมงสะสม</span>
               </div>
               <span className="text-sm font-bold text-primary-700">
-                {stats.totalHours.toFixed(1)} / {targetHours} ชม.
-                <span className="ml-2 text-content-muted font-normal hidden sm:inline">({stats.totalDays || 0} / 228 วัน)</span>
+                {stats.totalHours.toFixed(1)} / {targetHours.toFixed(1)} ชม.
+                <span className="ml-2 text-content-muted font-normal hidden sm:inline">({stats.totalDays || 0} / {targetDays} วัน)</span>
               </span>
             </div>
             <div className="progress-bar mb-2">
