@@ -12,8 +12,8 @@ self.addEventListener('push', (event) => {
     const title = data.title || 'TernieTrack';
     const options = {
       body: data.body || 'You have a new notification.',
-      icon: '/favicon.svg',
-      badge: '/favicon.svg',
+      icon: data.icon || '/pwa-192x192.png',
+      badge: '/badge.svg',
       data: data.url || '/'
     };
 
