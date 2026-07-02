@@ -12,6 +12,8 @@ import ConfirmModal from '../../components/ui/ConfirmModal'
 import AttendanceCalendar from '../../components/ui/AttendanceCalendar'
 import { format as formatDate } from 'date-fns'
 import * as XLSX from 'xlsx'
+import { useTimeAlerts } from '../../hooks/useTimeAlerts'
+import { useWebPush } from '../../hooks/useWebPush'
 // ---- Helpers ----
 function formatElapsed(seconds) {
   const h = Math.floor(seconds / 3600)
@@ -55,6 +57,11 @@ export default function StudentDashboard() {
 
   // --- State ---
   const [today, setToday] = useState(null) // today's attendance record
+
+  // Initialize time alerts
+  useTimeAlerts(today)
+  const { isSubscribed, subscribeUser } = useWebPush(user)
+
   const [loading, setLoading] = useState(true)
   const [elapsed, setElapsed] = useState(0)
 
@@ -582,16 +589,29 @@ export default function StudentDashboard() {
       )}
 
       {/* ---- Badges Section ---- */}
-      {!statsLoading && badges.length > 0 && (
-        <div className="flex flex-wrap gap-3">
-          {badges.map(b => (
-            <div key={b.id} className={`flex items-center gap-2 px-3 py-1.5 rounded-full border shadow-sm ${b.color}`} title={b.desc}>
-              <span className="text-xl leading-none">{b.icon}</span>
-              <span className="text-sm font-bold tracking-wide">{b.title}</span>
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        {!statsLoading && badges.length > 0 && (
+          <div className="flex flex-wrap gap-3">
+            {badges.map(b => (
+              <div key={b.id} className={`flex items-center gap-2 px-3 py-1.5 rounded-full border shadow-sm ${b.color}`} title={b.desc}>
+                <span className="text-xl leading-none">{b.icon}</span>
+                <span className="text-sm font-bold tracking-wide">{b.title}</span>
+              </div>
+            ))}
+          </div>
+        )}
+        
+        {/* Push Notification Toggle */}
+        {!isReadOnly && !isSubscribed && (
+          <button 
+            onClick={subscribeUser}
+            className="btn-ghost btn-sm flex items-center gap-2 ml-auto text-primary-600 hover:text-primary-700 hover:bg-primary-50"
+          >
+            <AlertTriangle size={16} />
+            เปิดรับแจ้งเตือน (Push Notifications)
+          </button>
+        )}
+      </div>
 
       {/* ---- Progress Section ---- */}
       {statsLoading ? (
