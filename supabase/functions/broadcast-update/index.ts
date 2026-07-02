@@ -41,16 +41,29 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // Fetch all mentor and student users with their push subscriptions
+    // Fetch all mentor and student users
     const { data: users, error: userError } = await supabase
       .from("users")
-      .select(`
-        id, role,
-        push_subscriptions ( endpoint, p256dh, auth )
-      `)
+      .select("id, role")
       .in("role", ["mentor", "student"]);
 
     if (userError) throw userError;
+
+    // Fetch their push subscriptions
+    const userIds = users?.map((u) => u.id) || [];
+    const { data: subscriptions, error: subError } = await supabase
+      .from("push_subscriptions")
+      .select("user_id, endpoint, p256dh, auth")
+      .in("user_id", userIds);
+
+    if (subError) throw subError;
+
+    // Group subscriptions by user
+    const subsByUserId: Record<string, any[]> = {};
+    for (const sub of subscriptions || []) {
+      if (!subsByUserId[sub.user_id]) subsByUserId[sub.user_id] = [];
+      subsByUserId[sub.user_id].push(sub);
+    }
 
     const payload = JSON.stringify(NOTIFICATION);
     let sent = 0;
@@ -58,9 +71,10 @@ serve(async (req) => {
     const removedEndpoints: string[] = [];
 
     for (const user of users ?? []) {
-      if (!user.push_subscriptions?.length) continue;
+      const userSubs = subsByUserId[user.id];
+      if (!userSubs?.length) continue;
 
-      for (const sub of user.push_subscriptions) {
+      for (const sub of userSubs) {
         try {
           await webpush.sendNotification(
             {
