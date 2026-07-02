@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
-import { X, Bell, RefreshCw, ChevronRight, Zap, ChevronLeft } from 'lucide-react'
+import { X, Bell, RefreshCw, ChevronRight, ChevronLeft, Zap } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
 const CURRENT_VERSION = '1.4.0'
+const DISMISS_KEY = 'whatsNew_dismissed_v' + CURRENT_VERSION
 
 const UPDATES_BY_ROLE = {
   mentor: [
@@ -10,14 +11,14 @@ const UPDATES_BY_ROLE = {
       icon: Bell,
       tag: 'การแจ้งเตือน',
       title: 'เปิด-ปิดแจ้งเตือนได้เอง',
-      desc: 'กดปุ่มกระดิ่งที่เมนูด้านซ้ายล่างเพื่อเปิดหรือปิดการแจ้งเตือนแบบ Push ได้ทันที',
+      desc: 'กดปุ่มกระดิ่งที่เมนูด้านซ้ายล่างเพื่อเปิดหรือปิดการรับแจ้งเตือนแบบ Push ได้ทันที',
       accent: '#6366f1',
     },
     {
       icon: RefreshCw,
       tag: 'ประสิทธิภาพ',
       title: 'รีเฟรชอัตโนมัติเมื่อกลับมา',
-      desc: 'เมื่อกลับมาใช้งานแอปหลังจากออกไปนาน ระบบโหลดข้อมูลล่าสุดให้เองโดยอัตโนมัติ',
+      desc: 'เมื่อกลับมาใช้งานแอปหลังออกไปนาน ระบบโหลดข้อมูลล่าสุดให้เองโดยอัตโนมัติ',
       accent: '#0ea5e9',
     },
   ],
@@ -26,14 +27,14 @@ const UPDATES_BY_ROLE = {
       icon: Bell,
       tag: 'การแจ้งเตือน',
       title: 'เปิด-ปิดแจ้งเตือนได้เอง',
-      desc: 'กดปุ่มกระดิ่งที่เมนูด้านซ้ายล่างเพื่อเปิดหรือปิดการแจ้งเตือนแบบ Push ได้ทันที',
+      desc: 'กดปุ่มกระดิ่งที่เมนูด้านซ้ายล่างเพื่อเปิดหรือปิดการรับแจ้งเตือนแบบ Push ได้ทันที',
       accent: '#6366f1',
     },
     {
       icon: RefreshCw,
       tag: 'ประสิทธิภาพ',
       title: 'รีเฟรชอัตโนมัติเมื่อกลับมา',
-      desc: 'เมื่อกลับมาใช้งานแอปหลังจากออกไปนาน ระบบโหลดข้อมูลล่าสุดให้เองโดยอัตโนมัติ',
+      desc: 'เมื่อกลับมาใช้งานแอปหลังออกไปนาน ระบบโหลดข้อมูลล่าสุดให้เองโดยอัตโนมัติ',
       accent: '#0ea5e9',
     },
   ],
@@ -46,22 +47,25 @@ export default function WhatsNewModal() {
   const [visible, setVisible] = useState(false)
   const [exiting, setExiting] = useState(false)
   const [step, setStep] = useState(0)
+  const [dontShowAgain, setDontShowAgain] = useState(false)
 
   const updates = UPDATES_BY_ROLE[activeRole] || []
 
   useEffect(() => {
     if (!ALLOWED_ROLES.includes(activeRole)) return
-    const seen = localStorage.getItem('whatsNewVersion')
-    if (seen !== CURRENT_VERSION) {
-      const t = setTimeout(() => setVisible(true), 1200)
-      return () => clearTimeout(t)
-    }
+    // Only skip if user explicitly checked "don't show again"
+    const dismissed = localStorage.getItem(DISMISS_KEY)
+    if (dismissed === 'true') return
+    const t = setTimeout(() => setVisible(true), 1000)
+    return () => clearTimeout(t)
   }, [activeRole])
 
   const dismiss = () => {
+    if (dontShowAgain) {
+      localStorage.setItem(DISMISS_KEY, 'true')
+    }
     setExiting(true)
     setTimeout(() => {
-      localStorage.setItem('whatsNewVersion', CURRENT_VERSION)
       setVisible(false)
       setExiting(false)
       setStep(0)
@@ -106,13 +110,14 @@ export default function WhatsNewModal() {
           overflow: 'hidden',
         }}
       >
-        {/* Accent top stripe */}
+        {/* Accent stripe */}
         <div style={{
           height: '2px',
-          background: `linear-gradient(90deg, ${accent} 0%, ${accent}55 100%)`,
+          background: `linear-gradient(90deg, ${accent} 0%, ${accent}44 100%)`,
+          transition: 'background 0.4s ease',
         }} />
 
-        {/* Header row */}
+        {/* Header */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
@@ -122,30 +127,19 @@ export default function WhatsNewModal() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{
-              width: '26px', height: '26px',
-              borderRadius: '8px',
+              width: '26px', height: '26px', borderRadius: '8px',
               background: `${accent}20`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
             }}>
               <Zap size={13} color={accent} />
             </div>
-            <span style={{
-              fontSize: '12px',
-              fontWeight: 700,
-              color: 'var(--color-content, #f4f4f5)',
-              letterSpacing: '-0.01em',
-            }}>
+            <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-content, #f4f4f5)', letterSpacing: '-0.01em' }}>
               อัปเดตใหม่
             </span>
             <span style={{
-              fontSize: '10px',
-              fontWeight: 600,
-              padding: '2px 7px',
-              borderRadius: '20px',
-              background: `${accent}18`,
-              color: accent,
-              border: `1px solid ${accent}30`,
+              fontSize: '10px', fontWeight: 600,
+              padding: '2px 7px', borderRadius: '20px',
+              background: `${accent}18`, color: accent, border: `1px solid ${accent}30`,
             }}>
               v{CURRENT_VERSION}
             </span>
@@ -153,14 +147,10 @@ export default function WhatsNewModal() {
           <button
             onClick={dismiss}
             style={{
-              width: '24px', height: '24px',
-              borderRadius: '50%',
-              border: 'none',
-              background: 'rgba(255,255,255,0.06)',
-              cursor: 'pointer',
+              width: '24px', height: '24px', borderRadius: '50%', border: 'none',
+              background: 'rgba(255,255,255,0.06)', cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: 'var(--color-content-muted, #71717a)',
-              transition: 'background 0.15s',
+              color: 'var(--color-content-muted, #71717a)', transition: 'background 0.15s',
             }}
             onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}
             onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
@@ -176,72 +166,83 @@ export default function WhatsNewModal() {
             background: `${accent}0C`,
             border: `1px solid ${accent}1A`,
             padding: '12px',
+            transition: 'all 0.3s ease',
           }}>
-            {/* Tag */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '10px' }}>
               <div style={{
-                width: '24px', height: '24px',
-                borderRadius: '7px',
+                width: '24px', height: '24px', borderRadius: '7px',
                 background: `${accent}20`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
               }}>
                 <Icon size={12} color={accent} />
               </div>
-              <span style={{
-                fontSize: '10px',
-                fontWeight: 700,
-                textTransform: 'uppercase',
-                letterSpacing: '0.07em',
-                color: accent,
-              }}>
+              <span style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: accent }}>
                 {cur.tag}
               </span>
             </div>
-
-            {/* Title */}
-            <p style={{
-              fontSize: '13px',
-              fontWeight: 700,
-              color: 'var(--color-content, #f4f4f5)',
-              lineHeight: 1.4,
-              marginBottom: '6px',
-            }}>
+            <p style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-content, #f4f4f5)', lineHeight: 1.4, marginBottom: '6px' }}>
               {cur.title}
             </p>
-
-            {/* Desc */}
-            <p style={{
-              fontSize: '11.5px',
-              color: 'var(--color-content-muted, #a1a1aa)',
-              lineHeight: 1.6,
-            }}>
+            <p style={{ fontSize: '11.5px', color: 'var(--color-content-muted, #a1a1aa)', lineHeight: 1.6 }}>
               {cur.desc}
             </p>
           </div>
         </div>
 
+        {/* Don't show again checkbox */}
+        <div style={{ padding: '0 14px 10px' }}>
+          <label style={{
+            display: 'flex', alignItems: 'center', gap: '8px',
+            cursor: 'pointer', userSelect: 'none',
+          }}>
+            <div
+              onClick={() => setDontShowAgain(v => !v)}
+              style={{
+                width: '15px', height: '15px',
+                borderRadius: '4px',
+                border: dontShowAgain ? `2px solid ${accent}` : '2px solid rgba(255,255,255,0.2)',
+                background: dontShowAgain ? accent : 'transparent',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'all 0.18s ease',
+                flexShrink: 0,
+                cursor: 'pointer',
+              }}
+            >
+              {dontShowAgain && (
+                <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
+                  <path d="M1 3.5L3.5 6L8 1" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+            </div>
+            <span
+              onClick={() => setDontShowAgain(v => !v)}
+              style={{ fontSize: '11px', color: 'var(--color-content-muted, #a1a1aa)' }}
+            >
+              ไม่ต้องแสดงอีก
+            </span>
+          </label>
+        </div>
+
+        {/* Divider */}
+        <div style={{ margin: '0 14px', height: '1px', background: 'rgba(255,255,255,0.06)' }} />
+
         {/* Footer */}
         <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 14px 13px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '10px 14px 13px',
         }}>
-          {/* Dots + arrows */}
+          {/* Dots + back arrow */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             {updates.length > 1 && (
               <button
                 onClick={prev}
                 disabled={step === 0}
                 style={{
-                  width: '22px', height: '22px',
-                  borderRadius: '50%',
-                  border: 'none',
-                  background: step === 0 ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.06)',
+                  width: '22px', height: '22px', borderRadius: '50%', border: 'none',
+                  background: step === 0 ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.07)',
                   cursor: step === 0 ? 'default' : 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: step === 0 ? 'rgba(255,255,255,0.2)' : 'var(--color-content-muted, #a1a1aa)',
+                  color: step === 0 ? 'rgba(255,255,255,0.18)' : 'var(--color-content-muted, #a1a1aa)',
                   transition: 'background 0.15s',
                 }}
               >
@@ -253,14 +254,10 @@ export default function WhatsNewModal() {
                 key={i}
                 onClick={() => setStep(i)}
                 style={{
-                  height: '4px',
-                  width: i === step ? '16px' : '4px',
-                  borderRadius: '2px',
-                  border: 'none',
-                  cursor: 'pointer',
+                  height: '4px', width: i === step ? '16px' : '4px',
+                  borderRadius: '2px', border: 'none', cursor: 'pointer', padding: 0,
                   background: i === step ? accent : 'rgba(255,255,255,0.15)',
                   transition: 'all 0.25s ease',
-                  padding: 0,
                 }}
               />
             ))}
@@ -271,37 +268,24 @@ export default function WhatsNewModal() {
             <button
               onClick={dismiss}
               style={{
-                fontSize: '11px',
-                fontWeight: 600,
-                padding: '5px 10px',
-                borderRadius: '8px',
-                border: '1px solid rgba(255,255,255,0.08)',
-                background: 'transparent',
-                color: 'var(--color-content-muted, #71717a)',
-                cursor: 'pointer',
-                transition: 'background 0.15s',
-                fontFamily: 'inherit',
+                fontSize: '11px', fontWeight: 600, padding: '5px 10px', borderRadius: '8px',
+                border: '1px solid rgba(255,255,255,0.08)', background: 'transparent',
+                color: 'var(--color-content-muted, #71717a)', cursor: 'pointer',
+                transition: 'background 0.15s', fontFamily: 'inherit',
               }}
               onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
               onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
             >
-              ข้าม
+              ปิด
             </button>
             <button
               onClick={next}
               style={{
-                fontSize: '11px',
-                fontWeight: 700,
-                padding: '5px 12px',
-                borderRadius: '8px',
-                border: 'none',
-                background: accent,
-                color: '#fff',
-                cursor: 'pointer',
+                fontSize: '11px', fontWeight: 700, padding: '5px 12px', borderRadius: '8px',
+                border: 'none', background: accent, color: '#fff', cursor: 'pointer',
                 display: 'flex', alignItems: 'center', gap: '4px',
                 boxShadow: `0 4px 14px ${accent}55`,
-                transition: 'opacity 0.15s, transform 0.1s',
-                fontFamily: 'inherit',
+                transition: 'opacity 0.15s, transform 0.1s', fontFamily: 'inherit',
               }}
               onMouseEnter={e => e.currentTarget.style.opacity = '0.88'}
               onMouseLeave={e => e.currentTarget.style.opacity = '1'}
