@@ -13,17 +13,16 @@ jobs:
     steps:
       - name: Install PostgreSQL 17 client
         run: |
-          # Add official PostgreSQL APT repo for version 17
-          sudo apt-get install -y curl ca-certificates
-          sudo install -d /usr/share/postgresql-common/pgdg
-          sudo curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc \
-            -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc
-          sudo sh -c 'echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] \
-            https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
-            > /etc/apt/sources.list.d/pgdg.list'
-          sudo apt-get update -qq
+          # Use official PGDG install script (most reliable method)
+          sudo apt-get install -y postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
           sudo apt-get install -y postgresql-client-17 dnsutils
-          pg_dump --version
+
+          # Force pg_dump to use v17
+          sudo update-alternatives --install /usr/bin/pg_dump pg_dump /usr/lib/postgresql/17/bin/pg_dump 100
+
+          # Verify version
+          echo "pg_dump version: $(pg_dump --version)"
 
       - name: Validate secret
         env:
