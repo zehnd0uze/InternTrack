@@ -10,6 +10,7 @@ export default defineConfig({
       srcDir: 'src',
       filename: 'sw.js',
       registerType: 'autoUpdate',
+      inlineDynamicImports: false,
       devOptions: {
         enabled: true,
         type: 'module'
