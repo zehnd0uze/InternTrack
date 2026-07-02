@@ -454,6 +454,61 @@ CROSS JOIN (VALUES
 ) AS m(name, name_en)
 WHERE i.short_name = 'CMTC' AND f.name = 'แผนกวิชาเทคโนโลยีสารสนเทศ';
 
+-- ---------------------------------------------------------------
+-- (G) วิทยาลัยเทคโนโลยีโปลิเทคนิคลานนา เชียงใหม่ (Lanna Poly)
+-- ---------------------------------------------------------------
+WITH inst AS (
+  INSERT INTO public.institutions (short_name, full_name, full_name_en, type, sort_order)
+  VALUES ('Lanna Poly', 'วิทยาลัยเทคโนโลยีโปลิเทคนิคลานนา เชียงใหม่', 'Lanna Polytechnic Chiang Mai Technological College', 'vocational', 7)
+  RETURNING id
+)
+INSERT INTO public.faculties (institution_id, name, name_en) SELECT id, f.name, f.name_en FROM inst, (VALUES
+  ('ประเภทวิชาอุตสาหกรรม', 'Industry'),
+  ('ประเภทวิชาเทคโนโลยีสารสนเทศและการสื่อสาร', 'Information and Communication Technology'),
+  ('ประเภทวิชาพาณิชยกรรม', 'Commerce'),
+  ('ประเภทวิชาอุตสาหกรรมท่องเที่ยว', 'Tourism Industry')
+) AS f(name, name_en);
+
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f
+JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('สาขางานยานยนต์ (ช่างยนต์)', 'Automotive Technology'),
+  ('สาขางานไฟฟ้ากำลัง (ช่างไฟฟ้า)', 'Electrical Power'),
+  ('สาขางานอิเล็กทรอนิกส์ (ช่างอิเล็กทรอนิกส์)', 'Electronics'),
+  ('สาขาวิชาก่อสร้าง (ช่างก่อสร้าง)', 'Construction'),
+  ('สาขางานสถาปัตยกรรม', 'Architecture')
+) AS m(name, name_en)
+WHERE i.short_name = 'Lanna Poly' AND f.name = 'ประเภทวิชาอุตสาหกรรม';
+
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f
+JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('สาขาวิชาเทคโนโลยีสารสนเทศ', 'Information Technology')
+) AS m(name, name_en)
+WHERE i.short_name = 'Lanna Poly' AND f.name = 'ประเภทวิชาเทคโนโลยีสารสนเทศและการสื่อสาร';
+
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f
+JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('สาขาวิชาพณิชยการ', 'Business and Commerce')
+) AS m(name, name_en)
+WHERE i.short_name = 'Lanna Poly' AND f.name = 'ประเภทวิชาพาณิชยกรรม';
+
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f
+JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('สาขาวิชาการท่องเที่ยวและโรงแรม', 'Tourism and Hotel Management')
+) AS m(name, name_en)
+WHERE i.short_name = 'Lanna Poly' AND f.name = 'ประเภทวิชาอุตสาหกรรมท่องเที่ยว';
+
 -- ============================================================
 -- DONE
 -- ============================================================
