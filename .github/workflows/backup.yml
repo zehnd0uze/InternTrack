@@ -2,9 +2,8 @@ name: Daily Database Backup
 
 on:
   schedule:
-    # รัน 01:00 น. ทุกวัน (เวลาไทย UTC+7 = 18:00 UTC)
-    - cron: '0 18 * * *'
-  workflow_dispatch: # รันมือได้ด้วย
+    - cron: '0 18 * * *'   # 01:00 น. ทุกวัน (UTC+7)
+  workflow_dispatch:
 
 jobs:
   backup:
@@ -12,25 +11,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Install PostgreSQL client
+      - name: Install tools
         run: |
-          sudo apt-get update
-          sudo apt-get install -y postgresql-client
+          sudo apt-get update -qq
+          sudo apt-get install -y postgresql-client dnsutils
 
-      - name: Validate DATABASE_URL secret
+      - name: Validate secret
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           if [ -z "$DATABASE_URL" ]; then
             echo "❌ DATABASE_URL secret is not set!"
-            echo "Go to: GitHub Repo → Settings → Secrets and variables → Actions → New repository secret"
-            echo "Name: DATABASE_URL"
-            echo "Value: postgresql://postgres:[password]@db.[ref].supabase.co:5432/postgres"
             exit 1
           fi
           echo "✅ DATABASE_URL secret found"
 
-      - name: Create database backup (IPv4 forced)
+      - name: Backup database (IPv4 forced)
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
@@ -38,25 +34,34 @@ jobs:
           FILENAME="backup_${DATE}.sql"
           echo "📦 Starting backup at $DATE..."
 
-          # Parse connection components from URL
-          # URL format: postgresql://USER:PASSWORD@HOST:PORT/DBNAME
+          # Parse URL parts with shell
           DB_USER=$(echo "$DATABASE_URL" | sed -E 's|postgresql://([^:]+):.*|\1|')
           DB_PASS=$(echo "$DATABASE_URL" | sed -E 's|postgresql://[^:]+:([^@]+)@.*|\1|')
           DB_HOST=$(echo "$DATABASE_URL" | sed -E 's|postgresql://[^@]+@([^/:]+).*|\1|')
           DB_PORT=$(echo "$DATABASE_URL" | sed -E 's|.*@[^:]+:([0-9]+)/.*|\1|')
           DB_NAME=$(echo "$DATABASE_URL" | sed -E 's|.*/([^?]+)(\?.*)?$|\1|')
 
-          echo "🔍 Host: $DB_HOST | Port: $DB_PORT | DB: $DB_NAME | User: $DB_USER"
+          echo "🔍 Host=$DB_HOST Port=$DB_PORT DB=$DB_NAME User=$DB_USER"
 
-          # Force resolve to IPv4 using getent ahostsv4
-          IPv4=$(getent ahostsv4 "$DB_HOST" | awk 'NR==1{print $1}')
+          # Force IPv4 using dig (query A record only)
+          IPv4=$(dig +short A "$DB_HOST" @8.8.8.8 | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
+          echo "🌐 IPv4 resolved: $IPv4"
+
           if [ -z "$IPv4" ]; then
-            echo "❌ Could not resolve $DB_HOST to IPv4"
+            echo "❌ Could not resolve to IPv4, trying 1.1.1.1..."
+            IPv4=$(dig +short A "$DB_HOST" @1.1.1.1 | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
+            echo "🌐 IPv4 (retry): $IPv4"
+          fi
+
+          if [ -z "$IPv4" ]; then
+            echo "❌ All IPv4 resolution attempts failed"
             exit 1
           fi
-          echo "🌐 Resolved $DB_HOST → $IPv4 (IPv4 forced)"
 
-          # Run pg_dump with explicit flags (not URL) to avoid IPv6 resolution
+          # CRITICAL: unset DATABASE_URL so pg_dump cannot fall back to it
+          unset DATABASE_URL
+
+          # Run pg_dump with explicit IPv4 host
           export PGPASSWORD="$DB_PASS"
           pg_dump \
             -h "$IPv4" \
@@ -73,7 +78,7 @@ jobs:
           echo "✅ Backup done: ${FILENAME}.gz ($SIZE)"
           echo "BACKUP_FILE=${FILENAME}.gz" >> $GITHUB_ENV
 
-      - name: Upload backup as artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: db-backup-${{ env.BACKUP_FILE }}
