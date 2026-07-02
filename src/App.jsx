@@ -1,10 +1,19 @@
+import { useCallback } from 'react'
 import { AuthProvider } from './contexts/AuthContext'
 import AppRouter from './router/AppRouter'
 import { Toaster } from 'react-hot-toast'
+import { usePageVisibility } from './hooks/usePageVisibility'
 
-export default function App() {
+function AppContent() {
+  // When user returns to app after 5+ minutes, reload the page so data is fresh
+  const handleVisible = useCallback(() => {
+    window.location.reload()
+  }, [])
+
+  usePageVisibility(handleVisible, 5 * 60 * 1000) // 5 minutes stale threshold
+
   return (
-    <AuthProvider>
+    <>
       <AppRouter />
       <Toaster
         position="top-right"
@@ -24,6 +33,14 @@ export default function App() {
           },
         }}
       />
+    </>
+  )
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
     </AuthProvider>
   )
 }

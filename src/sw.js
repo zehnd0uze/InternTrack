@@ -5,6 +5,13 @@ import { clientsClaim } from 'workbox-core';
 self.skipWaiting();
 clientsClaim();
 
+// Also handle explicit skip request from the app
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 // Clean up old caches and precache new assets
 cleanupOutdatedCaches();
 precacheAndRoute(self.__WB_MANIFEST);
