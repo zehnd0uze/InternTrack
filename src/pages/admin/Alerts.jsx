@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../../lib/supabase'
-import { Bell, Plus, Trash2, Clock, Calendar as CalendarIcon, Users, RefreshCw } from 'lucide-react'
+import { Bell, Plus, Trash2, Clock, Calendar as CalendarIcon, Users, RefreshCw, Edit2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { format } from 'date-fns'
 import { th } from 'date-fns/locale'
@@ -11,6 +11,7 @@ export default function AdminAlerts() {
 
   // Form State
   const [showModal, setShowModal] = useState(false)
+  const [editingId, setEditingId] = useState(null)
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
   const [targetRole, setTargetRole] = useState('all')
@@ -35,6 +36,28 @@ export default function AdminAlerts() {
     fetchAlerts()
   }, [fetchAlerts])
 
+  const closeModal = () => {
+    setShowModal(false)
+    setEditingId(null)
+    setTitle('')
+    setBody('')
+    setTargetRole('all')
+    setIsRecurring(true)
+    setScheduleTime('09:00')
+    setScheduleDate('')
+  }
+
+  const handleEdit = (alert) => {
+    setEditingId(alert.id)
+    setTitle(alert.title)
+    setBody(alert.body)
+    setTargetRole(alert.target_role)
+    setIsRecurring(alert.is_recurring)
+    setScheduleTime(alert.scheduled_time.substring(0, 5))
+    setScheduleDate(alert.scheduled_date || '')
+    setShowModal(true)
+  }
+
   const handleSave = async (e) => {
     e.preventDefault()
     if (!title.trim() || !body.trim() || !scheduleTime) {
@@ -47,28 +70,32 @@ export default function AdminAlerts() {
     }
 
     setSaving(true)
-    const { error } = await supabase.from('scheduled_notifications').insert({
+    const payload = {
       title: title.trim(),
       body: body.trim(),
       target_role: targetRole,
       is_recurring: isRecurring,
-      scheduled_time: scheduleTime + ':00', // Time type needs seconds
+      scheduled_time: scheduleTime.length === 5 ? scheduleTime + ':00' : scheduleTime,
       scheduled_date: isRecurring ? null : scheduleDate,
       is_active: true
-    })
+    }
+
+    let error = null
+    if (editingId) {
+      const { error: updateError } = await supabase.from('scheduled_notifications').update(payload).eq('id', editingId)
+      error = updateError
+    } else {
+      const { error: insertError } = await supabase.from('scheduled_notifications').insert(payload)
+      error = insertError
+    }
 
     setSaving(false)
     if (error) {
       toast.error('เกิดข้อผิดพลาดในการบันทึก')
       console.error(error)
     } else {
-      toast.success('ตั้งค่าการแจ้งเตือนสำเร็จ')
-      setShowModal(false)
-      // reset
-      setTitle('')
-      setBody('')
-      setTargetRole('all')
-      setIsRecurring(true)
+      toast.success(editingId ? 'แก้ไขการแจ้งเตือนสำเร็จ' : 'ตั้งค่าการแจ้งเตือนสำเร็จ')
+      closeModal()
       fetchAlerts()
     }
   }
@@ -107,7 +134,7 @@ export default function AdminAlerts() {
             ตั้งเวลาส่งข้อความแจ้งเตือนไปยังโทรศัพท์ของนักศึกษาหรือพี่เลี้ยง
           </p>
         </div>
-        <button onClick={() => setShowModal(true)} className="btn-primary flex items-center gap-2">
+        <button onClick={() => { closeModal(); setShowModal(true); }} className="btn-primary flex items-center gap-2">
           <Plus size={18} /> สร้างการแจ้งเตือน
         </button>
       </div>
@@ -184,9 +211,14 @@ export default function AdminAlerts() {
                       </button>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <button onClick={() => handleDelete(a.id)} className="p-2 text-danger hover:bg-danger/10 rounded-lg transition-colors">
-                        <Trash2 size={16} />
-                      </button>
+                      <div className="flex items-center justify-end gap-1">
+                        <button onClick={() => handleEdit(a)} className="p-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors" title="แก้ไข">
+                          <Edit2 size={16} />
+                        </button>
+                        <button onClick={() => handleDelete(a.id)} className="p-2 text-danger hover:bg-danger/10 rounded-lg transition-colors" title="ลบ">
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -203,9 +235,9 @@ export default function AdminAlerts() {
             <div className="px-6 py-4 border-b flex justify-between items-center bg-surface">
               <h3 className="font-bold text-lg text-content flex items-center gap-2">
                 <Bell size={20} className="text-primary-600" />
-                ตั้งเวลาแจ้งเตือนใหม่
+                {editingId ? 'แก้ไขการแจ้งเตือน' : 'ตั้งเวลาแจ้งเตือนใหม่'}
               </h3>
-              <button onClick={() => !saving && setShowModal(false)} className="text-gray-400 hover:text-gray-600">
+              <button onClick={() => !saving && closeModal()} className="text-gray-400 hover:text-gray-600">
                 ✕
               </button>
             </div>
@@ -259,7 +291,7 @@ export default function AdminAlerts() {
               </div>
               
               <div className="mt-6 flex justify-end gap-3">
-                <button type="button" onClick={() => setShowModal(false)} disabled={saving} className="btn-ghost">ยกเลิก</button>
+                <button type="button" onClick={closeModal} disabled={saving} className="btn-ghost">ยกเลิก</button>
                 <button type="submit" disabled={saving} className="btn-primary">
                   {saving ? 'กำลังบันทึก...' : 'บันทึกการแจ้งเตือน'}
                 </button>
