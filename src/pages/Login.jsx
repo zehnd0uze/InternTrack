@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { ClipboardList, Eye, EyeOff, AlertCircle } from 'lucide-react'
@@ -12,6 +12,15 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showCMUModal, setShowCMUModal] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
+
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('rememberedEmail')
+    if (savedEmail) {
+      setEmail(savedEmail)
+      setRememberMe(true)
+    }
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -29,6 +38,11 @@ export default function Login() {
       setError('อีเมลหรือรหัสผ่านไม่ถูกต้อง')
       toast.error('เข้าสู่ระบบล้มเหลว กรุณาตรวจสอบข้อมูล')
     } else {
+      if (rememberMe) {
+        localStorage.setItem('rememberedEmail', email)
+      } else {
+        localStorage.removeItem('rememberedEmail')
+      }
       toast.success('เข้าสู่ระบบสำเร็จ!')
     }
   }
@@ -95,6 +109,23 @@ export default function Login() {
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 transition-colors"
+                />
+                <span className="text-sm font-medium text-content-muted group-hover:text-content transition-colors">
+                  จดจำอีเมลของฉัน
+                </span>
+              </label>
+              <Link to="/forgot-password" className="text-sm font-medium text-primary-600 hover:text-primary-700 hover:underline">
+                ลืมรหัสผ่าน?
+              </Link>
             </div>
 
             {error && (

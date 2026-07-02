@@ -6,12 +6,12 @@ import { usePageVisibility } from './hooks/usePageVisibility'
 import WhatsNewModal from './components/WhatsNewModal'
 
 function AppContent() {
-  // When user returns to app after 5+ minutes, reload the page so data is fresh
+  // When user returns to app after 15+ minutes, reload the page so data is fresh
   const handleVisible = useCallback(() => {
     window.location.reload()
   }, [])
 
-  usePageVisibility(handleVisible, 5 * 60 * 1000) // 5 minutes stale threshold
+  usePageVisibility(handleVisible, 15 * 60 * 1000) // 15 minutes stale threshold
 
   return (
     <>
