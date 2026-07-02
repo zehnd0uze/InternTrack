@@ -70,9 +70,13 @@ jobs:
           # CRITICAL: unset DATABASE_URL so pg_dump cannot fall back to it
           unset DATABASE_URL
 
+          # Use pg_dump v17 explicitly (full path to avoid v16 taking priority)
+          export PATH="/usr/lib/postgresql/17/bin:$PATH"
+          pg_dump --version
+
           # Run pg_dump with explicit IPv4 host
           export PGPASSWORD="$DB_PASS"
-          pg_dump \
+          /usr/lib/postgresql/17/bin/pg_dump \
             -h "$IPv4" \
             -p "$DB_PORT" \
             -U "$DB_USER" \
