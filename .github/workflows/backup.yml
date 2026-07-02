@@ -17,22 +17,43 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y postgresql-client
 
+      - name: Validate DATABASE_URL secret
+        run: |
+          if [ -z "${{ secrets.DATABASE_URL }}" ]; then
+            echo "❌ DATABASE_URL secret is not set!"
+            echo "Please go to: GitHub Repo → Settings → Secrets and variables → Actions → New repository secret"
+            echo "Name: DATABASE_URL"
+            echo "Value: Your Supabase connection string (postgresql://postgres:[password]@db.[ref].supabase.co:5432/postgres)"
+            exit 1
+          fi
+          echo "✅ DATABASE_URL secret found"
+
       - name: Create database backup
         env:
+          PGPASSWORD: ${{ secrets.DB_PASSWORD }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           DATE=$(date +%Y-%m-%d_%H-%M)
-          pg_dump "$DATABASE_URL" \
+          FILENAME="backup_${DATE}.sql"
+
+          # Add sslmode=require for Supabase
+          CONN_URL="${DATABASE_URL}?sslmode=require"
+
+          echo "📦 Starting backup at $DATE..."
+          pg_dump "$CONN_URL" \
             --no-owner \
             --no-acl \
             --format=plain \
-            --file="backup_${DATE}.sql"
-          gzip "backup_${DATE}.sql"
-          echo "BACKUP_FILE=backup_${DATE}.sql.gz" >> $GITHUB_ENV
+            --file="$FILENAME"
+
+          gzip "$FILENAME"
+          echo "✅ Backup complete: ${FILENAME}.gz"
+          ls -lh "${FILENAME}.gz"
+          echo "BACKUP_FILE=${FILENAME}.gz" >> $GITHUB_ENV
 
       - name: Upload backup as artifact
         uses: actions/upload-artifact@v4
         with:
           name: db-backup-${{ env.BACKUP_FILE }}
           path: ${{ env.BACKUP_FILE }}
-          retention-days: 90  # เก็บไว้ 90 วัน (ฟรี)
+          retention-days: 90
