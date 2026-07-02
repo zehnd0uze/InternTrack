@@ -69,7 +69,7 @@ serve(async (req) => {
       const payload = JSON.stringify({
         title: alert.title,
         body: alert.body,
-        icon: '/pwa-192x192.png',
+        icon: '/favicon.svg',
         badge: '/badge.svg'
       });
 

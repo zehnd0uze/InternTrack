@@ -1,8 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <rect width="32" height="32" rx="10" fill="#10B981" />
-  <!-- Minimalist Calendar Outline -->
-  <rect x="9" y="10" width="14" height="12" rx="2.5" fill="none" stroke="white" stroke-width="2.5" />
-  <line x1="9" y1="14.5" x2="23" y2="14.5" stroke="white" stroke-width="2.5" />
-  <!-- Elegant Checkmark -->
-  <path d="M13 18 L15.5 20.5 L19 16" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="ig-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10B981" />   <!-- Emerald Green -->
+      <stop offset="50%" stop-color="#0EA5E9" />  <!-- Sky Blue -->
+      <stop offset="100%" stop-color="#6366F1" /> <!-- Indigo -->
+    </linearGradient>
+  </defs>
+  
+  <rect width="100" height="100" rx="22.5" fill="url(#ig-grad)" />
+  
+  <!-- Bold, modern 'T' -->
+  <path d="M 25 35 h 50" fill="none" stroke="white" stroke-width="12" stroke-linecap="round" />
+  <path d="M 50 35 v 40" fill="none" stroke="white" stroke-width="12" stroke-linecap="round" />
+  
+  <!-- Accent dot for a tracking/location vibe -->
+  <circle cx="75" cy="75" r="6" fill="white" />
 </svg>
