@@ -5,7 +5,7 @@
 
 -- ขั้นที่ 1: กู้คืน user records ที่หายไป จาก auth.users
 -- จะ insert เฉพาะ user ที่ไม่มีใน public.users แล้ว (ไม่ซ้ำ)
-INSERT INTO public.users (id, email, role, full_name, created_at, updated_at)
+INSERT INTO public.users (id, email, role, full_name, created_at)
 SELECT
   au.id,
   au.email,
@@ -17,8 +17,7 @@ SELECT
     au.raw_app_meta_data->>'full_name',
     SPLIT_PART(au.email, '@', 1)
   ) AS full_name,
-  au.created_at,
-  au.updated_at
+  au.created_at
 FROM auth.users au
 WHERE au.id NOT IN (SELECT id FROM public.users WHERE id IS NOT NULL)
 ON CONFLICT (id) DO NOTHING;
