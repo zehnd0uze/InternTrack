@@ -7,6 +7,7 @@ import * as XLSX from 'xlsx'
 import { supabase } from '../../lib/supabase'
 import { SkeletonTable } from '../../components/ui/Skeleton'
 import ConfirmModal from '../../components/ui/ConfirmModal'
+import StudentEditPanel from '../../components/StudentEditPanel'
 
 const ROLE_LABELS = { student: 'นักศึกษา', supervisor: 'อาจารย์นิเทศ', mentor: 'พี่เลี้ยง / หัวหน้างาน', admin: 'ผู้ดูแลระบบ' }
 
@@ -19,6 +20,7 @@ export default function AdminUsers() {
   const [showModal, setShowModal] = useState(false)
   const [editUser, setEditUser] = useState(null)
   const [suspendTarget, setSuspendTarget] = useState(null)
+  const [studentDetailId, setStudentDetailId] = useState(null)
   
   const [importing, setImporting] = useState(false)
   const [importProgress, setImportProgress] = useState({ current: 0, total: 0, successes: 0, errors: [] })
@@ -356,6 +358,14 @@ export default function AdminUsers() {
                   </td>
                   <td>
                     <div className="flex gap-2">
+                      {u.role === 'student' && (
+                        <button
+                          onClick={() => setStudentDetailId(u.id)}
+                          className="btn-secondary btn-sm text-xs"
+                        >
+                          รายละเอียด
+                        </button>
+                      )}
                       <button
                         onClick={() => openEdit(u)}
                         className="btn-secondary btn-sm"
@@ -509,6 +519,21 @@ export default function AdminUsers() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Student Detail Modal (Full Edit Panel) */}
+      {studentDetailId && (
+        <div className="modal-overlay" onClick={() => setStudentDetailId(null)}>
+          <div className="modal-content max-w-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-lg font-semibold text-content">แก้ไขข้อมูลนักศึกษา</h3>
+              <button onClick={() => setStudentDetailId(null)} className="text-gray-400 hover:text-content-muted p-1">
+                <X size={20} />
+              </button>
+            </div>
+            <StudentEditPanel studentId={studentDetailId} onSaved={fetchUsers} />
           </div>
         </div>
       )}
