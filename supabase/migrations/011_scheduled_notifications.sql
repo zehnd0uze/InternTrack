@@ -19,8 +19,8 @@ ALTER TABLE public.scheduled_notifications ENABLE ROW LEVEL SECURITY;
 -- Admins can do everything
 CREATE POLICY "Admins can manage scheduled notifications"
 ON public.scheduled_notifications FOR ALL
-USING (auth.jwt() ->> 'role' = 'admin')
-WITH CHECK (auth.jwt() ->> 'role' = 'admin');
+USING (public.get_current_user_role() = 'admin')
+WITH CHECK (public.get_current_user_role() = 'admin');
 
 -- Service role bypasses RLS anyway, but good for Edge Function
 CREATE POLICY "Service role can read scheduled notifications"
