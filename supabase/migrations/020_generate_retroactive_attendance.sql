@@ -25,7 +25,7 @@ BEGIN
   END IF;
 
   -- Limit generation up to yesterday (or today, let's use CURRENT_DATE)
-  v_end_limit := LEAST(p_end_date, (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Bangkok')::DATE);
+  v_end_limit := LEAST(p_end_date, ((CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Bangkok') - INTERVAL '1 day')::DATE);
   v_current_date := p_start_date;
 
   WHILE v_current_date <= v_end_limit LOOP
