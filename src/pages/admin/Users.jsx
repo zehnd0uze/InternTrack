@@ -14,10 +14,12 @@ const ROLE_LABELS = { student: 'นักศึกษา', supervisor: 'อา�
 export default function AdminUsers() {
   const [users, setUsers] = useState([])
   const [supervisors, setSupervisors] = useState([])
+  const [institutions, setInstitutions] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  const [institutionFilter, setInstitutionFilter] = useState('')
   const [sortBy, setSortBy] = useState('created_at')
   const [sortDir, setSortDir] = useState('desc')
   const [showModal, setShowModal] = useState(false)
@@ -37,12 +39,20 @@ export default function AdminUsers() {
 
   const fetchUsers = useCallback(async () => {
     setLoading(true)
-    const { data } = await supabase
-      .from('users')
-      .select('*, supervisor:supervisor_id(full_name), institution:institution_id(short_name, full_name)')
-      .order('created_at', { ascending: false })
-    setUsers(data || [])
-    setSupervisors((data || []).filter(u => u.role === 'supervisor'))
+    const [usersRes, instRes] = await Promise.all([
+      supabase
+        .from('users')
+        .select('*, supervisor:supervisor_id(full_name), institution:institution_id(short_name, full_name)')
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('institutions')
+        .select('id, short_name, full_name')
+        .eq('is_active', true)
+        .order('sort_order')
+    ])
+    setUsers(usersRes.data || [])
+    setSupervisors((usersRes.data || []).filter(u => u.role === 'supervisor'))
+    setInstitutions(instRes.data || [])
     setLoading(false)
   }, [])
 
@@ -57,7 +67,8 @@ export default function AdminUsers() {
         u.student_code?.toLowerCase().includes(q)
       const matchRole   = !roleFilter   || u.role === roleFilter
       const matchStatus = !statusFilter || String(u.is_active) === statusFilter
-      return matchSearch && matchRole && matchStatus
+      const matchInst   = !institutionFilter || u.institution_id === institutionFilter
+      return matchSearch && matchRole && matchStatus && matchInst
     })
     .sort((a, b) => {
       let av = a[sortBy], bv = b[sortBy]
@@ -78,8 +89,8 @@ export default function AdminUsers() {
     return <span className="text-primary-600 text-xs ml-1">{sortDir === 'asc' ? '↑' : '↓'}</span>
   }
 
-  const clearFilters = () => { setSearch(''); setRoleFilter(''); setStatusFilter('') }
-  const hasFilters = search || roleFilter || statusFilter
+  const clearFilters = () => { setSearch(''); setRoleFilter(''); setStatusFilter(''); setInstitutionFilter('') }
+  const hasFilters = search || roleFilter || statusFilter || institutionFilter
 
   // Count badges by role
   const counts = users.reduce((acc, u) => { acc[u.role] = (acc[u.role] || 0) + 1; return acc }, {})
@@ -368,6 +379,16 @@ export default function AdminUsers() {
             <option value="">ทุกสถานะ</option>
             <option value="true">ใช้งาน</option>
             <option value="false">ถูกระงับ</option>
+          </select>
+          <select
+            value={institutionFilter}
+            onChange={e => setInstitutionFilter(e.target.value)}
+            className="select w-44"
+          >
+            <option value="">ทุกสถาบัน</option>
+            {institutions.map(inst => (
+              <option key={inst.id} value={inst.id}>{inst.short_name}</option>
+            ))}
           </select>
           <select
             value={sortBy + '_' + sortDir}
