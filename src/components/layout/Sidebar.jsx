@@ -17,7 +17,8 @@ import {
   Building2,
   CalendarDays,
   RefreshCw,
-  Bell
+  Bell,
+  School
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useNotifications } from '../../contexts/NotificationContext'
@@ -39,6 +40,7 @@ const NAV_ITEMS = {
   admin: [
     { to: '/admin', label: 'ภาพรวมระบบ', icon: LayoutDashboard, end: true },
     { to: '/admin/users', label: 'จัดการผู้ใช้', icon: Users },
+    { to: '/admin/institutions', label: 'สถาบันการศึกษา', icon: School },
     { to: '/admin/placements', label: 'จัดการสถานที่ฝึกงาน', icon: Building2 },
     { to: '/admin/report', label: 'รายงานระบบ', icon: BarChart3 },
     { to: '/admin/data', label: 'จัดการข้อมูล', icon: Database },
