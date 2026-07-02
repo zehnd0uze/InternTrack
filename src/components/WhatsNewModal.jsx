@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
-import { X, Bell, RefreshCw, ChevronRight, Zap } from 'lucide-react'
+import { X, Bell, RefreshCw, ChevronRight, Zap, ChevronLeft } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
-// ─── Bump this on every new deploy ────────────────────────────────────────────
 const CURRENT_VERSION = '1.4.0'
 
 const UPDATES_BY_ROLE = {
@@ -10,42 +9,43 @@ const UPDATES_BY_ROLE = {
     {
       icon: Bell,
       tag: 'การแจ้งเตือน',
-      title: 'เปิด-ปิดการแจ้งเตือนได้เอง',
-      desc: 'กดปุ่มกระดิ่งที่เมนูด้านซ้ายล่างเพื่อเปิดหรือปิดการรับการแจ้งเตือนแบบ Push ได้ทันที',
+      title: 'เปิด-ปิดแจ้งเตือนได้เอง',
+      desc: 'กดปุ่มกระดิ่งที่เมนูด้านซ้ายล่างเพื่อเปิดหรือปิดการแจ้งเตือนแบบ Push ได้ทันที',
+      accent: '#6366f1',
     },
     {
       icon: RefreshCw,
       tag: 'ประสิทธิภาพ',
-      title: 'รีเฟรชข้อมูลอัตโนมัติ',
-      desc: 'เมื่อกลับมาใช้งานแอปหลังจากออกไปนาน ระบบจะโหลดข้อมูลล่าสุดให้อัตโนมัติ ไม่ต้องรีเฟรชเอง',
+      title: 'รีเฟรชอัตโนมัติเมื่อกลับมา',
+      desc: 'เมื่อกลับมาใช้งานแอปหลังจากออกไปนาน ระบบโหลดข้อมูลล่าสุดให้เองโดยอัตโนมัติ',
+      accent: '#0ea5e9',
     },
   ],
   student: [
     {
       icon: Bell,
       tag: 'การแจ้งเตือน',
-      title: 'เปิด-ปิดการแจ้งเตือนได้เอง',
-      desc: 'กดปุ่มกระดิ่งที่เมนูด้านซ้ายล่างเพื่อเปิดหรือปิดการรับการแจ้งเตือนแบบ Push ได้ทันที',
+      title: 'เปิด-ปิดแจ้งเตือนได้เอง',
+      desc: 'กดปุ่มกระดิ่งที่เมนูด้านซ้ายล่างเพื่อเปิดหรือปิดการแจ้งเตือนแบบ Push ได้ทันที',
+      accent: '#6366f1',
     },
     {
       icon: RefreshCw,
       tag: 'ประสิทธิภาพ',
-      title: 'รีเฟรชข้อมูลอัตโนมัติ',
-      desc: 'เมื่อกลับมาใช้งานแอปหลังจากออกไปนาน ระบบจะโหลดข้อมูลล่าสุดให้อัตโนมัติ ไม่ต้องรีเฟรชเอง',
+      title: 'รีเฟรชอัตโนมัติเมื่อกลับมา',
+      desc: 'เมื่อกลับมาใช้งานแอปหลังจากออกไปนาน ระบบโหลดข้อมูลล่าสุดให้เองโดยอัตโนมัติ',
+      accent: '#0ea5e9',
     },
   ],
 }
 
 const ALLOWED_ROLES = ['mentor', 'student']
 
-// Accent colors per update index
-const ACCENTS = ['#6366f1', '#0ea5e9']
-
 export default function WhatsNewModal() {
   const { activeRole } = useAuth()
-  const [open, setOpen] = useState(false)
-  const [step, setStep] = useState(0)
+  const [visible, setVisible] = useState(false)
   const [exiting, setExiting] = useState(false)
+  const [step, setStep] = useState(0)
 
   const updates = UPDATES_BY_ROLE[activeRole] || []
 
@@ -53,7 +53,7 @@ export default function WhatsNewModal() {
     if (!ALLOWED_ROLES.includes(activeRole)) return
     const seen = localStorage.getItem('whatsNewVersion')
     if (seen !== CURRENT_VERSION) {
-      const t = setTimeout(() => setOpen(true), 900)
+      const t = setTimeout(() => setVisible(true), 1200)
       return () => clearTimeout(t)
     }
   }, [activeRole])
@@ -62,194 +62,269 @@ export default function WhatsNewModal() {
     setExiting(true)
     setTimeout(() => {
       localStorage.setItem('whatsNewVersion', CURRENT_VERSION)
-      setOpen(false)
+      setVisible(false)
       setExiting(false)
-    }, 280)
+      setStep(0)
+    }, 320)
   }
 
   const next = () => {
-    if (step < updates.length - 1) {
-      setStep(s => s + 1)
-    } else {
-      dismiss()
-    }
+    if (step < updates.length - 1) setStep(s => s + 1)
+    else dismiss()
   }
 
-  if (!open || updates.length === 0) return null
+  const prev = () => {
+    if (step > 0) setStep(s => s - 1)
+  }
+
+  if (!visible || updates.length === 0) return null
 
   const cur = updates[step]
   const Icon = cur.icon
-  const accent = ACCENTS[step % ACCENTS.length]
+  const accent = cur.accent
   const isLast = step === updates.length - 1
 
   return (
-    <>
-      {/* Backdrop */}
+    <div
+      style={{
+        position: 'fixed',
+        bottom: '24px',
+        right: '20px',
+        zIndex: 9999,
+        width: 'min(340px, calc(100vw - 40px))',
+        animation: exiting
+          ? 'wn-out 0.32s cubic-bezier(.4,0,1,1) both'
+          : 'wn-in 0.42s cubic-bezier(.22,1,.36,1) both',
+      }}
+    >
       <div
-        className="fixed inset-0 z-[9998]"
         style={{
-          background: 'rgba(0,0,0,0.6)',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
-          animation: exiting ? 'wn-fade-out 0.28s ease both' : 'wn-fade-in 0.3s ease both',
+          borderRadius: '16px',
+          background: 'var(--color-card, #1c1c1e)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          boxShadow: `0 20px 60px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.04), 0 0 40px ${accent}18`,
+          overflow: 'hidden',
         }}
-        onClick={dismiss}
-      />
-
-      {/* Modal */}
-      <div
-        className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center sm:p-6 pointer-events-none"
       >
-        <div
-          className="pointer-events-auto w-full sm:max-w-sm overflow-hidden"
-          style={{
-            borderRadius: '20px 20px 0 0',
-            background: 'var(--color-card, #18181b)',
-            border: '1px solid rgba(255,255,255,0.06)',
-            boxShadow: '0 32px 64px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04)',
-            animation: exiting
-              ? 'wn-slide-down 0.28s cubic-bezier(.4,0,1,1) both'
-              : 'wn-slide-up 0.38s cubic-bezier(.22,1,.36,1) both',
-          }}
-        >
-          {/* Accent gradient bar */}
-          <div style={{
-            height: '3px',
-            background: `linear-gradient(90deg, ${accent}, ${accent}99)`,
-            transition: 'background 0.4s ease',
-          }} />
+        {/* Accent top stripe */}
+        <div style={{
+          height: '2px',
+          background: `linear-gradient(90deg, ${accent} 0%, ${accent}55 100%)`,
+        }} />
 
-          {/* Header */}
-          <div className="flex items-start justify-between px-5 pt-5 pb-0">
-            <div className="flex items-center gap-2.5">
-              <div
-                className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                style={{ background: `${accent}18` }}
-              >
-                <Zap size={15} style={{ color: accent }} />
-              </div>
-              <div>
-                <p className="font-bold text-sm text-content leading-none">อัปเดตใหม่</p>
-                <p className="text-xs mt-0.5" style={{ color: accent }}>เวอร์ชัน {CURRENT_VERSION}</p>
-              </div>
+        {/* Header row */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '12px 14px 10px',
+          borderBottom: '1px solid rgba(255,255,255,0.05)',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{
+              width: '26px', height: '26px',
+              borderRadius: '8px',
+              background: `${accent}20`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+            }}>
+              <Zap size={13} color={accent} />
             </div>
+            <span style={{
+              fontSize: '12px',
+              fontWeight: 700,
+              color: 'var(--color-content, #f4f4f5)',
+              letterSpacing: '-0.01em',
+            }}>
+              อัปเดตใหม่
+            </span>
+            <span style={{
+              fontSize: '10px',
+              fontWeight: 600,
+              padding: '2px 7px',
+              borderRadius: '20px',
+              background: `${accent}18`,
+              color: accent,
+              border: `1px solid ${accent}30`,
+            }}>
+              v{CURRENT_VERSION}
+            </span>
+          </div>
+          <button
+            onClick={dismiss}
+            style={{
+              width: '24px', height: '24px',
+              borderRadius: '50%',
+              border: 'none',
+              background: 'rgba(255,255,255,0.06)',
+              cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: 'var(--color-content-muted, #71717a)',
+              transition: 'background 0.15s',
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
+          >
+            <X size={12} />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div style={{ padding: '14px' }}>
+          <div style={{
+            borderRadius: '12px',
+            background: `${accent}0C`,
+            border: `1px solid ${accent}1A`,
+            padding: '12px',
+          }}>
+            {/* Tag */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '10px' }}>
+              <div style={{
+                width: '24px', height: '24px',
+                borderRadius: '7px',
+                background: `${accent}20`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0,
+              }}>
+                <Icon size={12} color={accent} />
+              </div>
+              <span style={{
+                fontSize: '10px',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.07em',
+                color: accent,
+              }}>
+                {cur.tag}
+              </span>
+            </div>
+
+            {/* Title */}
+            <p style={{
+              fontSize: '13px',
+              fontWeight: 700,
+              color: 'var(--color-content, #f4f4f5)',
+              lineHeight: 1.4,
+              marginBottom: '6px',
+            }}>
+              {cur.title}
+            </p>
+
+            {/* Desc */}
+            <p style={{
+              fontSize: '11.5px',
+              color: 'var(--color-content-muted, #a1a1aa)',
+              lineHeight: 1.6,
+            }}>
+              {cur.desc}
+            </p>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 14px 13px',
+        }}>
+          {/* Dots + arrows */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            {updates.length > 1 && (
+              <button
+                onClick={prev}
+                disabled={step === 0}
+                style={{
+                  width: '22px', height: '22px',
+                  borderRadius: '50%',
+                  border: 'none',
+                  background: step === 0 ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.06)',
+                  cursor: step === 0 ? 'default' : 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: step === 0 ? 'rgba(255,255,255,0.2)' : 'var(--color-content-muted, #a1a1aa)',
+                  transition: 'background 0.15s',
+                }}
+              >
+                <ChevronLeft size={11} />
+              </button>
+            )}
+            {updates.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setStep(i)}
+                style={{
+                  height: '4px',
+                  width: i === step ? '16px' : '4px',
+                  borderRadius: '2px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: i === step ? accent : 'rgba(255,255,255,0.15)',
+                  transition: 'all 0.25s ease',
+                  padding: 0,
+                }}
+              />
+            ))}
+          </div>
+
+          {/* Action buttons */}
+          <div style={{ display: 'flex', gap: '6px' }}>
             <button
               onClick={dismiss}
-              className="w-7 h-7 flex items-center justify-center rounded-full transition-colors"
-              style={{ color: 'var(--color-content-muted)', background: 'var(--color-surface-hover)' }}
-            >
-              <X size={13} />
-            </button>
-          </div>
-
-          {/* Feature card */}
-          <div className="px-5 pt-5 pb-3">
-            <div
-              className="rounded-2xl p-4 transition-all duration-300"
               style={{
-                background: `${accent}0D`,
-                border: `1px solid ${accent}22`,
+                fontSize: '11px',
+                fontWeight: 600,
+                padding: '5px 10px',
+                borderRadius: '8px',
+                border: '1px solid rgba(255,255,255,0.08)',
+                background: 'transparent',
+                color: 'var(--color-content-muted, #71717a)',
+                cursor: 'pointer',
+                transition: 'background 0.15s',
+                fontFamily: 'inherit',
               }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
             >
-              {/* Tag */}
-              <div className="flex items-center gap-2 mb-3">
-                <div
-                  className="w-7 h-7 rounded-lg flex items-center justify-center"
-                  style={{ background: `${accent}22` }}
-                >
-                  <Icon size={14} style={{ color: accent }} />
-                </div>
-                <span
-                  className="text-xs font-semibold tracking-wide uppercase"
-                  style={{ color: accent }}
-                >
-                  {cur.tag}
-                </span>
-              </div>
-
-              {/* Title */}
-              <h2 className="font-bold text-base text-content mb-1.5 leading-snug">
-                {cur.title}
-              </h2>
-
-              {/* Desc */}
-              <p className="text-xs text-content-muted leading-relaxed">
-                {cur.desc}
-              </p>
-            </div>
-          </div>
-
-          {/* Divider */}
-          <div className="mx-5" style={{ height: '1px', background: 'var(--color-border, rgba(255,255,255,0.06))' }} />
-
-          {/* Footer */}
-          <div className="flex items-center justify-between px-5 py-4">
-            {/* Progress dots */}
-            <div className="flex gap-1.5 items-center">
-              {updates.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setStep(i)}
-                  className="rounded-full transition-all duration-300"
-                  style={{
-                    height: '5px',
-                    width: i === step ? '18px' : '5px',
-                    background: i === step ? accent : 'var(--color-border, rgba(255,255,255,0.15))',
-                  }}
-                />
-              ))}
-            </div>
-
-            {/* Buttons */}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={dismiss}
-                className="text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
-                style={{
-                  color: 'var(--color-content-muted)',
-                  background: 'var(--color-surface-hover)',
-                }}
-              >
-                ข้าม
-              </button>
-              <button
-                onClick={next}
-                className="flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-lg text-white transition-all duration-200 hover:opacity-90 active:scale-95"
-                style={{
-                  background: accent,
-                  boxShadow: `0 4px 12px ${accent}55`,
-                }}
-              >
-                {isLast ? 'เข้าใจแล้ว' : 'ถัดไป'}
-                <ChevronRight size={13} />
-              </button>
-            </div>
+              ข้าม
+            </button>
+            <button
+              onClick={next}
+              style={{
+                fontSize: '11px',
+                fontWeight: 700,
+                padding: '5px 12px',
+                borderRadius: '8px',
+                border: 'none',
+                background: accent,
+                color: '#fff',
+                cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: '4px',
+                boxShadow: `0 4px 14px ${accent}55`,
+                transition: 'opacity 0.15s, transform 0.1s',
+                fontFamily: 'inherit',
+              }}
+              onMouseEnter={e => e.currentTarget.style.opacity = '0.88'}
+              onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+              onMouseDown={e => e.currentTarget.style.transform = 'scale(0.96)'}
+              onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              {isLast ? 'เข้าใจแล้ว' : 'ถัดไป'}
+              <ChevronRight size={11} />
+            </button>
           </div>
         </div>
       </div>
 
       <style>{`
-        @keyframes wn-fade-in   { from { opacity:0 } to { opacity:1 } }
-        @keyframes wn-fade-out  { from { opacity:1 } to { opacity:0 } }
-        @keyframes wn-slide-up  {
-          from { transform: translateY(32px); opacity:0; }
-          to   { transform: translateY(0);   opacity:1; }
+        @keyframes wn-in {
+          from { transform: translateY(20px) scale(0.95); opacity: 0; }
+          to   { transform: translateY(0)    scale(1);    opacity: 1; }
         }
-        @keyframes wn-slide-down {
-          from { transform: translateY(0);   opacity:1; }
-          to   { transform: translateY(32px); opacity:0; }
-        }
-        @media (min-width: 640px) {
-          @keyframes wn-slide-up {
-            from { transform: translateY(16px) scale(0.97); opacity:0; }
-            to   { transform: translateY(0)    scale(1);    opacity:1; }
-          }
-          @keyframes wn-slide-down {
-            from { transform: translateY(0)    scale(1);    opacity:1; }
-            to   { transform: translateY(16px) scale(0.97); opacity:0; }
-          }
+        @keyframes wn-out {
+          from { transform: translateY(0)    scale(1);    opacity: 1; }
+          to   { transform: translateY(16px) scale(0.96); opacity: 0; }
         }
       `}</style>
-    </>
+    </div>
   )
 }
