@@ -11,10 +11,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Install tools
+      - name: Install PostgreSQL 17 client
         run: |
+          # Add official PostgreSQL APT repo for version 17
+          sudo apt-get install -y curl ca-certificates
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+            -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc
+          sudo sh -c 'echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] \
+            https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
+            > /etc/apt/sources.list.d/pgdg.list'
           sudo apt-get update -qq
-          sudo apt-get install -y postgresql-client dnsutils
+          sudo apt-get install -y postgresql-client-17 dnsutils
+          pg_dump --version
 
       - name: Validate secret
         env:
