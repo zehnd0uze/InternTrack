@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { X, ChevronRight, ChevronLeft, AlertTriangle, User, FileText, Bell, Shield, Database, Star, CheckCircle2, Clock } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
-const CURRENT_VERSION = '1.6.0'
+const CURRENT_VERSION = '1.6.1'
 const DISMISS_KEY = 'whatsNew_dismissed_v' + CURRENT_VERSION
 
 const GRADIENT = 'linear-gradient(135deg, #10B981 0%, #0EA5E9 50%, #6366F1 100%)'
@@ -45,6 +45,14 @@ const UPDATES_BY_ROLE = {
         'เพิ่มสาขาวิชาใหม่หลายร้อยสาขา',
       ],
     },
+    {
+      icon: Shield,
+      color: '#0EA5E9',
+      tag: 'ความปลอดภัย',
+      title: 'ข้อมูลของคุณปลอดภัยแล้ว',
+      desc: 'เพื่อป้องกันข้อมูลสูญหายในอนาคต เราได้ติดตั้งระบบสำรองข้อมูล (Backup) อัตโนมัติทุกวัน ข้อมูลการลงเวลาและบันทึกของคุณจะถูกเก็บรักษาอย่างดีครับ',
+      actions: [],
+    },
   ],
   mentor: [
     {
@@ -67,6 +75,14 @@ const UPDATES_BY_ROLE = {
         'ตั้งค่าได้ที่เมนู "การแจ้งเตือน"',
       ],
     },
+    {
+      icon: Shield,
+      color: '#0EA5E9',
+      tag: 'ความปลอดภัย',
+      title: 'ระบบสำรองข้อมูลอัตโนมัติ',
+      desc: 'เพื่อความอุ่นใจ เราได้เพิ่มระบบ Backup ฐานข้อมูลอัตโนมัติทุกวัน เพื่อป้องกันเหตุข้อมูลสูญหายในอนาคตครับ',
+      actions: [],
+    },
   ],
   supervisor: [
     {
@@ -88,6 +104,14 @@ const UPDATES_BY_ROLE = {
         'ดูรายงานนักศึกษา',
         'จัดการข้อมูลนักศึกษา',
       ],
+    },
+    {
+      icon: Shield,
+      color: '#0EA5E9',
+      tag: 'ความปลอดภัย',
+      title: 'ระบบสำรองข้อมูลอัตโนมัติ',
+      desc: 'เพื่อความมั่นใจในการใช้งาน เราได้เพิ่มระบบ Backup ฐานข้อมูลอัตโนมัติทุกวัน ข้อมูลนักศึกษาในความดูแลของท่านจะปลอดภัยแน่นอนครับ',
+      actions: [],
     },
   ],
   admin: [
