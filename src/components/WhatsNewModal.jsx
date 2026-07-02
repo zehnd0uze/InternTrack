@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
-import { X, Bell, ChevronRight, ChevronLeft } from 'lucide-react'
+import { X, Bell, ChevronRight, ChevronLeft, AlertTriangle, RefreshCw, User, FileText } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
-const CURRENT_VERSION = '1.4.0'
+const CURRENT_VERSION = '1.5.0'
 const DISMISS_KEY = 'whatsNew_dismissed_v' + CURRENT_VERSION
 
 // Global app gradient (Emerald -> Sky Blue -> Indigo)
@@ -12,23 +12,63 @@ const GRADIENT_HORIZ = 'linear-gradient(90deg, #10B981 0%, #0EA5E9 50%, #6366F1 
 const UPDATES_BY_ROLE = {
   mentor: [
     {
-      icon: Bell,
-      tag: 'การแจ้งเตือน',
-      title: 'เปิด-ปิดแจ้งเตือนได้เอง',
-      desc: 'กดปุ่มกระดิ่งที่เมนูด้านซ้ายล่างเพื่อเปิดหรือปิดการรับแจ้งเตือนแบบ Push ได้ทันที',
+      icon: AlertTriangle,
+      tag: '\u0e1bระกาศจากทีมงาน',
+      title: '\u0e1bรับปรุงระบบฐานข้อมูล',
+      desc: '\u0e40มื่อคืน 2 ก.ย. 2569 ทีมงานได้ดำเนินการปรับปรุงฐานข้อมูลสถาบันการศึกษา ซึ่งอาจทำให้ข้อมูลบางส่วนสูญหายไป ขออภัยในความไม่สะดวกที่เกิดขึ้น',
+    },
+    {
+      icon: User,
+      tag: '\u0e2aิ่งที่ต้องทำ',
+      title: '\u0e15รวจสอบข้อมูลโปรไฟล์ของท่าน',
+      desc: '\u0e01รุณาเข้าไปที่ \u201c\u0e42ปรไฟล์\u201d \u0e41ละตรวจสอบว่าชื่อและข้อมูลถูกต้องครบถ้วน \u0e2bากข้อมูลไม่ครบกรุณาแก้ไขให้เรียบร้อยครับ',
     },
   ],
   student: [
     {
-      icon: Bell,
-      tag: 'การแจ้งเตือน',
-      title: 'เปิด-ปิดแจ้งเตือนได้เอง',
-      desc: 'กดปุ่มกระดิ่งที่เมนูด้านซ้ายล่างเพื่อเปิดหรือปิดการรับแจ้งเตือนแบบ Push ได้ทันที',
+      icon: AlertTriangle,
+      tag: '\u0e1bระกาศจากทีมงาน',
+      title: '\u0e1bรับปรุงระบบฐานข้อมูล',
+      desc: '\u0e40มื่อคืน 2 ก.ย. 2569 ทีมงานได้ดำเนินการปรับปรุงฐานข้อมูลสถาบันการศึกษา ซึ่งอาจทำให้ข้อมูลการลงเวลาและบันทึกประจำวันสูญหายไป ขออภัยในความไม่สะดวกที่เกิดขึ้น',
+    },
+    {
+      icon: User,
+      tag: '\u0e2aิ่งที่ต้องทำ 1',
+      title: '\u0e01รอกข้อมูลโปรไฟล์ใหม่',
+      desc: '\u0e01รุณาไปที่ \u201c\u0e42ปรไฟล์\u201d \u0e41ละกรอกข้อมูลให้ครบ\n\u2022 \u0e0aื่อ-นามสกุล\n\u2022 \u0e23หัสนักศึกษา\n\u2022 สถาบัน / คณะ / สาขา',
+    },
+    {
+      icon: FileText,
+      tag: '\u0e2aิ่งที่ต้องทำ 2',
+      title: '\u0e23ะบบยังใช้งานได้ตามปกติ',
+      desc: '\u0e2bลังกรอกโปรไฟล์เรียบร้อยแล้ว สามารถลงเวลาและบันทึกประจำวันได้ตามปกติได้เลยครับ \u0e02อเป็นกำลังใจในการฝึกงานได้เลยนะครับ! \ud83d\ude4f',
+    },
+  ],
+  admin: [
+    {
+      icon: AlertTriangle,
+      tag: '\u0e2aำหรับ Admin',
+      title: '\u0e1bรับปรุงระบบฐานข้อมูล',
+      desc: '\u0e40มื่อคืน 2 ก.ย. 2569 \u0e1bรับปรุงฐานข้อมูลสถาบัน ทำให้ระบบการลงเวลาและบันทึกประจำวันของนักศึกษาทั้งหมดสูญหายไป ขอโทษแทนทีมอย่างจริงจัง สามารถบอกให้นักศึกษาแต่ละคนกรอกข้อมูลโปรไฟล์ใหม่ได้เลยครับ',
+    },
+    {
+      icon: RefreshCw,
+      tag: '\u0e2aิ่งที่ยังใช้งานได้ปกติ',
+      title: '\u0e23ะบบยังคงใช้งานได้ทุกฟีเจอร์',
+      desc: '\u0e23ะบบทั้งหมดยังใช้งานได้ตามปกติ มีแค่ข้อมูลส่วนประวัติการลงเวลา/บันทึกที่ต้องเริ่มใหม่เท่านั้น',
+    },
+  ],
+  supervisor: [
+    {
+      icon: AlertTriangle,
+      tag: '\u0e1bระกาศ',
+      title: '\u0e1bรับปรุงระบบฐานข้อมูล',
+      desc: '\u0e40มื่อคืน 2 ก.ย. 2569 \u0e40กิดการปรับปรุงระบบทำให้ข้อมูลบางส่วนสูญหาย \u0e2a่งผลให้การลงเวลาของนักศึกษาหายไป ขอโทษแทนครับ แนะนำให้นักศึกษาในความดูแลของท่านกรอกโปรไฟล์ใหม่ด้วยนะครับ',
     },
   ],
 }
 
-const ALLOWED_ROLES = ['mentor', 'student']
+const ALLOWED_ROLES = ['mentor', 'student', 'admin', 'supervisor']
 
 export default function WhatsNewModal() {
   const { activeRole } = useAuth()
