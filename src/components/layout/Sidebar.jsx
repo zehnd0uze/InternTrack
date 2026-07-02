@@ -23,7 +23,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { useNotifications } from '../../contexts/NotificationContext'
 import toast from 'react-hot-toast'
 import { useWebPush } from '../../hooks/useWebPush'
-import { BellRing } from 'lucide-react'
+import { BellRing, BellOff } from 'lucide-react'
 
 const NAV_ITEMS = {
   student: [
