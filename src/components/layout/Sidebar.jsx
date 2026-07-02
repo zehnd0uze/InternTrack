@@ -107,15 +107,15 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
       <div className={`flex items-center h-16 px-4 border-b border-sidebar-border ${collapsed ? 'justify-center' : 'justify-between'}`}>
         {!collapsed && (
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-              <ClipboardList size={18} className="text-white" />
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden">
+              <img src="/favicon.svg" alt="Logo" className="w-full h-full object-cover" />
             </div>
             <span className="text-sidebar-fg font-bold text-lg tracking-tight">TernieTrack</span>
           </div>
         )}
         {collapsed && (
-          <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-            <ClipboardList size={18} className="text-white" />
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden">
+            <img src="/favicon.svg" alt="Logo" className="w-full h-full object-cover" />
           </div>
         )}
 
