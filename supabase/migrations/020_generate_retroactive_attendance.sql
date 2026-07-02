@@ -44,8 +44,8 @@ BEGIN
       VALUES (
         p_user_id,
         v_current_date,
-        (v_current_date + p_start_time)::TIMESTAMPTZ,
-        (v_current_date + p_end_time)::TIMESTAMPTZ,
+        (v_current_date + p_start_time) AT TIME ZONE 'Asia/Bangkok',
+        (v_current_date + p_end_time) AT TIME ZONE 'Asia/Bangkok',
         v_hours_worked
       )
       ON CONFLICT (user_id, date) DO NOTHING;
