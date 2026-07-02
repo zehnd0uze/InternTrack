@@ -104,5 +104,22 @@ export function useWebPush(user) {
     }
   };
 
-  return { isSubscribed, subscribeUser };
+  const unsubscribeUser = async () => {
+    if (!user) return;
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      const subscription = await registration.pushManager.getSubscription();
+      if (subscription) {
+        await subscription.unsubscribe();
+        await supabase.from('push_subscriptions').delete().eq('endpoint', subscription.endpoint);
+        setIsSubscribed(false);
+        toast.success('ปิดการรับแจ้งเตือนแล้ว');
+      }
+    } catch (err) {
+      console.error('Failed to unsubscribe:', err);
+      toast.error('ไม่สามารถปิดการแจ้งเตือนได้');
+    }
+  };
+
+  return { isSubscribed, subscribeUser, unsubscribeUser };
 }

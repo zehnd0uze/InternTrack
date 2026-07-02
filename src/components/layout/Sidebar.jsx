@@ -73,7 +73,7 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
   const { notifications, unreadCount } = useNotifications()
   const navigate = useNavigate()
   const items = NAV_ITEMS[role] || []
-  const { isSubscribed, subscribeUser } = useWebPush(user)
+  const { isSubscribed, subscribeUser, unsubscribeUser } = useWebPush(user)
 
   // Calculate unread counts by type
   const unreadLeaves = notifications.filter(n => !n.is_read && n.type === 'leave_request').length
@@ -183,22 +183,30 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
 
       {/* User Info & Sign Out (Bottom) */}
       <div className="p-3 border-t border-sidebar-border">
-        {!isSubscribed && !collapsed && (
+        {!collapsed && (
           <button
-            onClick={subscribeUser}
-            className="mb-3 w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md bg-primary-50 text-primary-700 hover:bg-primary-100 transition-colors text-xs font-semibold border border-primary-100"
+            onClick={isSubscribed ? unsubscribeUser : subscribeUser}
+            className={`mb-3 w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md transition-colors text-xs font-semibold border ${
+              isSubscribed 
+                ? 'bg-success/10 text-success border-success/20 hover:bg-success/20' 
+                : 'bg-primary-50 text-primary-700 border-primary-100 hover:bg-primary-100'
+            }`}
           >
-            <BellRing size={14} />
-            เปิดรับการแจ้งเตือน
+            {isSubscribed ? <BellOff size={14} /> : <BellRing size={14} />}
+            {isSubscribed ? 'ปิดรับการแจ้งเตือน' : 'เปิดรับการแจ้งเตือน'}
           </button>
         )}
-        {!isSubscribed && collapsed && (
+        {collapsed && (
            <button
-             onClick={subscribeUser}
-             className="mb-3 w-full flex items-center justify-center p-2 rounded-md bg-primary-50 text-primary-700 hover:bg-primary-100 transition-colors border border-primary-100"
-             title="เปิดรับการแจ้งเตือน (Push Notifications)"
+             onClick={isSubscribed ? unsubscribeUser : subscribeUser}
+             className={`mb-3 w-full flex items-center justify-center p-2 rounded-md transition-colors border ${
+               isSubscribed 
+                 ? 'bg-success/10 text-success border-success/20 hover:bg-success/20' 
+                 : 'bg-primary-50 text-primary-700 border-primary-100 hover:bg-primary-100'
+             }`}
+             title={isSubscribed ? "ปิดรับการแจ้งเตือน" : "เปิดรับการแจ้งเตือน (Push Notifications)"}
            >
-             <BellRing size={16} />
+             {isSubscribed ? <BellOff size={16} /> : <BellRing size={16} />}
            </button>
         )}
 
