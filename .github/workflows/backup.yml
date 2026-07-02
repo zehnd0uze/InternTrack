@@ -9,21 +9,11 @@ jobs:
   backup:
     name: Backup Supabase Database
     runs-on: ubuntu-latest
+    # Run inside PostgreSQL 17 container — pg_dump will be v17 automatically
+    container:
+      image: postgres:17-alpine
 
     steps:
-      - name: Install PostgreSQL 17 client
-        run: |
-          # Use official PGDG install script (most reliable method)
-          sudo apt-get install -y postgresql-common
-          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
-          sudo apt-get install -y postgresql-client-17 dnsutils
-
-          # Force pg_dump to use v17
-          sudo update-alternatives --install /usr/bin/pg_dump pg_dump /usr/lib/postgresql/17/bin/pg_dump 100
-
-          # Verify version
-          echo "pg_dump version: $(pg_dump --version)"
-
       - name: Validate secret
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -32,7 +22,11 @@ jobs:
             echo "❌ DATABASE_URL secret is not set!"
             exit 1
           fi
-          echo "✅ DATABASE_URL secret found"
+          echo "✅ DATABASE_URL found"
+          pg_dump --version
+
+      - name: Install dig
+        run: apk add --no-cache bind-tools
 
       - name: Backup database (IPv4 forced)
         env:
@@ -42,40 +36,33 @@ jobs:
           FILENAME="backup_${DATE}.sql"
           echo "📦 Starting backup at $DATE..."
 
-          # Parse URL parts with shell
+          # Parse URL parts
           DB_USER=$(echo "$DATABASE_URL" | sed -E 's|postgresql://([^:]+):.*|\1|')
           DB_PASS=$(echo "$DATABASE_URL" | sed -E 's|postgresql://[^:]+:([^@]+)@.*|\1|')
           DB_HOST=$(echo "$DATABASE_URL" | sed -E 's|postgresql://[^@]+@([^/:]+).*|\1|')
           DB_PORT=$(echo "$DATABASE_URL" | sed -E 's|.*@[^:]+:([0-9]+)/.*|\1|')
           DB_NAME=$(echo "$DATABASE_URL" | sed -E 's|.*/([^?]+)(\?.*)?$|\1|')
 
-          echo "🔍 Host=$DB_HOST Port=$DB_PORT DB=$DB_NAME User=$DB_USER"
+          echo "🔍 Host=$DB_HOST Port=$DB_PORT DB=$DB_NAME"
 
-          # Force IPv4 using dig (query A record only)
+          # Force IPv4 using dig A record
           IPv4=$(dig +short A "$DB_HOST" @8.8.8.8 | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
-          echo "🌐 IPv4 resolved: $IPv4"
-
           if [ -z "$IPv4" ]; then
-            echo "❌ Could not resolve to IPv4, trying 1.1.1.1..."
             IPv4=$(dig +short A "$DB_HOST" @1.1.1.1 | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
-            echo "🌐 IPv4 (retry): $IPv4"
           fi
 
           if [ -z "$IPv4" ]; then
-            echo "❌ All IPv4 resolution attempts failed"
+            echo "❌ IPv4 resolution failed"
             exit 1
           fi
+          echo "🌐 IPv4: $IPv4"
 
-          # CRITICAL: unset DATABASE_URL so pg_dump cannot fall back to it
+          # Unset DATABASE_URL to prevent pg_dump fallback
           unset DATABASE_URL
 
-          # Use pg_dump v17 explicitly (full path to avoid v16 taking priority)
-          export PATH="/usr/lib/postgresql/17/bin:$PATH"
-          pg_dump --version
-
-          # Run pg_dump with explicit IPv4 host
+          # pg_dump is v17 from the container
           export PGPASSWORD="$DB_PASS"
-          /usr/lib/postgresql/17/bin/pg_dump \
+          pg_dump \
             -h "$IPv4" \
             -p "$DB_PORT" \
             -U "$DB_USER" \
@@ -86,8 +73,7 @@ jobs:
             --file="$FILENAME"
 
           gzip "$FILENAME"
-          SIZE=$(du -h "${FILENAME}.gz" | cut -f1)
-          echo "✅ Backup done: ${FILENAME}.gz ($SIZE)"
+          echo "✅ Done: ${FILENAME}.gz ($(du -h ${FILENAME}.gz | cut -f1))"
           echo "BACKUP_FILE=${FILENAME}.gz" >> $GITHUB_ENV
 
       - name: Upload artifact
