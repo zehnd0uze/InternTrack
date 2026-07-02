@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react'
-import { X, Bell, ChevronRight, ChevronLeft, Zap } from 'lucide-react'
+import { X, Bell, ChevronRight, ChevronLeft } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
 const CURRENT_VERSION = '1.4.0'
 const DISMISS_KEY = 'whatsNew_dismissed_v' + CURRENT_VERSION
+
+// Global app gradient (Emerald -> Sky Blue -> Indigo)
+const GRADIENT = 'linear-gradient(135deg, #10B981 0%, #0EA5E9 50%, #6366F1 100%)'
+const GRADIENT_HORIZ = 'linear-gradient(90deg, #10B981 0%, #0EA5E9 50%, #6366F1 100%)'
 
 const UPDATES_BY_ROLE = {
   mentor: [
@@ -12,7 +16,6 @@ const UPDATES_BY_ROLE = {
       tag: 'การแจ้งเตือน',
       title: 'เปิด-ปิดแจ้งเตือนได้เอง',
       desc: 'กดปุ่มกระดิ่งที่เมนูด้านซ้ายล่างเพื่อเปิดหรือปิดการรับแจ้งเตือนแบบ Push ได้ทันที',
-      accent: '#6366f1',
     },
   ],
   student: [
@@ -21,7 +24,6 @@ const UPDATES_BY_ROLE = {
       tag: 'การแจ้งเตือน',
       title: 'เปิด-ปิดแจ้งเตือนได้เอง',
       desc: 'กดปุ่มกระดิ่งที่เมนูด้านซ้ายล่างเพื่อเปิดหรือปิดการรับแจ้งเตือนแบบ Push ได้ทันที',
-      accent: '#6366f1',
     },
   ],
 }
@@ -39,7 +41,6 @@ export default function WhatsNewModal() {
 
   useEffect(() => {
     if (!ALLOWED_ROLES.includes(activeRole)) return
-    // Only skip if user explicitly checked "don't show again"
     const dismissed = localStorage.getItem(DISMISS_KEY)
     if (dismissed === 'true') return
     const t = setTimeout(() => setVisible(true), 1000)
@@ -71,7 +72,6 @@ export default function WhatsNewModal() {
 
   const cur = updates[step]
   const Icon = cur.icon
-  const accent = cur.accent
   const isLast = step === updates.length - 1
 
   return (
@@ -81,7 +81,7 @@ export default function WhatsNewModal() {
         bottom: '24px',
         right: '20px',
         zIndex: 9999,
-        width: 'min(340px, calc(100vw - 40px))',
+        width: 'min(330px, calc(100vw - 40px))',
         animation: exiting
           ? 'wn-out 0.32s cubic-bezier(.4,0,1,1) both'
           : 'wn-in 0.42s cubic-bezier(.22,1,.36,1) both',
@@ -89,150 +89,138 @@ export default function WhatsNewModal() {
     >
       <div
         style={{
-          borderRadius: '16px',
+          borderRadius: '18px',
           background: 'var(--color-card, #1c1c1e)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          boxShadow: `0 20px 60px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.04), 0 0 40px ${accent}18`,
+          border: '1px solid rgba(255,255,255,0.06)',
+          boxShadow: '0 24px 48px rgba(0,0,0,0.3)',
           overflow: 'hidden',
         }}
       >
         {/* Accent stripe */}
-        <div style={{
-          height: '2px',
-          background: `linear-gradient(90deg, ${accent} 0%, ${accent}44 100%)`,
-          transition: 'background 0.4s ease',
-        }} />
+        <div style={{ height: '3px', background: GRADIENT_HORIZ }} />
 
         {/* Header */}
         <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '12px 14px 10px',
-          borderBottom: '1px solid rgba(255,255,255,0.05)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '16px 18px 12px',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{
-              width: '26px', height: '26px', borderRadius: '8px',
-              background: `${accent}20`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-            }}>
-              <Zap size={13} color={accent} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            {/* Logo SVG matching the favicon */}
+            <svg viewBox="0 0 100 100" width="24" height="24">
+              <rect width="100" height="100" rx="22.5" fill="url(#wn-grad)" />
+              <path d="M 25 35 h 50" fill="none" stroke="white" strokeWidth="12" strokeLinecap="round" />
+              <path d="M 50 35 v 40" fill="none" stroke="white" strokeWidth="12" strokeLinecap="round" />
+              <circle cx="75" cy="75" r="6" fill="white" />
+              <defs>
+                <linearGradient id="wn-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#10B981" />
+                  <stop offset="50%" stopColor="#0EA5E9" />
+                  <stop offset="100%" stopColor="#6366F1" />
+                </linearGradient>
+              </defs>
+            </svg>
+            <div>
+              <p style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-content, #fff)', letterSpacing: '-0.01em', lineHeight: 1 }}>
+                อัปเดตใหม่
+              </p>
+              <p style={{ fontSize: '10px', fontWeight: 600, color: 'var(--color-content-muted, #a1a1aa)', marginTop: '3px' }}>
+                เวอร์ชัน {CURRENT_VERSION}
+              </p>
             </div>
-            <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-content, #f4f4f5)', letterSpacing: '-0.01em' }}>
-              อัปเดตใหม่
-            </span>
-            <span style={{
-              fontSize: '10px', fontWeight: 600,
-              padding: '2px 7px', borderRadius: '20px',
-              background: `${accent}18`, color: accent, border: `1px solid ${accent}30`,
-            }}>
-              v{CURRENT_VERSION}
-            </span>
           </div>
           <button
             onClick={dismiss}
             style={{
-              width: '24px', height: '24px', borderRadius: '50%', border: 'none',
-              background: 'rgba(255,255,255,0.06)', cursor: 'pointer',
+              width: '26px', height: '26px', borderRadius: '50%', border: 'none',
+              background: 'rgba(255,255,255,0.04)', cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               color: 'var(--color-content-muted, #71717a)', transition: 'background 0.15s',
             }}
-            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
           >
-            <X size={12} />
+            <X size={14} />
           </button>
         </div>
 
         {/* Content */}
-        <div style={{ padding: '14px' }}>
+        <div style={{ padding: '0 18px 12px' }}>
           <div style={{
-            borderRadius: '12px',
-            background: `${accent}0C`,
-            border: `1px solid ${accent}1A`,
-            padding: '12px',
-            transition: 'all 0.3s ease',
+            borderRadius: '14px',
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.04)',
+            padding: '14px',
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '10px' }}>
-              <div style={{
-                width: '24px', height: '24px', borderRadius: '7px',
-                background: `${accent}20`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+              <Icon size={14} color="#0EA5E9" />
+              <span style={{ 
+                fontSize: '11px', fontWeight: 700, letterSpacing: '0.02em',
+                background: GRADIENT_HORIZ, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'
               }}>
-                <Icon size={12} color={accent} />
-              </div>
-              <span style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: accent }}>
                 {cur.tag}
               </span>
             </div>
-            <p style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-content, #f4f4f5)', lineHeight: 1.4, marginBottom: '6px' }}>
+            <p style={{ fontSize: '13.5px', fontWeight: 700, color: 'var(--color-content, #fff)', lineHeight: 1.4, marginBottom: '6px' }}>
               {cur.title}
             </p>
-            <p style={{ fontSize: '11.5px', color: 'var(--color-content-muted, #a1a1aa)', lineHeight: 1.6 }}>
+            <p style={{ fontSize: '12px', color: 'var(--color-content-muted, #a1a1aa)', lineHeight: 1.55 }}>
               {cur.desc}
             </p>
           </div>
         </div>
 
-        {/* Don't show again checkbox */}
-        <div style={{ padding: '0 14px 10px' }}>
+        {/* Checkbox */}
+        <div style={{ padding: '0 18px 16px' }}>
           <label style={{
             display: 'flex', alignItems: 'center', gap: '8px',
-            cursor: 'pointer', userSelect: 'none',
+            cursor: 'pointer', userSelect: 'none', width: 'fit-content'
           }}>
             <div
               onClick={() => setDontShowAgain(v => !v)}
               style={{
-                width: '15px', height: '15px',
-                borderRadius: '4px',
-                border: dontShowAgain ? `2px solid ${accent}` : '2px solid rgba(255,255,255,0.2)',
-                background: dontShowAgain ? accent : 'transparent',
+                width: '16px', height: '16px', borderRadius: '4px',
+                border: dontShowAgain ? 'none' : '1.5px solid rgba(255,255,255,0.2)',
+                background: dontShowAgain ? GRADIENT : 'transparent',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                transition: 'all 0.18s ease',
-                flexShrink: 0,
-                cursor: 'pointer',
+                transition: 'all 0.15s', flexShrink: 0,
               }}
             >
               {dontShowAgain && (
-                <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
-                  <path d="M1 3.5L3.5 6L8 1" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                  <path d="M1.5 4.5L4 7L8.5 1.5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               )}
             </div>
             <span
               onClick={() => setDontShowAgain(v => !v)}
-              style={{ fontSize: '11px', color: 'var(--color-content-muted, #a1a1aa)' }}
+              style={{ fontSize: '12px', color: 'var(--color-content-muted, #94a3b8)', fontWeight: 500 }}
             >
               ไม่ต้องแสดงอีก
             </span>
           </label>
         </div>
 
-        {/* Divider */}
-        <div style={{ margin: '0 14px', height: '1px', background: 'rgba(255,255,255,0.06)' }} />
-
         {/* Footer */}
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '10px 14px 13px',
+          padding: '12px 18px 16px',
         }}>
-          {/* Dots + back arrow */}
+          {/* Dots / back arrow */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             {updates.length > 1 && (
               <button
                 onClick={prev}
                 disabled={step === 0}
                 style={{
-                  width: '22px', height: '22px', borderRadius: '50%', border: 'none',
-                  background: step === 0 ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.07)',
+                  width: '24px', height: '24px', borderRadius: '50%', border: 'none',
+                  background: step === 0 ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.06)',
                   cursor: step === 0 ? 'default' : 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: step === 0 ? 'rgba(255,255,255,0.18)' : 'var(--color-content-muted, #a1a1aa)',
-                  transition: 'background 0.15s',
+                  color: step === 0 ? 'rgba(255,255,255,0.15)' : '#fff',
+                  transition: 'background 0.15s', padding: 0
                 }}
               >
-                <ChevronLeft size={11} />
+                <ChevronLeft size={12} />
               </button>
             )}
             {updates.map((_, i) => (
@@ -240,46 +228,44 @@ export default function WhatsNewModal() {
                 key={i}
                 onClick={() => setStep(i)}
                 style={{
-                  height: '4px', width: i === step ? '16px' : '4px',
+                  height: '4px', width: i === step ? '18px' : '4px',
                   borderRadius: '2px', border: 'none', cursor: 'pointer', padding: 0,
-                  background: i === step ? accent : 'rgba(255,255,255,0.15)',
+                  background: i === step ? '#0EA5E9' : 'rgba(255,255,255,0.15)',
                   transition: 'all 0.25s ease',
                 }}
               />
             ))}
           </div>
 
-          {/* Action buttons */}
-          <div style={{ display: 'flex', gap: '6px' }}>
+          <div style={{ display: 'flex', gap: '8px' }}>
             <button
               onClick={dismiss}
               style={{
-                fontSize: '11px', fontWeight: 600, padding: '5px 10px', borderRadius: '8px',
-                border: '1px solid rgba(255,255,255,0.08)', background: 'transparent',
-                color: 'var(--color-content-muted, #71717a)', cursor: 'pointer',
-                transition: 'background 0.15s', fontFamily: 'inherit',
+                fontSize: '12px', fontWeight: 600, padding: '6px 12px', borderRadius: '8px',
+                border: 'none', background: 'transparent',
+                color: 'var(--color-content-muted, #94a3b8)', cursor: 'pointer',
+                transition: 'color 0.15s', fontFamily: 'inherit',
               }}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+              onMouseEnter={e => e.currentTarget.style.color = '#fff'}
+              onMouseLeave={e => e.currentTarget.style.color = 'var(--color-content-muted, #94a3b8)'}
             >
               ปิด
             </button>
             <button
               onClick={next}
               style={{
-                fontSize: '11px', fontWeight: 700, padding: '5px 12px', borderRadius: '8px',
-                border: 'none', background: accent, color: '#fff', cursor: 'pointer',
+                fontSize: '12px', fontWeight: 700, padding: '6px 14px', borderRadius: '8px',
+                border: 'none', background: GRADIENT, color: '#fff', cursor: 'pointer',
                 display: 'flex', alignItems: 'center', gap: '4px',
-                boxShadow: `0 4px 14px ${accent}55`,
                 transition: 'opacity 0.15s, transform 0.1s', fontFamily: 'inherit',
               }}
-              onMouseEnter={e => e.currentTarget.style.opacity = '0.88'}
+              onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
               onMouseLeave={e => e.currentTarget.style.opacity = '1'}
               onMouseDown={e => e.currentTarget.style.transform = 'scale(0.96)'}
               onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
             >
               {isLast ? 'เข้าใจแล้ว' : 'ถัดไป'}
-              <ChevronRight size={11} />
+              <ChevronRight size={12} />
             </button>
           </div>
         </div>
@@ -287,7 +273,7 @@ export default function WhatsNewModal() {
 
       <style>{`
         @keyframes wn-in {
-          from { transform: translateY(20px) scale(0.95); opacity: 0; }
+          from { transform: translateY(20px) scale(0.96); opacity: 0; }
           to   { transform: translateY(0)    scale(1);    opacity: 1; }
         }
         @keyframes wn-out {
