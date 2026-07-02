@@ -69,7 +69,8 @@ serve(async (req) => {
       const payload = JSON.stringify({
         title: alert.title,
         body: alert.body,
-        icon: '/pwa-192x192.png'
+        icon: '/pwa-192x192.png',
+        badge: '/badge.svg'
       });
 
       for (const user of users) {
