@@ -3,6 +3,7 @@ import { AuthProvider } from './contexts/AuthContext'
 import AppRouter from './router/AppRouter'
 import { Toaster } from 'react-hot-toast'
 import { usePageVisibility } from './hooks/usePageVisibility'
+import WhatsNewModal from './components/WhatsNewModal'
 
 function AppContent() {
   // When user returns to app after 5+ minutes, reload the page so data is fresh
@@ -15,6 +16,7 @@ function AppContent() {
   return (
     <>
       <AppRouter />
+      <WhatsNewModal />
       <Toaster
         position="top-right"
         toastOptions={{
