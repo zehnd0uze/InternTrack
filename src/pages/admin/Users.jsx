@@ -17,6 +17,9 @@ export default function AdminUsers() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState('')
+  const [statusFilter, setStatusFilter] = useState('')
+  const [sortBy, setSortBy] = useState('created_at')
+  const [sortDir, setSortDir] = useState('desc')
   const [showModal, setShowModal] = useState(false)
   const [editUser, setEditUser] = useState(null)
   const [suspendTarget, setSuspendTarget] = useState(null)
@@ -36,7 +39,7 @@ export default function AdminUsers() {
     setLoading(true)
     const { data } = await supabase
       .from('users')
-      .select('*, supervisor:supervisor_id(full_name)')
+      .select('*, supervisor:supervisor_id(full_name), institution:institution_id(short_name, full_name)')
       .order('created_at', { ascending: false })
     setUsers(data || [])
     setSupervisors((data || []).filter(u => u.role === 'supervisor'))
@@ -45,12 +48,41 @@ export default function AdminUsers() {
 
   useEffect(() => { fetchUsers() }, [fetchUsers])
 
-  const filtered = users.filter(u => {
-    const matchSearch = u.full_name.toLowerCase().includes(search.toLowerCase()) ||
-                        u.email.toLowerCase().includes(search.toLowerCase())
-    const matchRole = !roleFilter || u.role === roleFilter
-    return matchSearch && matchRole
-  })
+  const filtered = users
+    .filter(u => {
+      const q = search.toLowerCase()
+      const matchSearch = !q ||
+        u.full_name?.toLowerCase().includes(q) ||
+        u.email?.toLowerCase().includes(q) ||
+        u.student_code?.toLowerCase().includes(q)
+      const matchRole   = !roleFilter   || u.role === roleFilter
+      const matchStatus = !statusFilter || String(u.is_active) === statusFilter
+      return matchSearch && matchRole && matchStatus
+    })
+    .sort((a, b) => {
+      let av = a[sortBy], bv = b[sortBy]
+      if (typeof av === 'string') av = av.toLowerCase()
+      if (typeof bv === 'string') bv = bv.toLowerCase()
+      if (av < bv) return sortDir === 'asc' ? -1 : 1
+      if (av > bv) return sortDir === 'asc' ? 1  : -1
+      return 0
+    })
+
+  const toggleSort = (col) => {
+    if (sortBy === col) setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+    else { setSortBy(col); setSortDir('asc') }
+  }
+
+  const SortIcon = ({ col }) => {
+    if (sortBy !== col) return <span className="text-gray-300 text-xs ml-1">⇅</span>
+    return <span className="text-primary-600 text-xs ml-1">{sortDir === 'asc' ? '↑' : '↓'}</span>
+  }
+
+  const clearFilters = () => { setSearch(''); setRoleFilter(''); setStatusFilter('') }
+  const hasFilters = search || roleFilter || statusFilter
+
+  // Count badges by role
+  const counts = users.reduce((acc, u) => { acc[u.role] = (acc[u.role] || 0) + 1; return acc }, {})
 
   const openAdd = () => {
     setEditUser(null)
@@ -284,26 +316,82 @@ export default function AdminUsers() {
         </div>
       </div>
 
-      <div className="card">
-        <div className="flex flex-wrap gap-3">
+      <div className="card space-y-3">
+        {/* Count badges */}
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setRoleFilter('')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+              !roleFilter ? 'bg-primary-600 text-white border-primary-600 shadow-sm' : 'bg-card border-border text-content-muted hover:border-primary-400'
+            }`}
+          >
+            ทั้งหมด <span className={`px-1.5 py-0.5 rounded-full text-xs ${!roleFilter ? 'bg-white/20' : 'bg-gray-100'}`}>{users.length}</span>
+          </button>
+          {[['student','นักศึกษา','bg-gray-100 text-gray-700'],['supervisor','อาจารย์นิเทศ','bg-yellow-100 text-yellow-800'],['mentor','พี่เลี้ยง','bg-orange-100 text-orange-700'],['admin','Admin','bg-blue-100 text-blue-700']].map(([role,label,badgeCls]) => (
+            <button
+              key={role}
+              onClick={() => setRoleFilter(r => r === role ? '' : role)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                roleFilter === role ? 'bg-primary-600 text-white border-primary-600 shadow-sm' : 'bg-card border-border text-content-muted hover:border-primary-400'
+              }`}
+            >
+              {label}
+              {counts[role] > 0 && (
+                <span className={`px-1.5 py-0.5 rounded-full text-xs ${roleFilter === role ? 'bg-white/20' : badgeCls}`}>{counts[role]}</span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Search + filters row */}
+        <div className="flex flex-wrap gap-3 items-center">
           <div className="relative flex-1 min-w-[200px]">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="ค้นหาชื่อหรืออีเมล..."
+              placeholder="ค้นหาชื่อ, อีเมล, รหัสนักศึกษา..."
               value={search}
               onChange={e => setSearch(e.target.value)}
               className="input pl-9"
             />
+            {search && (
+              <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                <X size={14} />
+              </button>
+            )}
           </div>
-          <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)} className="select w-40">
-            <option value="">ทุกบทบาท</option>
-            <option value="student">นักศึกษา</option>
-            <option value="supervisor">อาจารย์นิเทศ</option>
-            <option value="mentor">พี่เลี้ยง / หัวหน้างาน</option>
-            <option value="admin">ผู้ดูแลระบบ</option>
+          <select
+            value={statusFilter}
+            onChange={e => setStatusFilter(e.target.value)}
+            className="select w-36"
+          >
+            <option value="">ทุกสถานะ</option>
+            <option value="true">ใช้งาน</option>
+            <option value="false">ถูกระงับ</option>
           </select>
+          <select
+            value={sortBy + '_' + sortDir}
+            onChange={e => { const [col, dir] = e.target.value.split('_'); setSortBy(col); setSortDir(dir) }}
+            className="select w-44"
+          >
+            <option value="created_at_desc">เพิ่มล่าสุด</option>
+            <option value="created_at_asc">เพิ่มเก่าสุด</option>
+            <option value="full_name_asc">ชื่อ ก→ฮ</option>
+            <option value="full_name_desc">ชื่อ ฮ→ก</option>
+            <option value="role_asc">บทบาท A→Z</option>
+          </select>
+          {hasFilters && (
+            <button onClick={clearFilters} className="btn-ghost btn-sm flex items-center gap-1.5 text-danger">
+              <X size={14} /> ล้างตัวกรอง
+            </button>
+          )}
         </div>
+
+        {/* Result count */}
+        <p className="text-xs text-content-muted">
+          แสดง <span className="font-semibold text-content">{filtered.length}</span> จาก {users.length} รายการ
+          {hasFilters && <span className="ml-1 text-primary-600">(กรองแล้ว)</span>}
+        </p>
       </div>
 
       {loading ? (
@@ -318,10 +406,18 @@ export default function AdminUsers() {
           <table className="table">
             <thead>
               <tr>
-                <th>ชื่อ-นามสกุล</th>
+                <th>
+                  <button onClick={() => toggleSort('full_name')} className="flex items-center">
+                    ชื่อ-นามสกุล <SortIcon col="full_name" />
+                  </button>
+                </th>
                 <th>บทบาท</th>
-                <th>อาจารย์ที่ดูแล</th>
-                <th>สถานะ</th>
+                <th>สถาบัน / อาจารย์ที่ดูแล</th>
+                <th>
+                  <button onClick={() => toggleSort('is_active')} className="flex items-center">
+                    สถานะ <SortIcon col="is_active" />
+                  </button>
+                </th>
                 <th>การดำเนินการ</th>
               </tr>
             </thead>
@@ -349,7 +445,12 @@ export default function AdminUsers() {
                     </span>
                   </td>
                   <td className="text-sm text-content-muted">
-                    {u.supervisor?.full_name || <span className="text-gray-300">-</span>}
+                    <div className="flex flex-col gap-0.5">
+                      {u.role === 'student' && u.institution_id && (
+                        <span className="text-xs text-blue-600 font-medium">🏫 {u.institution?.short_name || '—'}</span>
+                      )}
+                      <span>{u.supervisor?.full_name || <span className="text-gray-300">-</span>}</span>
+                    </div>
                   </td>
                   <td>
                     <span className={`badge ${u.is_active ? 'badge-success' : 'badge-danger'}`}>
