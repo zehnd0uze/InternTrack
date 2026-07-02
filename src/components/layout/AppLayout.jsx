@@ -77,8 +77,8 @@ export default function AppLayout({ role }) {
       {role === 'student' && <BottomNav />}
       </div>
 
-      {/* Force student to set institution and work hours on first login */}
-      {role === 'student' && profile && (!profile.institution_id || !profile.work_start_time) && !isViewAs && (
+      {/* Force student to set institution, work hours, and internship dates on first login */}
+      {role === 'student' && profile && (!profile.institution_id || !profile.work_start_time || !profile.internship_start_date) && !isViewAs && (
         <WorkHoursModal user={user} profile={profile} onComplete={refreshProfile} />
       )}
     </div>

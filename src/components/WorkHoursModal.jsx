@@ -28,6 +28,10 @@ export default function OnboardingWizard({ user, profile, onComplete }) {
   const [endTime, setEndTime] = useState(
     profile?.work_end_time ? profile.work_end_time.slice(0, 5) : '17:00'
   )
+  
+  // ---- Internship Dates ----
+  const [internshipStartDate, setInternshipStartDate] = useState(profile?.internship_start_date || '')
+  const [internshipEndDate, setInternshipEndDate] = useState(profile?.internship_end_date || '')
 
   const [loading, setLoading] = useState(false)
   const [dataLoading, setDataLoading] = useState(false)
@@ -62,9 +66,21 @@ export default function OnboardingWizard({ user, profile, onComplete }) {
         major_id: selectedMajor || null,
         work_start_time: startTime + ':00',
         work_end_time: endTime + ':00',
+        internship_start_date: internshipStartDate,
+        internship_end_date: internshipEndDate
       }
       const { error } = await supabase.from('users').update(payload).eq('id', user.id)
       if (error) throw error
+      
+      // Generate retroactive attendance
+      await supabase.rpc('generate_retroactive_attendance', {
+        p_user_id: user.id,
+        p_start_date: internshipStartDate,
+        p_end_date: internshipEndDate,
+        p_start_time: startTime + ':00',
+        p_end_time: endTime + ':00'
+      })
+      
       toast.success('บันทึกข้อมูลสำเร็จ! ยินดีต้อนรับสู่ระบบ 🎉')
       if (onComplete) onComplete()
     } catch (err) {
@@ -79,7 +95,7 @@ export default function OnboardingWizard({ user, profile, onComplete }) {
     if (step === 0) return !!selectedInstitution
     if (step === 1) return !!selectedFaculty
     if (step === 2) return true // major is optional
-    if (step === 3) return !!startTime && !!endTime
+    if (step === 3) return !!startTime && !!endTime && !!internshipStartDate && !!internshipEndDate
     return true
   }
 
@@ -238,11 +254,45 @@ export default function OnboardingWizard({ user, profile, onComplete }) {
           {/* STEP 3 — Work Hours */}
           {step === 3 && (
             <div className="space-y-4">
-              <p className="text-sm text-content-muted">ระบุเวลาเข้าและเลิกงานปกติของคุณ เพื่อให้ระบบแจ้งเตือนได้อย่างแม่นยำ</p>
+              <p className="text-sm text-content-muted">ระบุช่วงเวลาฝึกงานและเวลาเข้างานของคุณ เพื่อให้ระบบแจ้งเตือนได้อย่างแม่นยำ</p>
+              
+              <div className="bg-primary-50 border border-primary-100 rounded-xl p-3">
+                <p className="text-xs text-primary-800 font-medium">
+                  <span className="font-bold">✨ พิเศษ:</span> ระบบจะนำข้อมูลนี้ไปสร้างประวัติการลงเวลาย้อนหลัง (จ.-ศ.) ให้โดยอัตโนมัติ ไม่ต้องมานั่งกรอกย้อนหลังเอง!
+                </p>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-content-muted mb-1.5">
-                    เวลาเข้างาน <span className="text-danger">*</span>
+                    วันที่เริ่มฝึกงาน <span className="text-danger">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={internshipStartDate}
+                    onChange={e => setInternshipStartDate(e.target.value)}
+                    className="input w-full text-sm"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-content-muted mb-1.5">
+                    วันสิ้นสุดการฝึกงาน <span className="text-danger">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={internshipEndDate}
+                    onChange={e => setInternshipEndDate(e.target.value)}
+                    className="input w-full text-sm"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-content-muted mb-1.5">
+                    เวลาเข้างานปกติ <span className="text-danger">*</span>
                   </label>
                   <input
                     type="time"
@@ -254,7 +304,7 @@ export default function OnboardingWizard({ user, profile, onComplete }) {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-content-muted mb-1.5">
-                    เวลาเลิกงาน <span className="text-danger">*</span>
+                    เวลาเลิกงานปกติ <span className="text-danger">*</span>
                   </label>
                   <input
                     type="time"

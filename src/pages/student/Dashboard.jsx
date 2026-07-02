@@ -14,7 +14,6 @@ import { format as formatDate } from 'date-fns'
 import * as XLSX from 'xlsx'
 import { useTimeAlerts } from '../../hooks/useTimeAlerts'
 import { useWebPush } from '../../hooks/useWebPush'
-import SetupInternshipModal from '../../components/SetupInternshipModal'
 // ---- Helpers ----
 function formatElapsed(seconds) {
   const h = Math.floor(seconds / 3600)
@@ -1174,11 +1173,6 @@ export default function StudentDashboard() {
             )}
           </div>
         </div>
-      )}
-
-      {/* Setup Internship Modal for Students */}
-      {viewingAs === null && profile && !profile.internship_start_date && (
-        <SetupInternshipModal />
       )}
     </div>
   )
