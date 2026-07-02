@@ -94,6 +94,10 @@ CREATE INDEX IF NOT EXISTS idx_users_major           ON public.users(major_id);
 -- 7. SEED DATA — สถาบันการศึกษาในเชียงใหม่
 -- ============================================================
 
+-- ล้างข้อมูลเก่าโดยไม่กระทบตาราง users (ใช้ DELETE แทน TRUNCATE CASCADE)
+DELETE FROM public.majors;
+DELETE FROM public.faculties;
+DELETE FROM public.institutions;
 -- ---------------------------------------------------------------
 -- (A) มหาวิทยาลัยเชียงใหม่ (CMU)
 -- ---------------------------------------------------------------
@@ -508,6 +512,443 @@ CROSS JOIN (VALUES
   ('สาขาวิชาการท่องเที่ยวและโรงแรม', 'Tourism and Hotel Management')
 ) AS m(name, name_en)
 WHERE i.short_name = 'Lanna Poly' AND f.name = 'ประเภทวิชาอุตสาหกรรมท่องเที่ยว';
+
+-- ==========================================
+-- 8B. Additional Majors for CMU
+-- ==========================================
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('แพทยศาสตร์', 'Medicine')
+) AS m(name, name_en)
+WHERE i.short_name = 'CMU' AND f.name = 'คณะแพทยศาสตร์';
+
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('พยาบาลศาสตร์', 'Nursing')
+) AS m(name, name_en)
+WHERE i.short_name = 'CMU' AND f.name = 'คณะพยาบาลศาสตร์';
+
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('ภาษาอังกฤษ', 'English'),
+  ('ภาษาไทย', 'Thai'),
+  ('จิตวิทยา', 'Psychology'),
+  ('ประวัติศาสตร์', 'History'),
+  ('ปรัชญา', 'Philosophy')
+) AS m(name, name_en)
+WHERE i.short_name = 'CMU' AND f.name = 'คณะมนุษยศาสตร์';
+
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('รัฐศาสตร์และรัฐประศาสนศาสตร์', 'Political Science and Public Administration'),
+  ('การเมืองการปกครอง', 'Politics and Government'),
+  ('รัฐประศาสนศาสตร์', 'Public Administration'),
+  ('ความสัมพันธ์ระหว่างประเทศ', 'International Relations')
+) AS m(name, name_en)
+WHERE i.short_name = 'CMU' AND f.name = 'คณะรัฐศาสตร์และรัฐประศาสนศาสตร์';
+
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('สถาปัตยกรรม', 'Architecture')
+) AS m(name, name_en)
+WHERE i.short_name = 'CMU' AND f.name = 'คณะสถาปัตยกรรมศาสตร์';
+
+-- ==========================================
+-- 8C. Additional Majors for CMRU
+-- ==========================================
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('การศึกษาปฐมวัย', 'Early Childhood Education'),
+  ('ภาษาอังกฤษ', 'English'),
+  ('คณิตศาสตร์', 'Mathematics'),
+  ('พลศึกษา', 'Physical Education')
+) AS m(name, name_en)
+WHERE i.short_name = 'CMRU' AND f.name = 'คณะครุศาสตร์';
+
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('รัฐประศาสนศาสตร์', 'Public Administration'),
+  ('ภาษาอังกฤษ', 'English'),
+  ('ภาษาไทย', 'Thai')
+) AS m(name, name_en)
+WHERE i.short_name = 'CMRU' AND f.name = 'คณะมนุษยศาสตร์และสังคมศาสตร์';
+
+-- ==========================================
+-- 8D. Additional Majors for MJU
+-- ==========================================
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('วิทยาการคอมพิวเตอร์', 'Computer Science'),
+  ('เทคโนโลยีสารสนเทศ', 'Information Technology'),
+  ('สื่อสารดิจิทัล', 'Digital Media')
+) AS m(name, name_en)
+WHERE i.short_name = 'MJU' AND f.name = 'คณะเทคโนโลยีสารสนเทศและการสื่อสาร';
+
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('การตลาด', 'Marketing'),
+  ('การจัดการ', 'Management'),
+  ('การบัญชี', 'Accounting')
+) AS m(name, name_en)
+WHERE i.short_name = 'MJU' AND f.name = 'คณะบริหารธุรกิจ';
+
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('พืชไร่', 'Agronomy'),
+  ('พืชสวน', 'Horticulture')
+) AS m(name, name_en)
+WHERE i.short_name = 'MJU' AND f.name = 'คณะผลิตกรรมการเกษตร';
+
+-- ==========================================
+-- 8E. Additional Majors for RMUTL
+-- ==========================================
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('การบัญชี', 'Accounting'),
+  ('การตลาด', 'Marketing'),
+  ('ภาษาอังกฤษธุรกิจ', 'Business English'),
+  ('ระบบสารสนเทศทางธุรกิจ', 'Business Information Systems')
+) AS m(name, name_en)
+WHERE i.short_name = 'RMUTL' AND f.name = 'คณะบริหารธุรกิจและศิลปศาสตร์';
+
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('สถาปัตยกรรม', 'Architecture'),
+  ('การออกแบบนิเทศศิลป์', 'Visual Communication Design')
+) AS m(name, name_en)
+WHERE i.short_name = 'RMUTL' AND f.name = 'คณะศิลปกรรมและสถาปัตยกรรมศาสตร์';
+
+-- ==========================================
+-- 8F. Additional Majors for CMVC
+-- ==========================================
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('การบัญชี', 'Accounting')
+) AS m(name, name_en)
+WHERE i.short_name = 'CMVC' AND f.name = 'แผนกวิชาการบัญชี';
+
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('คอมพิวเตอร์ธุรกิจ', 'Business Computer'),
+  ('เทคโนโลยีธุรกิจดิจิทัล', 'Digital Business Technology')
+) AS m(name, name_en)
+WHERE i.short_name = 'CMVC' AND f.name = 'แผนกวิชาคอมพิวเตอร์ธุรกิจ';
+
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('การตลาด', 'Marketing')
+) AS m(name, name_en)
+WHERE i.short_name = 'CMVC' AND f.name = 'แผนกวิชาการตลาด';
+
+-- ==========================================
+-- 8G. Additional Majors for PYU
+-- ==========================================
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('การจัดการ', 'Management'),
+  ('การตลาด', 'Marketing')
+) AS m(name, name_en)
+WHERE i.short_name = 'PYU' AND f.name = 'คณะบริหารธุรกิจ';
+
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('การบัญชี', 'Accounting'),
+  ('การเงินและการธนาคาร', 'Finance and Banking')
+) AS m(name, name_en)
+WHERE i.short_name = 'PYU' AND f.name = 'คณะบัญชี การเงิน และการธนาคาร';
+
+-- ==========================================
+-- 8H. Additional Majors for FEU
+-- ==========================================
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('การจัดการ', 'Management'),
+  ('การประกอบการ', 'Entrepreneurship')
+) AS m(name, name_en)
+WHERE i.short_name = 'FEU' AND f.name = 'คณะบริหารธุรกิจ';
+
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('เทคโนโลยีสารสนเทศ', 'Information Technology')
+) AS m(name, name_en)
+WHERE i.short_name = 'FEU' AND f.name = 'คณะวิทยาศาสตร์และเทคโนโลยี';
+
+-- ==========================================
+-- 9. More Faculties & Majors (Batch 3)
+-- ==========================================
+-- CMU
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('วิศวกรรมระบบสารสนเทศและเครือข่าย', 'Information Systems and Network Engineering'),
+  ('วิศวกรรมเหมืองแร่', 'Mining Engineering')
+) AS m(name, name_en)
+WHERE i.short_name = 'CMU' AND f.name = 'คณะวิศวกรรมศาสตร์';
+
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('วิทยาการข้อมูล', 'Data Science'),
+  ('วัสดุศาสตร์', 'Materials Science')
+) AS m(name, name_en)
+WHERE i.short_name = 'CMU' AND f.name = 'คณะวิทยาศาสตร์';
+
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('จิตรกรรม', 'Painting'),
+  ('ประติมากรรม', 'Sculpture'),
+  ('ศิลปะภาพถ่าย', 'Photography'),
+  ('การออกแบบ', 'Design')
+) AS m(name, name_en)
+WHERE i.short_name = 'CMU' AND f.name = 'คณะวิจิตรศิลป์';
+
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('การประชาสัมพันธ์', 'Public Relations'),
+  ('วารสารศาสตร์', 'Journalism'),
+  ('วิทยุกระจายเสียงและวิทยุโทรทัศน์', 'Radio and Television'),
+  ('ภาพยนตร์', 'Film')
+) AS m(name, name_en)
+WHERE i.short_name = 'CMU' AND f.name = 'คณะการสื่อสารมวลชน';
+
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('เศรษฐศาสตร์', 'Economics')
+) AS m(name, name_en)
+WHERE i.short_name = 'CMU' AND f.name = 'คณะเศรษฐศาสตร์';
+
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('พลศึกษา', 'Physical Education'),
+  ('คณิตศาสตร์ศึกษา', 'Mathematics Education'),
+  ('วิทยาศาสตร์ศึกษา', 'Science Education'),
+  ('การศึกษาปฐมวัย', 'Early Childhood Education')
+) AS m(name, name_en)
+WHERE i.short_name = 'CMU' AND f.name = 'คณะศึกษาศาสตร์';
+
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('วิทยาศาสตร์และเทคโนโลยีการอาหาร', 'Food Science and Technology'),
+  ('เทคโนโลยีการบรรจุ', 'Packaging Technology'),
+  ('เทคโนโลยีผลิตภัณฑ์ทางทะเล', 'Marine Product Technology')
+) AS m(name, name_en)
+WHERE i.short_name = 'CMU' AND f.name = 'คณะอุตสาหกรรมเกษตร';
+
+-- CMRU
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('สาธารณสุขศาสตร์', 'Public Health')
+) AS m(name, name_en)
+WHERE i.short_name = 'CMRU' AND f.name = 'คณะวิทยาศาสตร์และเทคโนโลยี';
+
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('การจัดการธุรกิจการบิน', 'Aviation Business Management'),
+  ('การจัดการโลจิสติกส์', 'Logistics Management')
+) AS m(name, name_en)
+WHERE i.short_name = 'CMRU' AND f.name = 'คณะวิทยาการจัดการ';
+
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('สัตวศาสตร์', 'Animal Science'),
+  ('เกษตรศาสตร์', 'Agriculture')
+) AS m(name, name_en)
+WHERE i.short_name = 'CMRU' AND f.name = 'คณะเทคโนโลยีการเกษตร';
+
+-- RMUTL
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('วิศวกรรมแมคคาทรอนิกส์', 'Mechatronics Engineering')
+) AS m(name, name_en)
+WHERE i.short_name = 'RMUTL' AND f.name = 'คณะวิศวกรรมศาสตร์';
+
+-- MJU (Add Faculty of Tourism Development)
+WITH inst AS (SELECT id FROM public.institutions WHERE short_name = 'MJU' LIMIT 1),
+     fac AS (INSERT INTO public.faculties (institution_id, name, name_en) SELECT id, 'คณะพัฒนาการท่องเที่ยว', 'Faculty of Tourism Development' FROM inst RETURNING id)
+INSERT INTO public.majors (faculty_id, name, name_en) SELECT id, 'พัฒนาการท่องเที่ยว', 'Tourism Development' FROM fac;
+
+-- ==========================================
+-- 10. Comprehensive CMU Faculties & Majors (Batch 4)
+-- ==========================================
+-- Add missing faculties for CMU
+WITH inst AS (SELECT id FROM public.institutions WHERE short_name = 'CMU' LIMIT 1)
+INSERT INTO public.faculties (institution_id, name, name_en) SELECT id, f.name, f.name_en FROM inst, (VALUES
+  ('คณะเทคนิคการแพทย์', 'Faculty of Associated Medical Sciences'),
+  ('คณะสาธารณสุขศาสตร์', 'Faculty of Public Health'),
+  ('วิทยาลัยนานาชาตินวัตกรรมดิจิทัล', 'International College of Digital Innovation')
+) AS f(name, name_en);
+
+-- CMU: Dentistry
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, 'ทันตแพทยศาสตร์', 'Dentistry'
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+WHERE i.short_name = 'CMU' AND f.name = 'คณะทันตแพทยศาสตร์';
+
+-- CMU: Pharmacy
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, 'เภสัชศาสตร์', 'Pharmacy'
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+WHERE i.short_name = 'CMU' AND f.name = 'คณะเภสัชศาสตร์';
+
+-- CMU: Veterinary
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, 'สัตวแพทยศาสตร์', 'Veterinary Medicine'
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+WHERE i.short_name = 'CMU' AND f.name = 'คณะสัตวแพทยศาสตร์';
+
+-- CMU: Agriculture
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('เศรษฐศาสตร์การเกษตร', 'Agricultural Economics'),
+  ('พืชไร่', 'Agronomy'),
+  ('พืชสวน', 'Horticulture'),
+  ('กีฏวิทยา', 'Entomology'),
+  ('โรคพืช', 'Plant Pathology'),
+  ('ปฐพีศาสตร์', 'Soil Science'),
+  ('ส่งเสริมการเกษตร', 'Agricultural Extension'),
+  ('สัตวศาสตร์', 'Animal Science')
+) AS m(name, name_en)
+WHERE i.short_name = 'CMU' AND f.name = 'คณะเกษตรศาสตร์';
+
+-- CMU: Law
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, 'นิติศาสตร์', 'Law'
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+WHERE i.short_name = 'CMU' AND f.name = 'คณะนิติศาสตร์';
+
+-- CMU: Social Sciences
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('ภูมิศาสตร์', 'Geography'),
+  ('สังคมวิทยาและมานุษยวิทยา', 'Sociology and Anthropology'),
+  ('อาเซียนศึกษา', 'ASEAN Studies')
+) AS m(name, name_en)
+WHERE i.short_name = 'CMU' AND f.name = 'คณะสังคมศาสตร์';
+
+-- CMU: Associated Medical Sciences
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('เทคนิคการแพทย์', 'Medical Technology'),
+  ('รังสีเทคนิค', 'Radiologic Technology'),
+  ('กายภาพบำบัด', 'Physical Therapy'),
+  ('กิจกรรมบำบัด', 'Occupational Therapy')
+) AS m(name, name_en)
+WHERE i.short_name = 'CMU' AND f.name = 'คณะเทคนิคการแพทย์';
+
+-- CMU: Public Health
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, 'สาธารณสุขศาสตร์', 'Public Health'
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+WHERE i.short_name = 'CMU' AND f.name = 'คณะสาธารณสุขศาสตร์';
+
+-- CMU: ICDI
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, 'นวัตกรรมดิจิทัล', 'Digital Innovation'
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+WHERE i.short_name = 'CMU' AND f.name = 'วิทยาลัยนานาชาตินวัตกรรมดิจิทัล';
+
+-- ==========================================
+-- 11. Even More CMU Majors (Batch 5)
+-- ==========================================
+-- CAMT
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('การจัดการสมัยใหม่และเทคโนโลยีสารสนเทศ', 'Modern Management and Information Technology'),
+  ('ดิจิทัลเกม', 'Digital Games')
+) AS m(name, name_en)
+WHERE i.short_name = 'CMU' AND f.name = 'วิทยาลัยศิลปะ สื่อ และเทคโนโลยี';
+
+-- Humanities
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('ภาษาฝรั่งเศส', 'French'),
+  ('ภาษาเยอรมัน', 'German'),
+  ('ภาษาญี่ปุ่น', 'Japanese'),
+  ('ภาษาจีน', 'Chinese'),
+  ('สารสนเทศศึกษา', 'Information Studies'),
+  ('บ้านและชุมชน', 'Home Economics')
+) AS m(name, name_en)
+WHERE i.short_name = 'CMU' AND f.name = 'คณะมนุษยศาสตร์';
+
+-- Education
+INSERT INTO public.majors (faculty_id, name, name_en)
+SELECT f.id, m.name, m.name_en
+FROM public.faculties f JOIN public.institutions i ON i.id = f.institution_id
+CROSS JOIN (VALUES
+  ('ภาษาไทย', 'Thai Education'),
+  ('ภาษาอังกฤษ', 'English Education'),
+  ('สังคมศึกษา', 'Social Studies Education'),
+  ('อุตสาหกรรมศึกษา', 'Industrial Education')
+) AS m(name, name_en)
+WHERE i.short_name = 'CMU' AND f.name = 'คณะศึกษาศาสตร์';
 
 -- ============================================================
 -- DONE
