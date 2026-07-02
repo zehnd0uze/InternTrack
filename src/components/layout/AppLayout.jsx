@@ -4,9 +4,10 @@ import Sidebar from './Sidebar'
 import TopBar from './TopBar'
 import BottomNav from './BottomNav'
 import { useAuth } from '../../contexts/AuthContext'
+import WorkHoursModal from '../WorkHoursModal'
 
 export default function AppLayout({ role }) {
-  const { profile } = useAuth()
+  const { profile, user, refreshProfile } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
 
@@ -75,6 +76,11 @@ export default function AppLayout({ role }) {
       {/* Student Bottom Navigation (mobile) */}
       {role === 'student' && <BottomNav />}
       </div>
+
+      {/* Force student to set work hours on first login */}
+      {role === 'student' && profile && !profile.work_start_time && !isViewAs && (
+        <WorkHoursModal user={user} onComplete={refreshProfile} />
+      )}
     </div>
   )
 }

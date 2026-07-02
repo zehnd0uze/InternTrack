@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { User, Mail, Save, Lock, Eye, EyeOff, ShieldCheck, Image as ImageIcon } from 'lucide-react'
+import { User, Mail, Save, Lock, Eye, EyeOff, ShieldCheck, Image as ImageIcon, Clock } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
@@ -11,6 +11,8 @@ export default function StudentProfile() {
   const [fullName, setFullName] = useState(profile?.full_name || '')
   const [studentCode, setStudentCode] = useState(profile?.student_code || '')
   const [email, setEmail]       = useState(user?.email || '')
+  const [workStartTime, setWorkStartTime] = useState(profile?.work_start_time ? profile.work_start_time.slice(0, 5) : '08:00')
+  const [workEndTime, setWorkEndTime] = useState(profile?.work_end_time ? profile.work_end_time.slice(0, 5) : '17:00')
   const [profileLoading, setProfileLoading] = useState(false)
   const [avatarUploading, setAvatarUploading] = useState(false)
   const [bgUploading, setBgUploading] = useState(false)
@@ -76,7 +78,9 @@ export default function StudentProfile() {
         .from('users')
         .update({ 
           full_name: trimmedName,
-          student_code: studentCode.trim() || null
+          student_code: studentCode.trim() || null,
+          work_start_time: workStartTime + ':00',
+          work_end_time: workEndTime + ':00'
         })
         .eq('id', user.id)
 
@@ -447,6 +451,44 @@ export default function StudentProfile() {
               </p>
             )}
           </div>
+
+          {/* Work Hours (Only for students) */}
+          {isStudent && (
+            <div className="grid grid-cols-2 gap-4 border-t border-border pt-4">
+              <div>
+                <label htmlFor="profile-work-start" className="block text-sm font-medium text-content-muted mb-1.5">
+                  เวลาเข้างานปกติ <span className="text-danger">*</span>
+                </label>
+                <div className="relative">
+                  <Clock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                  <input
+                    id="profile-work-start"
+                    type="time"
+                    value={workStartTime}
+                    onChange={e => setWorkStartTime(e.target.value)}
+                    className="input pl-9 w-full"
+                    required
+                  />
+                </div>
+              </div>
+              <div>
+                <label htmlFor="profile-work-end" className="block text-sm font-medium text-content-muted mb-1.5">
+                  เวลาเลิกงานปกติ <span className="text-danger">*</span>
+                </label>
+                <div className="relative">
+                  <Clock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                  <input
+                    id="profile-work-end"
+                    type="time"
+                    value={workEndTime}
+                    onChange={e => setWorkEndTime(e.target.value)}
+                    className="input pl-9 w-full"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="flex justify-end pt-1">
             <button

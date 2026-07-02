@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 
-export function useTimeAlerts(today) {
+export function useTimeAlerts(today, profile) {
   const alertedDateRef = useRef(null);
 
   useEffect(() => {
@@ -33,18 +33,40 @@ export function useTimeAlerts(today) {
       const hasAlertedCheckIn = localStorage.getItem('alertedCheckInDate') === dateStr;
       const hasAlertedCheckOut = localStorage.getItem('alertedCheckOutDate') === dateStr;
 
-      // Morning alert: Between 07:50 and 08:30
-      const isMorningAlertTime = (h === 7 && m >= 50) || (h === 8 && m < 30);
-      if (isMorningAlertTime && !today?.check_in && !hasAlertedCheckIn) {
+      // Morning alert: 10 minutes before work_start_time (default 08:00)
+      let startH = 8, startM = 0;
+      if (profile?.work_start_time) {
+        [startH, startM] = profile.work_start_time.split(':').map(Number);
+      }
+      
+      const startAlertTime = new Date(now);
+      startAlertTime.setHours(startH, startM, 0, 0);
+      startAlertTime.setMinutes(startAlertTime.getMinutes() - 10); // 10 mins before
+      const startEndWindow = new Date(startAlertTime);
+      startEndWindow.setMinutes(startEndWindow.getMinutes() + 40); // 40 min window
+
+      if (now >= startAlertTime && now <= startEndWindow && !today?.check_in && !hasAlertedCheckIn) {
         localStorage.setItem('alertedCheckInDate', dateStr);
-        sendNotification('แจ้งเตือนเข้างาน', 'ใกล้ถึงเวลาเข้างานแล้ว (08:00) อย่าลืมกดเช็คอินนะ!');
+        const timeStr = `${String(startH).padStart(2,'0')}:${String(startM).padStart(2,'0')}`;
+        sendNotification('แจ้งเตือนเข้างาน', `ใกล้ถึงเวลาเข้างานแล้ว (${timeStr}) อย่าลืมกดเช็คอินนะ!`);
       }
 
-      // Afternoon alert: Between 15:50 and 16:30
-      const isAfternoonAlertTime = (h === 15 && m >= 50) || (h === 16 && m < 30);
-      if (isAfternoonAlertTime && today?.check_in && !today?.check_out && !hasAlertedCheckOut) {
+      // Afternoon alert: 10 minutes before work_end_time (default 17:00)
+      let endH = 17, endM = 0;
+      if (profile?.work_end_time) {
+        [endH, endM] = profile.work_end_time.split(':').map(Number);
+      }
+
+      const endAlertTime = new Date(now);
+      endAlertTime.setHours(endH, endM, 0, 0);
+      endAlertTime.setMinutes(endAlertTime.getMinutes() - 10);
+      const endEndWindow = new Date(endAlertTime);
+      endEndWindow.setMinutes(endEndWindow.getMinutes() + 40);
+
+      if (now >= endAlertTime && now <= endEndWindow && today?.check_in && !today?.check_out && !hasAlertedCheckOut) {
         localStorage.setItem('alertedCheckOutDate', dateStr);
-        sendNotification('แจ้งเตือนเลิกงาน', 'ใกล้ถึงเวลาเลิกงานแล้ว (16:00) อย่าลืมกดเช็คเอาท์นะ!');
+        const timeStr = `${String(endH).padStart(2,'0')}:${String(endM).padStart(2,'0')}`;
+        sendNotification('แจ้งเตือนเลิกงาน', `ใกล้ถึงเวลาเลิกงานแล้ว (${timeStr}) อย่าลืมกดเช็คเอาท์นะ!`);
       }
 
       // Test 9:25 AM alert (between 09:24 and 09:28)
@@ -80,5 +102,5 @@ export function useTimeAlerts(today) {
     const interval = setInterval(checkTime, 60000);
 
     return () => clearInterval(interval);
-  }, [today]);
+  }, [today, profile]);
 }
