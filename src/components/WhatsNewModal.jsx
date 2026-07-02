@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { X, Bell, RefreshCw, ChevronRight, ChevronLeft, Zap } from 'lucide-react'
+import { X, Bell, ChevronRight, ChevronLeft, Zap } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
 const CURRENT_VERSION = '1.4.0'
@@ -14,13 +14,6 @@ const UPDATES_BY_ROLE = {
       desc: 'กดปุ่มกระดิ่งที่เมนูด้านซ้ายล่างเพื่อเปิดหรือปิดการรับแจ้งเตือนแบบ Push ได้ทันที',
       accent: '#6366f1',
     },
-    {
-      icon: RefreshCw,
-      tag: 'ประสิทธิภาพ',
-      title: 'รีเฟรชอัตโนมัติเมื่อกลับมา',
-      desc: 'เมื่อกลับมาใช้งานแอปหลังออกไปนาน ระบบโหลดข้อมูลล่าสุดให้เองโดยอัตโนมัติ',
-      accent: '#0ea5e9',
-    },
   ],
   student: [
     {
@@ -29,13 +22,6 @@ const UPDATES_BY_ROLE = {
       title: 'เปิด-ปิดแจ้งเตือนได้เอง',
       desc: 'กดปุ่มกระดิ่งที่เมนูด้านซ้ายล่างเพื่อเปิดหรือปิดการรับแจ้งเตือนแบบ Push ได้ทันที',
       accent: '#6366f1',
-    },
-    {
-      icon: RefreshCw,
-      tag: 'ประสิทธิภาพ',
-      title: 'รีเฟรชอัตโนมัติเมื่อกลับมา',
-      desc: 'เมื่อกลับมาใช้งานแอปหลังออกไปนาน ระบบโหลดข้อมูลล่าสุดให้เองโดยอัตโนมัติ',
-      accent: '#0ea5e9',
     },
   ],
 }
