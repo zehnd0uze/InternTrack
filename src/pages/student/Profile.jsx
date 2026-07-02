@@ -13,6 +13,8 @@ export default function StudentProfile() {
   const [email, setEmail]       = useState(user?.email || '')
   const [workStartTime, setWorkStartTime] = useState(profile?.work_start_time ? profile.work_start_time.slice(0, 5) : '08:00')
   const [workEndTime, setWorkEndTime] = useState(profile?.work_end_time ? profile.work_end_time.slice(0, 5) : '17:00')
+  const [internshipStartDate, setInternshipStartDate] = useState(profile?.internship_start_date || '')
+  const [internshipEndDate, setInternshipEndDate] = useState(profile?.internship_end_date || '')
   const [profileLoading, setProfileLoading] = useState(false)
   const [avatarUploading, setAvatarUploading] = useState(false)
   const [bgUploading, setBgUploading] = useState(false)
@@ -109,6 +111,8 @@ export default function StudentProfile() {
           student_code: studentCode.trim() || null,
           work_start_time: workStartTime + ':00',
           work_end_time: workEndTime + ':00',
+          internship_start_date: internshipStartDate || null,
+          internship_end_date: internshipEndDate || null,
           institution_id: selectedInstitution || null,
           faculty_id: selectedFaculty || null,
           major_id: selectedMajor || null,
@@ -125,6 +129,25 @@ export default function StudentProfile() {
         toast.success('บันทึกชื่อสำเร็จ! ระบบส่งลิงก์ยืนยันไปยังอีเมลใหม่แล้ว')
       } else {
         toast.success('บันทึกข้อมูลโปรไฟล์สำเร็จ')
+      }
+
+      // 3. Generate retroactive attendance if dates are provided
+      if (isStudent && internshipStartDate && internshipEndDate && workStartTime && workEndTime) {
+        try {
+          const { data: recordsCreated, error: rpcErr } = await supabase.rpc('generate_retroactive_attendance', {
+            p_user_id: user.id,
+            p_start_date: internshipStartDate,
+            p_end_date: internshipEndDate,
+            p_start_time: workStartTime + ':00',
+            p_end_time: workEndTime + ':00'
+          })
+          if (rpcErr) console.error('Error generating attendance:', rpcErr)
+          else if (recordsCreated > 0) {
+            toast.success(`สร้างประวัติการลงเวลาย้อนหลังสำเร็จ จำนวน ${recordsCreated} วัน (จันทร์-ศุกร์)`)
+          }
+        } catch (err) {
+          console.error('RPC Error:', err)
+        }
       }
 
       await refreshProfile()
@@ -546,41 +569,75 @@ export default function StudentProfile() {
             </div>
           )}
 
-          {/* Work Hours (Only for students) */}
+          {/* Work Hours & Internship Dates (Only for students) */}
           {isStudent && (
-            <div className="grid grid-cols-2 gap-4 border-t border-border pt-4">
-              <div>
-                <label htmlFor="profile-work-start" className="block text-sm font-medium text-content-muted mb-1.5">
-                  เวลาเข้างานปกติ <span className="text-danger">*</span>
-                </label>
-                <div className="relative">
-                  <Clock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            <div className="border-t border-border pt-4">
+              <p className="text-xs font-semibold text-content-muted uppercase tracking-wider mb-3">ช่วงเวลาฝึกงาน & เวลาทำงาน (จันทร์-ศุกร์)</p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label htmlFor="profile-internship-start" className="block text-sm font-medium text-content-muted mb-1.5">
+                    วันที่เริ่มฝึกงาน
+                  </label>
                   <input
-                    id="profile-work-start"
-                    type="time"
-                    value={workStartTime}
-                    onChange={e => setWorkStartTime(e.target.value)}
-                    className="input pl-9 w-full"
-                    required
+                    id="profile-internship-start"
+                    type="date"
+                    value={internshipStartDate}
+                    onChange={e => setInternshipStartDate(e.target.value)}
+                    className="input w-full"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="profile-internship-end" className="block text-sm font-medium text-content-muted mb-1.5">
+                    วันสิ้นสุดการฝึกงาน
+                  </label>
+                  <input
+                    id="profile-internship-end"
+                    type="date"
+                    value={internshipEndDate}
+                    onChange={e => setInternshipEndDate(e.target.value)}
+                    className="input w-full"
                   />
                 </div>
               </div>
-              <div>
-                <label htmlFor="profile-work-end" className="block text-sm font-medium text-content-muted mb-1.5">
-                  เวลาเลิกงานปกติ <span className="text-danger">*</span>
-                </label>
-                <div className="relative">
-                  <Clock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                  <input
-                    id="profile-work-end"
-                    type="time"
-                    value={workEndTime}
-                    onChange={e => setWorkEndTime(e.target.value)}
-                    className="input pl-9 w-full"
-                    required
-                  />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="profile-work-start" className="block text-sm font-medium text-content-muted mb-1.5">
+                    เวลาเข้างานปกติ <span className="text-danger">*</span>
+                  </label>
+                  <div className="relative">
+                    <Clock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                    <input
+                      id="profile-work-start"
+                      type="time"
+                      value={workStartTime}
+                      onChange={e => setWorkStartTime(e.target.value)}
+                      className="input pl-9 w-full"
+                      required
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label htmlFor="profile-work-end" className="block text-sm font-medium text-content-muted mb-1.5">
+                    เวลาเลิกงานปกติ <span className="text-danger">*</span>
+                  </label>
+                  <div className="relative">
+                    <Clock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                    <input
+                      id="profile-work-end"
+                      type="time"
+                      value={workEndTime}
+                      onChange={e => setWorkEndTime(e.target.value)}
+                      className="input pl-9 w-full"
+                      required
+                    />
+                  </div>
                 </div>
               </div>
+              <p className="text-xs text-primary-600 mt-2">
+                *ระบบจะสร้างประวัติการลงเวลาย้อนหลังให้อัตโนมัติในวันจันทร์-ศุกร์ ทันทีที่คุณกดบันทึก
+              </p>
             </div>
           )}
 
