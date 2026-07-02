@@ -104,29 +104,29 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
   return (
     <div className="h-full bg-sidebar flex flex-col border-r border-sidebar-border">
       {/* Header */}
-      <div className={`flex items-center h-16 px-4 border-b border-sidebar-border ${collapsed ? 'justify-center' : 'justify-between'}`}>
+      <div className={`flex items-center h-16 border-b border-sidebar-border ${collapsed ? 'justify-center px-1 gap-1' : 'justify-between px-4'}`}>
         {!collapsed && (
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden">
+            <div className="w-8 h-8 flex-shrink-0 rounded-lg flex items-center justify-center overflow-hidden">
               <img src="/favicon.svg" alt="Logo" className="w-full h-full object-cover" />
             </div>
             <span className="text-sidebar-fg font-bold text-lg tracking-tight">TernieTrack</span>
           </div>
         )}
         {collapsed && (
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden">
+          <div className="w-8 h-8 flex-shrink-0 rounded-lg flex items-center justify-center overflow-hidden">
             <img src="/favicon.svg" alt="Logo" className="w-full h-full object-cover" />
           </div>
         )}
 
         {mobile ? (
-          <button onClick={onToggle} className="text-sidebar-muted hover:text-sidebar-fg transition-colors p-1">
+          <button onClick={onToggle} className="text-sidebar-muted hover:text-sidebar-fg transition-colors p-1 flex-shrink-0">
             <X size={20} />
           </button>
         ) : (
           <button
             onClick={onToggle}
-            className="text-sidebar-muted hover:text-sidebar-fg transition-colors p-1 rounded-md hover:bg-sidebar-hover"
+            className="text-sidebar-muted hover:text-sidebar-fg transition-colors p-1 rounded-md hover:bg-sidebar-hover flex-shrink-0"
           >
             {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
           </button>
