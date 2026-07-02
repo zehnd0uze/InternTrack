@@ -83,6 +83,11 @@ export default function OnboardingWizard({ user, profile, onComplete }) {
       
       toast.success('บันทึกข้อมูลสำเร็จ! ยินดีต้อนรับสู่ระบบ 🎉')
       if (onComplete) onComplete()
+      
+      // Force reload so dashboard fetches newly generated attendance
+      setTimeout(() => {
+        window.location.reload()
+      }, 1000)
     } catch (err) {
       console.error(err)
       toast.error('บันทึกล้มเหลว กรุณาลองใหม่')
