@@ -23,10 +23,10 @@ export function useTimeAlerts(today) {
       if (alertedDateRef.current !== dateStr) {
         const lastCheckInAlert = localStorage.getItem('alertedCheckInDate');
         const lastCheckOutAlert = localStorage.getItem('alertedCheckOutDate');
-        const lastGoodMorningAlert = localStorage.getItem('alertedGoodMorningDate2');
+        const lastGoodMorningAlert = localStorage.getItem('alertedGoodMorningDate3');
         if (lastCheckInAlert !== dateStr) localStorage.removeItem('alertedCheckInDate');
         if (lastCheckOutAlert !== dateStr) localStorage.removeItem('alertedCheckOutDate');
-        if (lastGoodMorningAlert !== dateStr) localStorage.removeItem('alertedGoodMorningDate2');
+        if (lastGoodMorningAlert !== dateStr) localStorage.removeItem('alertedGoodMorningDate3');
         alertedDateRef.current = dateStr;
       }
 
@@ -47,12 +47,12 @@ export function useTimeAlerts(today) {
         sendNotification('แจ้งเตือนเลิกงาน', 'ใกล้ถึงเวลาเลิกงานแล้ว (16:00) อย่าลืมกดเช็คเอาท์นะ!');
       }
 
-      // Test 9:12 AM alert (between 09:11 and 09:15)
-      const hasAlertedGoodMorning = localStorage.getItem('alertedGoodMorningDate2') === dateStr;
-      const isGoodMorningTime = (h === 9 && m >= 11 && m <= 15);
+      // Test 9:25 AM alert (between 09:24 and 09:28)
+      const hasAlertedGoodMorning = localStorage.getItem('alertedGoodMorningDate3') === dateStr;
+      const isGoodMorningTime = (h === 9 && m >= 24 && m <= 28);
       if (isGoodMorningTime && !hasAlertedGoodMorning) {
-        localStorage.setItem('alertedGoodMorningDate2', dateStr);
-        sendNotification('อรุณสวัสดิ์', 'Good morning student, have a nice day!');
+        localStorage.setItem('alertedGoodMorningDate3', dateStr);
+        sendNotification('อรุณสวัสดิ์', 'GOod morning everyone have a nice day');
       }
     };
 

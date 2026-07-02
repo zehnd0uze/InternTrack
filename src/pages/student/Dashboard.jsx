@@ -47,6 +47,14 @@ const STATUS_MAP = {
   none:     { label: 'ยังไม่ส่ง', cls: 'badge-gray' },
 }
 
+function getPreviousWorkingDay(date = new Date()) {
+  const d = new Date(date)
+  do {
+    d.setDate(d.getDate() - 1)
+  } while (d.getDay() === 0 || d.getDay() === 6) // Skip Sunday(0) and Saturday(6)
+  return format(d, 'yyyy-MM-dd')
+}
+
 export default function StudentDashboard() {
   const { user, profile, isAdmin } = useAuth()
   const { viewingAs } = useViewAs()
@@ -96,6 +104,14 @@ export default function StudentDashboard() {
   const [editCheckOut, setEditCheckOut] = useState('')
   const [editLogLoading, setEditLogLoading] = useState(false)
   const [editLogSaving, setEditLogSaving] = useState(false)
+
+  // Missed Check-In Modal
+  const [missedCheckInModal, setMissedCheckInModal] = useState(false)
+  const [missedDate, setMissedDate] = useState('')
+  const [missedCheckInTime, setMissedCheckInTime] = useState('')
+  const [missedCheckOutTime, setMissedCheckOutTime] = useState('')
+  const [missedLogText, setMissedLogText] = useState('')
+  const [missedSaving, setMissedSaving] = useState(false)
 
   const timerRef = useRef(null)
 
@@ -298,6 +314,25 @@ export default function StudentDashboard() {
       return
     }
 
+    // Check for missed previous working day
+    const prevDateStr = getPreviousWorkingDay(now)
+    const { data: prevRecord } = await supabase
+      .from('attendance')
+      .select('id')
+      .eq('user_id', effectiveUserId)
+      .eq('date', prevDateStr)
+      .maybeSingle()
+
+    if (!prevRecord) {
+      setClockLoading(false)
+      setMissedDate(prevDateStr)
+      setMissedCheckInTime('')
+      setMissedCheckOutTime('')
+      setMissedLogText('')
+      setMissedCheckInModal(true)
+      return
+    }
+
     const { error } = await supabase.from('attendance').insert({
       user_id: effectiveUserId,
       check_in: now.toISOString(),
@@ -454,6 +489,61 @@ export default function StudentDashboard() {
         setLogMood(editLogMood)
       }
     }
+  }
+
+  // ---- Save Missed Check-In ----
+  const handleSaveMissedCheckIn = async () => {
+    if (!missedCheckInTime || !missedCheckOutTime) {
+      toast.error('กรุณาระบุเวลาเข้าและออกให้ครบถ้วน'); return;
+    }
+    
+    // Create Date objects from inputs
+    const tIn = new Date(`${missedDate}T${missedCheckInTime}`)
+    const tOut = new Date(`${missedDate}T${missedCheckOutTime}`)
+
+    if (tOut <= tIn) {
+      toast.error('เวลาออกต้องมากกว่าเวลาเข้า'); return;
+    }
+
+    setMissedSaving(true)
+    const diffHours = (tOut - tIn) / 3600000
+    const lunchDeduct = diffHours > 4 ? 1 : 0
+    const hoursWorked = Math.max(0, diffHours - lunchDeduct)
+
+    // 1. Insert Attendance
+    const { data: newAtt, error: attErr } = await supabase.from('attendance').insert({
+      user_id: effectiveUserId,
+      date: missedDate,
+      check_in: tIn.toISOString(),
+      check_out: tOut.toISOString(),
+      hours_worked: parseFloat(hoursWorked.toFixed(2))
+    }).select('id').single()
+
+    if (attErr) {
+      toast.error('บันทึกเวลาล้มเหลว')
+      setMissedSaving(false)
+      return
+    }
+
+    // 2. Insert Daily Log if provided
+    if (missedLogText.trim() && newAtt?.id) {
+      await supabase.from('daily_logs').insert({
+        user_id: effectiveUserId,
+        attendance_id: newAtt.id,
+        date: missedDate,
+        log_text: missedLogText.trim(),
+        mood: 'neutral'
+      })
+    }
+
+    setMissedSaving(false)
+    toast.success('บันทึกเวลาย้อนหลังสำเร็จ')
+    setMissedCheckInModal(false)
+    fetchHistory()
+    fetchStats()
+    
+    // Proceed with clock in for today
+    handleClockIn()
   }
 
   // ---- Status Indicator ----

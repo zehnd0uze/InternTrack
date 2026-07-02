@@ -33,7 +33,7 @@ serve(async (req) => {
       ? "เวลา 08:00 น. อย่าลืมเข้าสู่ระบบและกดเช็คอินเพื่อเริ่มงาน" 
       : isAfternoon 
         ? "เวลา 16:00 น. อย่าลืมกดเช็คเอาท์เพื่อบันทึกเวลาทำงาน"
-        : "Good morning student, have a nice day!";
+        : "GOod morning everyone have a nice day";
 
     const todayStr = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' }); // YYYY-MM-DD
 
