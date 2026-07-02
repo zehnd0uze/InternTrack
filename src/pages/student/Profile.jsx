@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { User, Mail, Save, Lock, Eye, EyeOff, ShieldCheck, Image as ImageIcon, Clock } from 'lucide-react'
+import { User, Mail, Save, Lock, Eye, EyeOff, ShieldCheck, Image as ImageIcon, Clock, GraduationCap, Building2, BookOpen } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
@@ -17,6 +17,34 @@ export default function StudentProfile() {
   const [avatarUploading, setAvatarUploading] = useState(false)
   const [bgUploading, setBgUploading] = useState(false)
   const [badges, setBadges] = useState([])
+
+  // ---- Institution / Faculty / Major ----
+  const [institutions, setInstitutions] = useState([])
+  const [faculties, setFaculties] = useState([])
+  const [majors, setMajors] = useState([])
+  const [selectedInstitution, setSelectedInstitution] = useState(profile?.institution_id || '')
+  const [selectedFaculty, setSelectedFaculty] = useState(profile?.faculty_id || '')
+  const [selectedMajor, setSelectedMajor] = useState(profile?.major_id || '')
+
+  // Load institutions once
+  useEffect(() => {
+    supabase.from('institutions').select('id, short_name, full_name').eq('is_active', true).order('sort_order').order('full_name')
+      .then(({ data }) => setInstitutions(data || []))
+  }, [])
+
+  // Load faculties on institution change
+  useEffect(() => {
+    if (!selectedInstitution) { setFaculties([]); return }
+    supabase.from('faculties').select('id, name').eq('institution_id', selectedInstitution).eq('is_active', true).order('name')
+      .then(({ data }) => setFaculties(data || []))
+  }, [selectedInstitution])
+
+  // Load majors on faculty change
+  useEffect(() => {
+    if (!selectedFaculty) { setMajors([]); return }
+    supabase.from('majors').select('id, name').eq('faculty_id', selectedFaculty).eq('is_active', true).order('name')
+      .then(({ data }) => setMajors(data || []))
+  }, [selectedFaculty])
 
   // ---- Fetch Badges ----
   useEffect(() => {
@@ -80,7 +108,10 @@ export default function StudentProfile() {
           full_name: trimmedName,
           student_code: studentCode.trim() || null,
           work_start_time: workStartTime + ':00',
-          work_end_time: workEndTime + ':00'
+          work_end_time: workEndTime + ':00',
+          institution_id: selectedInstitution || null,
+          faculty_id: selectedFaculty || null,
+          major_id: selectedMajor || null,
         })
         .eq('id', user.id)
 
@@ -451,6 +482,69 @@ export default function StudentProfile() {
               </p>
             )}
           </div>
+
+          {/* Institution / Faculty / Major (Students only) */}
+          {isStudent && (
+            <div className="border-t border-border pt-4 space-y-4">
+              <p className="text-xs font-semibold text-content-muted uppercase tracking-wider">ข้อมูลสถาบันการศึกษา</p>
+              <div>
+                <label className="block text-sm font-medium text-content-muted mb-1.5">
+                  สถาบันการศึกษา
+                </label>
+                <div className="relative">
+                  <Building2 size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                  <select
+                    value={selectedInstitution}
+                    onChange={e => { setSelectedInstitution(e.target.value); setSelectedFaculty(''); setSelectedMajor('') }}
+                    className="input pl-9"
+                  >
+                    <option value="">-- เลือกสถาบัน --</option>
+                    {institutions.map(i => (
+                      <option key={i.id} value={i.id}>{i.full_name} ({i.short_name})</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-content-muted mb-1.5">
+                  คณะ / แผนก
+                </label>
+                <div className="relative">
+                  <BookOpen size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                  <select
+                    value={selectedFaculty}
+                    onChange={e => { setSelectedFaculty(e.target.value); setSelectedMajor('') }}
+                    className="input pl-9"
+                    disabled={!selectedInstitution || faculties.length === 0}
+                  >
+                    <option value="">-- เลือกคณะ --</option>
+                    {faculties.map(f => (
+                      <option key={f.id} value={f.id}>{f.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-content-muted mb-1.5">
+                  สาขาวิชา
+                </label>
+                <div className="relative">
+                  <GraduationCap size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                  <select
+                    value={selectedMajor}
+                    onChange={e => setSelectedMajor(e.target.value)}
+                    className="input pl-9"
+                    disabled={!selectedFaculty || majors.length === 0}
+                  >
+                    <option value="">-- เลือกสาขา --</option>
+                    {majors.map(m => (
+                      <option key={m.id} value={m.id}>{m.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Work Hours (Only for students) */}
           {isStudent && (
