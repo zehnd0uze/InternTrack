@@ -52,12 +52,35 @@ function AttendanceTab() {
     return name.includes(s) || email.includes(s) || r.date?.includes(s)
   })
 
+  const getLocalTimeFromIso = (isoStr) => {
+    if (!isoStr) return '';
+    try {
+      const d = new Date(isoStr);
+      if (isNaN(d)) return '';
+      return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+    } catch {
+      return '';
+    }
+  }
+
+  const combineToIso = (dateStr, timeStr) => {
+    if (!dateStr || !timeStr) return null;
+    try {
+      const [year, month, day] = dateStr.split('-');
+      const [hours, minutes] = timeStr.split(':');
+      const d = new Date(year, month - 1, day, hours, minutes);
+      return d.toISOString();
+    } catch {
+      return null;
+    }
+  }
+
   const openEdit = (r) => {
     setEditRow(r)
     setEditForm({
       date: r.date,
-      check_in: r.check_in || '',
-      check_out: r.check_out || '',
+      check_in: getLocalTimeFromIso(r.check_in),
+      check_out: getLocalTimeFromIso(r.check_out),
       hours_worked: r.hours_worked || '',
     })
   }
@@ -69,8 +92,8 @@ function AttendanceTab() {
       .from('attendance')
       .update({
         date: editForm.date,
-        check_in: editForm.check_in || null,
-        check_out: editForm.check_out || null,
+        check_in: combineToIso(editForm.date, editForm.check_in),
+        check_out: combineToIso(editForm.date, editForm.check_out),
         hours_worked: hours,
       })
       .eq('id', editRow.id)
@@ -121,8 +144,8 @@ function AttendanceTab() {
                     </div>
                   </td>
                   <td className="text-content-muted">{r.date}</td>
-                  <td className="text-content-muted">{r.check_in ? r.check_in.slice(0, 5) : <span className="text-gray-300">-</span>}</td>
-                  <td className="text-content-muted">{r.check_out ? r.check_out.slice(0, 5) : <span className="text-gray-300">-</span>}</td>
+                  <td className="text-content-muted">{r.check_in ? getLocalTimeFromIso(r.check_in) : <span className="text-gray-300">-</span>}</td>
+                  <td className="text-content-muted">{r.check_out ? getLocalTimeFromIso(r.check_out) : <span className="text-gray-300">-</span>}</td>
                   <td className="text-content-muted">
                     {r.hours_worked ? `${parseFloat(r.hours_worked).toFixed(2)} ชม.` : <span className="text-gray-300">-</span>}
                   </td>
