@@ -56,7 +56,11 @@ function InstitutionsTab({ onSelectInstitution }) {
 
   const fetch = useCallback(async () => {
     setLoading(true)
-    const { data } = await supabase.from('institutions').select('*').order('sort_order').order('full_name')
+    const { data } = await supabase
+      .from('institutions')
+      .select('*, faculties(name, name_en, majors(name, name_en))')
+      .order('sort_order')
+      .order('full_name')
     setRows(data || [])
     setLoading(false)
   }, [])
@@ -64,11 +68,27 @@ function InstitutionsTab({ onSelectInstitution }) {
   useEffect(() => { fetch() }, [fetch])
 
   const filtered = useMemo(() =>
-    rows.filter(r =>
-      !debouncedSearch ||
-      r.full_name?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-      r.short_name?.toLowerCase().includes(debouncedSearch.toLowerCase())
-    ), [rows, debouncedSearch])
+    rows.filter(r => {
+      if (!debouncedSearch) return true
+      const q = debouncedSearch.toLowerCase()
+
+      const matchInst = r.full_name?.toLowerCase().includes(q) ||
+                        r.short_name?.toLowerCase().includes(q) ||
+                        r.full_name_en?.toLowerCase().includes(q)
+      if (matchInst) return true
+
+      if (r.faculties) {
+        for (const f of r.faculties) {
+          if (f.name?.toLowerCase().includes(q) || f.name_en?.toLowerCase().includes(q)) return true
+          if (f.majors) {
+            for (const m of f.majors) {
+              if (m.name?.toLowerCase().includes(q) || m.name_en?.toLowerCase().includes(q)) return true
+            }
+          }
+        }
+      }
+      return false
+    }), [rows, debouncedSearch])
 
   const resetForm = () => setForm({ short_name: '', full_name: '', full_name_en: '', type: 'university', province: 'เชียงใหม่', is_active: true })
 
