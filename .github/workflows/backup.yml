@@ -30,16 +30,32 @@ jobs:
 
       - name: Create database backup
         env:
-          PGPASSWORD: ${{ secrets.DB_PASSWORD }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           DATE=$(date +%Y-%m-%d_%H-%M)
           FILENAME="backup_${DATE}.sql"
 
-          # Add sslmode=require for Supabase
-          CONN_URL="${DATABASE_URL}?sslmode=require"
-
           echo "📦 Starting backup at $DATE..."
+
+          # Extract hostname from DATABASE_URL
+          HOST=$(python3 -c "
+          import sys, urllib.parse
+          u = urllib.parse.urlparse('$DATABASE_URL')
+          print(u.hostname)
+          ")
+
+          # Resolve hostname to IPv4 (force IPv4 — Supabase Free does not support IPv6)
+          IPv4=$(python3 -c "
+          import socket
+          addrs = socket.getaddrinfo('$HOST', 5432, socket.AF_INET)
+          print(addrs[0][4][0])
+          ")
+          echo "🌐 Resolved $HOST → $IPv4 (IPv4)"
+
+          # Replace hostname with IPv4 in URL
+          CONN_URL=$(echo "$DATABASE_URL" | sed "s/$HOST/$IPv4/")
+          CONN_URL="${CONN_URL}?sslmode=require"
+
           pg_dump "$CONN_URL" \
             --no-owner \
             --no-acl \
@@ -47,8 +63,7 @@ jobs:
             --file="$FILENAME"
 
           gzip "$FILENAME"
-          echo "✅ Backup complete: ${FILENAME}.gz"
-          ls -lh "${FILENAME}.gz"
+          echo "✅ Backup complete: ${FILENAME}.gz ($(du -h ${FILENAME}.gz | cut -f1))"
           echo "BACKUP_FILE=${FILENAME}.gz" >> $GITHUB_ENV
 
       - name: Upload backup as artifact
