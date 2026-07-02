@@ -9,6 +9,36 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <script>
+      // FAILSAFE: If the app stays blank for 4 seconds, or if a script fails to load (e.g. 404 from old cache), nuke the Service Worker and reload.
+      window.addEventListener('error', function(e) {
+        if (e.target && e.target.tagName === 'SCRIPT') {
+          nukeSWAndReload();
+        }
+      }, true);
+
+      setTimeout(function() {
+        if (!document.getElementById('root').innerHTML.trim()) {
+          nukeSWAndReload();
+        }
+      }, 4000);
+
+      function nukeSWAndReload() {
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            var promises = [];
+            for (let registration of registrations) {
+              promises.push(registration.unregister());
+            }
+            if (promises.length > 0) {
+              Promise.all(promises).then(function() {
+                window.location.reload(true);
+              });
+            }
+          });
+        }
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
