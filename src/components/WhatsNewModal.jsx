@@ -1,176 +1,164 @@
 import { useState, useEffect } from 'react'
-import { X, Sparkles, CheckCircle, Bell, RefreshCw, Shield, Edit3, ChevronRight } from 'lucide-react'
+import { X, Bell, RefreshCw, ChevronRight, ArrowRight } from 'lucide-react'
+import { useAuth } from '../contexts/AuthContext'
 
-// ─── Update this version string every time you deploy new features ───────────
+// ─── Bump this version string on every new deploy ──────────────────────────
 const CURRENT_VERSION = '1.4.0'
 
-const UPDATES = [
-  {
-    icon: Edit3,
-    color: '#3b82f6',
-    bg: '#eff6ff',
-    title: 'แก้ไขข้อมูลการเข้างานได้',
-    desc: 'ผู้ดูแลระบบสามารถแก้ไขเวลาเข้า-ออก และชั่วโมงทำงานของนักศึกษาได้โดยตรง',
-  },
-  {
-    icon: Bell,
-    color: '#8b5cf6',
-    bg: '#f5f3ff',
-    title: 'เปิด/ปิดการแจ้งเตือน',
-    desc: 'สามารถกดปุ่มเพื่อเปิดหรือปิดรับการแจ้งเตือนแบบ Push ได้ที่เมนูด้านซ้าย',
-  },
-  {
-    icon: RefreshCw,
-    color: '#10b981',
-    bg: '#ecfdf5',
-    title: 'รีเฟรชข้อมูลอัตโนมัติ',
-    desc: 'เมื่อกลับมาใช้งานแอปหลังจากหยุดพักนาน ระบบจะโหลดข้อมูลใหม่ให้อัตโนมัติ',
-  },
-  {
-    icon: Shield,
-    color: '#f59e0b',
-    bg: '#fffbeb',
-    title: 'ระบบจัดการข้อผิดพลาด',
-    desc: 'หน้าเว็บจะไม่ขาวโล่งอีกต่อไป หากเกิดปัญหาจะมีปุ่มกด "โหลดใหม่" ให้ทันที',
-  },
-]
+// Updates specific to each role
+const UPDATES_BY_ROLE = {
+  mentor: [
+    {
+      icon: Bell,
+      title: 'Toggle Push Notifications',
+      desc: 'You can now turn push notifications on or off directly from the sidebar. Look for the bell icon at the bottom left.',
+    },
+    {
+      icon: RefreshCw,
+      title: 'Auto-Refresh on Return',
+      desc: 'When you come back to the app after being away, data refreshes automatically — no need to reload manually.',
+    },
+  ],
+  student: [
+    {
+      icon: Bell,
+      title: 'Toggle Push Notifications',
+      desc: 'You can now turn push notifications on or off directly from the sidebar. Look for the bell icon at the bottom left.',
+    },
+    {
+      icon: RefreshCw,
+      title: 'Auto-Refresh on Return',
+      desc: 'When you come back to the app after being away, data refreshes automatically — no need to reload manually.',
+    },
+  ],
+}
+
+const ALLOWED_ROLES = ['mentor', 'student']
 
 export default function WhatsNewModal() {
+  const { activeRole } = useAuth()
   const [open, setOpen] = useState(false)
-  const [activeIdx, setActiveIdx] = useState(0)
+  const [step, setStep] = useState(0)
+
+  const updates = UPDATES_BY_ROLE[activeRole] || []
 
   useEffect(() => {
+    if (!ALLOWED_ROLES.includes(activeRole)) return
     const seen = localStorage.getItem('whatsNewVersion')
     if (seen !== CURRENT_VERSION) {
-      // Small delay so the app loads first
-      const t = setTimeout(() => setOpen(true), 1200)
+      const t = setTimeout(() => setOpen(true), 1000)
       return () => clearTimeout(t)
     }
-  }, [])
+  }, [activeRole])
 
   const handleClose = () => {
     localStorage.setItem('whatsNewVersion', CURRENT_VERSION)
     setOpen(false)
   }
 
-  if (!open) return null
+  const handleNext = () => {
+    if (step < updates.length - 1) {
+      setStep(s => s + 1)
+    } else {
+      handleClose()
+    }
+  }
 
-  const active = UPDATES[activeIdx]
+  if (!open || updates.length === 0) return null
+
+  const current = updates[step]
+  const Icon = current.icon
+  const isLast = step === updates.length - 1
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4"
-      style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)' }}
+      className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center sm:p-4"
+      style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(6px)' }}
       onClick={handleClose}
     >
       <div
-        className="w-full sm:max-w-md bg-card rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden"
-        style={{ animation: 'slideUp 0.35s cubic-bezier(.22,1,.36,1) both' }}
+        className="w-full sm:max-w-sm bg-card rounded-t-2xl sm:rounded-2xl overflow-hidden"
+        style={{
+          animation: 'wn-in 0.3s cubic-bezier(.22,1,.36,1) both',
+          boxShadow: '0 24px 48px rgba(0,0,0,0.18)',
+          border: '1px solid rgba(255,255,255,0.08)',
+        }}
         onClick={e => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="relative px-6 pt-6 pb-4 text-center"
-          style={{
-            background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%)',
-          }}
-        >
+        {/* Top bar */}
+        <div className="flex items-center justify-between px-5 pt-5 pb-0">
+          <span className="text-xs font-semibold tracking-widest uppercase text-content-muted">
+            What&apos;s New &mdash; v{CURRENT_VERSION}
+          </span>
           <button
             onClick={handleClose}
-            className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full text-white/70 hover:text-white hover:bg-white/20 transition-colors"
+            className="w-7 h-7 flex items-center justify-center rounded-full text-content-muted hover:text-content hover:bg-surface-hover transition-colors"
           >
-            <X size={16} />
+            <X size={14} />
           </button>
-
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-white/20 mb-3 mx-auto">
-            <Sparkles size={28} className="text-white" />
-          </div>
-          <h2 className="text-white font-bold text-xl">มีอัปเดตใหม่! 🎉</h2>
-          <p className="text-white/75 text-sm mt-1">เวอร์ชัน {CURRENT_VERSION}</p>
         </div>
 
-        {/* Update cards — horizontally scrollable */}
-        <div className="px-6 py-5 space-y-3">
-          {UPDATES.map((u, i) => {
-            const Icon = u.icon
-            const isActive = i === activeIdx
-            return (
-              <button
-                key={i}
-                onClick={() => setActiveIdx(i)}
-                className="w-full flex items-start gap-3 p-3 rounded-xl text-left transition-all duration-200"
-                style={{
-                  background: isActive ? u.bg : 'transparent',
-                  border: `2px solid ${isActive ? u.color + '40' : 'transparent'}`,
-                }}
-              >
-                <div
-                  className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center"
-                  style={{ background: u.bg }}
-                >
-                  <Icon size={18} style={{ color: u.color }} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm text-content">{u.title}</p>
-                  {isActive && (
-                    <p className="text-xs text-content-muted mt-0.5 leading-relaxed">
-                      {u.desc}
-                    </p>
-                  )}
-                </div>
-                {isActive && (
-                  <CheckCircle size={16} style={{ color: u.color, flexShrink: 0 }} />
-                )}
-              </button>
-            )
-          })}
-        </div>
-
-        {/* Dot indicators + CTA */}
-        <div className="px-6 pb-6 flex flex-col items-center gap-4">
-          {/* Dots */}
-          <div className="flex gap-1.5">
-            {UPDATES.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setActiveIdx(i)}
-                className="rounded-full transition-all duration-200"
-                style={{
-                  width: i === activeIdx ? '20px' : '6px',
-                  height: '6px',
-                  background: i === activeIdx ? '#6366f1' : '#d1d5db',
-                }}
-              />
-            ))}
+        {/* Content */}
+        <div className="px-5 pt-6 pb-2">
+          {/* Icon */}
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
+            style={{ background: 'var(--color-surface-hover)' }}
+          >
+            <Icon size={20} className="text-content-muted" />
           </div>
 
-          {/* CTA */}
-          <button
-            onClick={activeIdx < UPDATES.length - 1 ? () => setActiveIdx(i => i + 1) : handleClose}
-            className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-xl font-semibold text-sm text-white transition-all duration-200 hover:opacity-90 active:scale-95"
-            style={{
-              background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-              boxShadow: '0 4px 15px rgba(99,102,241,0.4)',
-            }}
-          >
-            {activeIdx < UPDATES.length - 1 ? (
-              <>ถัดไป <ChevronRight size={16} /></>
-            ) : (
-              <>เริ่มใช้งานเลย! <Sparkles size={16} /></>
-            )}
-          </button>
+          {/* Step indicator */}
+          <p className="text-xs text-content-muted mb-1">
+            {step + 1} / {updates.length}
+          </p>
 
+          {/* Title */}
+          <h2 className="text-content font-semibold text-lg leading-snug mb-2">
+            {current.title}
+          </h2>
+
+          {/* Description */}
+          <p className="text-content-muted text-sm leading-relaxed">
+            {current.desc}
+          </p>
+        </div>
+
+        {/* Progress dots */}
+        <div className="flex gap-1.5 px-5 pt-5">
+          {updates.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setStep(i)}
+              className="h-1 rounded-full transition-all duration-300"
+              style={{
+                width: i === step ? '24px' : '6px',
+                background: i === step ? 'var(--color-content)' : 'var(--color-border)',
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between px-5 py-4 mt-2">
           <button
             onClick={handleClose}
             className="text-xs text-content-muted hover:text-content transition-colors"
           >
-            ข้ามและไม่แสดงอีก
+            Skip
+          </button>
+          <button
+            onClick={handleNext}
+            className="flex items-center gap-2 text-sm font-semibold text-content border border-border rounded-lg px-4 py-2 hover:bg-surface-hover transition-colors"
+          >
+            {isLast ? 'Got it' : 'Next'}
+            {isLast ? <ArrowRight size={14} /> : <ChevronRight size={14} />}
           </button>
         </div>
       </div>
 
       <style>{`
-        @keyframes slideUp {
-          from { transform: translateY(40px); opacity: 0; }
+        @keyframes wn-in {
+          from { transform: translateY(20px); opacity: 0; }
           to   { transform: translateY(0);   opacity: 1; }
         }
       `}</style>
