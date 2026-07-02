@@ -37,7 +37,7 @@ serve(async (req) => {
 
     const todayStr = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' }); // YYYY-MM-DD
 
-    // Get all students (role: student) and their attendance today
+    // Get all users and their attendance today
     const { data: users, error: userError } = await supabaseClient
       .from('users')
       .select(`
@@ -45,7 +45,6 @@ serve(async (req) => {
         attendance ( id, date, check_in, check_out ),
         push_subscriptions ( endpoint, p256dh, auth )
       `)
-      .eq('role', 'student')
       .eq('attendance.date', todayStr);
 
     if (userError) throw userError;
@@ -59,11 +58,11 @@ serve(async (req) => {
 
       let shouldSend = false;
       if (isMorning) {
-        // Send if haven't checked in
-        if (!att || !att.check_in) shouldSend = true;
+        // Send if haven't checked in (only for students)
+        if (user.role === 'student' && (!att || !att.check_in)) shouldSend = true;
       } else if (isAfternoon) {
-        // Send if checked in but haven't checked out
-        if (att && att.check_in && !att.check_out) shouldSend = true;
+        // Send if checked in but haven't checked out (only for students)
+        if (user.role === 'student' && (att && att.check_in && !att.check_out)) shouldSend = true;
       } else if (isTestTime) {
         // Always send for testing if it's the test time
         shouldSend = true;

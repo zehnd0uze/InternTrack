@@ -21,6 +21,8 @@ import {
 import { useAuth } from '../../contexts/AuthContext'
 import { useNotifications } from '../../contexts/NotificationContext'
 import toast from 'react-hot-toast'
+import { useWebPush } from '../../hooks/useWebPush'
+import { BellRing } from 'lucide-react'
 
 const NAV_ITEMS = {
   student: [
@@ -65,10 +67,11 @@ const ROLE_COLORS = {
 }
 
 export default function Sidebar({ role, collapsed, onToggle, mobile }) {
-  const { profile, signOut, switchRole, hasDualRole, alternateRole, activeRole } = useAuth()
+  const { user, profile, signOut, switchRole, hasDualRole, alternateRole, activeRole } = useAuth()
   const { notifications, unreadCount } = useNotifications()
   const navigate = useNavigate()
   const items = NAV_ITEMS[role] || []
+  const { isSubscribed, subscribeUser } = useWebPush(user)
 
   // Calculate unread counts by type
   const unreadLeaves = notifications.filter(n => !n.is_read && n.type === 'leave_request').length
@@ -178,6 +181,25 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
 
       {/* User Info & Sign Out (Bottom) */}
       <div className="p-3 border-t border-sidebar-border">
+        {!isSubscribed && !collapsed && (
+          <button
+            onClick={subscribeUser}
+            className="mb-3 w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md bg-primary-50 text-primary-700 hover:bg-primary-100 transition-colors text-xs font-semibold border border-primary-100"
+          >
+            <BellRing size={14} />
+            เปิดรับการแจ้งเตือน
+          </button>
+        )}
+        {!isSubscribed && collapsed && (
+           <button
+             onClick={subscribeUser}
+             className="mb-3 w-full flex items-center justify-center p-2 rounded-md bg-primary-50 text-primary-700 hover:bg-primary-100 transition-colors border border-primary-100"
+             title="เปิดรับการแจ้งเตือน (Push Notifications)"
+           >
+             <BellRing size={16} />
+           </button>
+        )}
+
         {!collapsed && hasDualRole && (
           <button
             onClick={handleSwitchRole}
