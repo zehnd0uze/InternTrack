@@ -37,7 +37,17 @@ export function useWebPush(user) {
         
         if (existingSubscription) {
           setIsSubscribed(true);
-          // Optional: Verify if it's already in DB, but normally not strictly needed every time
+          
+          // Auto-sync to database just in case the database was reset
+          const p256dh = btoa(String.fromCharCode.apply(null, new Uint8Array(existingSubscription.getKey('p256dh'))));
+          const auth = btoa(String.fromCharCode.apply(null, new Uint8Array(existingSubscription.getKey('auth'))));
+          
+          await supabase.from('push_subscriptions').upsert({
+            user_id: user.id,
+            endpoint: existingSubscription.endpoint,
+            p256dh: p256dh,
+            auth: auth
+          }, { onConflict: 'endpoint' });
         }
       } catch (err) {
         console.error('Error checking push subscription:', err);
