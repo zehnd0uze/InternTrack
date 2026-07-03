@@ -291,8 +291,20 @@ export default function StudentDashboard() {
 
   // ---- Clock In ----
   const handleClockIn = async () => {
-    if (isReadOnly) { toast('โหมดดูอย่างเดียว — ไม่สามารถเช็คอินได้', { icon: '🔒' }); return }
+    if (isReadOnly && !isAdmin) { toast('โหมดดูอย่างเดียว — ไม่สามารถเช็คอินได้', { icon: '🔒' }); return }
     const now = new Date()
+    const todayStr = format(now, 'yyyy-MM-dd')
+
+    // Admin custom time check-in
+    if (isReadOnly && isAdmin) {
+      setMissedAttId(null)
+      setMissedDate(todayStr)
+      setMissedCheckInTime(profile?.work_start_time ? profile.work_start_time.slice(0, 5) : '08:00')
+      setMissedCheckOutTime('')
+      setMissedLogText('')
+      setMissedCheckInModal(true)
+      return
+    }
     const hour = now.getHours()
 
     if (hour < 6) toast('⚠️ คุณกำลังเข้างานก่อน 06:00 น.', { icon: '⚠️', duration: 5000 })
@@ -382,7 +394,20 @@ export default function StudentDashboard() {
 
   // ---- Clock Out ----
   const doClockOut = async () => {
-    if (isReadOnly) { setClockOutModal(false); toast('โหมดดูอย่างเดียว — ไม่สามารถเช็คเอาท์ได้', { icon: '🔒' }); return }
+    if (isReadOnly && !isAdmin) { setClockOutModal(false); toast('โหมดดูอย่างเดียว — ไม่สามารถเช็คเอาท์ได้', { icon: '🔒' }); return }
+    
+    // Admin custom time check-out
+    if (isReadOnly && isAdmin) {
+      setClockOutModal(false)
+      if (!today?.id) return
+      setMissedAttId(today.id)
+      setMissedDate(today.date)
+      setMissedCheckInTime(today.check_in ? format(new Date(today.check_in), 'HH:mm') : '')
+      setMissedCheckOutTime(profile?.work_end_time ? profile.work_end_time.slice(0, 5) : '17:00')
+      setMissedLogText('')
+      setMissedCheckInModal(true)
+      return
+    }
     setClockOutModal(false)
     if (!today?.id) return
 
@@ -550,31 +575,37 @@ export default function StudentDashboard() {
 
   // ---- Save Missed Check-In ----
   const handleSaveMissedCheckIn = async () => {
-    if (!missedCheckInTime || !missedCheckOutTime) {
-      toast.error('กรุณาระบุเวลาเข้าและออกให้ครบถ้วน'); return;
+    if (!missedCheckInTime) {
+      toast.error('กรุณาระบุเวลาเข้างาน'); return;
+    }
+    if (!missedCheckOutTime && !(isAdmin && isReadOnly && !missedAttId)) {
+      toast.error('กรุณาระบุเวลาออกงาน'); return;
     }
     
-    // Create Date objects from inputs
     const tIn = new Date(`${missedDate}T${missedCheckInTime}`)
-    const tOut = new Date(`${missedDate}T${missedCheckOutTime}`)
+    let tOut = null
+    let hoursWorked = 0
 
-    if (tOut <= tIn) {
-      toast.error('เวลาออกต้องมากกว่าเวลาเข้า'); return;
+    if (missedCheckOutTime) {
+      tOut = new Date(`${missedDate}T${missedCheckOutTime}`)
+      if (tOut <= tIn) {
+        toast.error('เวลาออกต้องมากกว่าเวลาเข้า'); return;
+      }
+      const diffHours = (tOut - tIn) / 3600000
+      const lunchDeduct = diffHours > 4 ? 1 : 0
+      hoursWorked = Math.max(0, diffHours - lunchDeduct)
     }
 
     setMissedSaving(true)
-    const diffHours = (tOut - tIn) / 3600000
-    const lunchDeduct = diffHours > 4 ? 1 : 0
-    const hoursWorked = Math.max(0, diffHours - lunchDeduct)
 
-    // Insert or Update Attendance
     let newAttId = missedAttId
     if (missedAttId) {
-      const { error: attErr } = await supabase.from('attendance').update({
-        check_in: tIn.toISOString(),
-        check_out: tOut.toISOString(),
-        hours_worked: parseFloat(hoursWorked.toFixed(2))
-      }).eq('id', missedAttId)
+      const payload = { check_in: tIn.toISOString() }
+      if (tOut) {
+        payload.check_out = tOut.toISOString()
+        payload.hours_worked = parseFloat(hoursWorked.toFixed(2))
+      }
+      const { error: attErr } = await supabase.from('attendance').update(payload).eq('id', missedAttId)
       
       if (attErr) {
         toast.error('บันทึกเวลาล้มเหลว')
@@ -582,13 +613,16 @@ export default function StudentDashboard() {
         return
       }
     } else {
-      const { data: newAtt, error: attErr } = await supabase.from('attendance').insert({
+      const payload = {
         user_id: effectiveUserId,
         date: missedDate,
-        check_in: tIn.toISOString(),
-        check_out: tOut.toISOString(),
-        hours_worked: parseFloat(hoursWorked.toFixed(2))
-      }).select('id').single()
+        check_in: tIn.toISOString()
+      }
+      if (tOut) {
+        payload.check_out = tOut.toISOString()
+        payload.hours_worked = parseFloat(hoursWorked.toFixed(2))
+      }
+      const { data: newAtt, error: attErr } = await supabase.from('attendance').insert(payload).select('id').single()
 
       if (attErr) {
         toast.error('บันทึกเวลาล้มเหลว')
@@ -1089,6 +1123,74 @@ export default function StudentDashboard() {
           onConfirm={doClockOut}
           onCancel={() => setClockOutModal(false)}
         />
+      )}
+
+      {/* Missed Check-In / Admin Custom Time Modal */}
+      {missedCheckInModal && (
+        <div className="modal-overlay" onClick={() => !missedSaving && setMissedCheckInModal(false)}>
+          <div className="modal-content max-w-md" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-content flex items-center gap-2">
+                <Clock size={20} className="text-primary-600" />
+                {isAdmin && isReadOnly ? 'กำหนดเวลาเข้า-ออกงาน (แอดมิน)' : 'บันทึกเวลาย้อนหลัง'}
+              </h3>
+              <button onClick={() => setMissedCheckInModal(false)} disabled={missedSaving} className="text-gray-400 hover:text-content-muted">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              {isAdmin && isReadOnly ? (
+                <p className="text-sm text-content-muted bg-amber-50 text-amber-700 p-2 rounded-lg border border-amber-200">
+                  คุณกำลังกำหนดเวลาแทนนักศึกษาในโหมดแอดมิน
+                </p>
+              ) : (
+                <p className="text-sm text-content-muted">พบว่าคุณยังไม่ได้เช็คเอาท์หรือลืมเช็คอินในวันที่ <strong>{formatThaiDate(missedDate)}</strong></p>
+              )}
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-1">เวลาเข้างาน</label>
+                  <input
+                    type="time"
+                    className="input py-2 text-sm"
+                    value={missedCheckInTime}
+                    onChange={e => setMissedCheckInTime(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-1">เวลาออกงาน {isAdmin && isReadOnly && !missedAttId && <span className="text-gray-400 font-normal">(เว้นว่างได้)</span>}</label>
+                  <input
+                    type="time"
+                    className="input py-2 text-sm"
+                    value={missedCheckOutTime}
+                    onChange={e => setMissedCheckOutTime(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {!missedAttId && (
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-1">บันทึกประจำวัน (เว้นว่างได้)</label>
+                  <textarea
+                    className="textarea h-24"
+                    placeholder="สรุปงานสั้นๆ..."
+                    maxLength={500}
+                    value={missedLogText}
+                    onChange={e => setMissedLogText(e.target.value)}
+                  />
+                </div>
+              )}
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button onClick={() => setMissedCheckInModal(false)} disabled={missedSaving} className="btn-secondary btn-sm">ยกเลิก</button>
+                <button onClick={handleSaveMissedCheckIn} disabled={missedSaving} className="btn-primary btn-sm">
+                  {missedSaving ? 'กำลังบันทึก...' : 'บันทึกเวลา'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Edit Log Modal */}
