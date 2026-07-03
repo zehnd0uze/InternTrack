@@ -4,7 +4,7 @@ import { th } from 'date-fns/locale'
 import {
   Users, UserCheck, AlertCircle, CheckCircle, BarChart3,
   Clock, FileText, Activity, RefreshCw, Wifi, WifiOff,
-  ChevronUp, ChevronDown, Check, X as XIcon, Eye
+  ChevronUp, ChevronDown, Check, X as XIcon, Eye, Megaphone
 } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -216,6 +216,50 @@ export default function AdminDashboard() {
 
   const fmt = (ts) => ts ? format(new Date(ts), 'HH:mm', { locale: th }) : '—'
 
+  // ── Broadcast Announcement ─────────────────────────────────────────────────
+  const [broadcastMsg, setBroadcastMsg] = useState('ระบบกลับมาเช็คอินได้แล้ว 🎉 หากคุณบันทึกข้อมูลช่วงเช้าวันนี้แล้วเช็คอินไม่ได้ ขณะนี้สามารถเช็คอินได้ตามปกติแล้ว ระบบจะบันทึกข้อมูลย้อนหลังถึงวันที่ 2 กรกฎาคม ตามปกติ')
+  const [broadcastLoading, setBroadcastLoading] = useState(false)
+  const [broadcastSent, setBroadcastSent] = useState(false)
+
+  const handleBroadcast = async () => {
+    if (!broadcastMsg.trim()) return
+    setBroadcastLoading(true)
+    try {
+      // Fetch all active students
+      const { data: students, error: fetchErr } = await supabase
+        .from('users')
+        .select('id')
+        .eq('role', 'student')
+        .eq('is_active', true)
+      if (fetchErr) throw fetchErr
+
+      if (!students || students.length === 0) {
+        toast('ไม่มีนักศึกษาในระบบ', { icon: 'ℹ️' })
+        return
+      }
+
+      // Insert notification for each student
+      const rows = students.map(s => ({
+        user_id: s.id,
+        message: broadcastMsg.trim(),
+        type: 'announcement',
+        is_read: false,
+      }))
+
+      const { error: insertErr } = await supabase.from('notifications').insert(rows)
+      if (insertErr) throw insertErr
+
+      toast.success(`ส่งแจ้งเตือนถึง ${students.length} คน สำเร็จ! ✅`)
+      setBroadcastSent(true)
+      setTimeout(() => setBroadcastSent(false), 5000)
+    } catch (err) {
+      console.error(err)
+      toast.error('ส่งแจ้งเตือนล้มเหลว: ' + err.message)
+    } finally {
+      setBroadcastLoading(false)
+    }
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
 
@@ -235,6 +279,42 @@ export default function AdminDashboard() {
             title="รีเฟรชทั้งหมด"
           >
             <RefreshCw size={14} />
+          </button>
+        </div>
+      </div>
+
+      {/* Broadcast Announcement Banner */}
+      <div className="card border-2 border-amber-200 bg-amber-50/60">
+        <div className="flex items-center gap-2 mb-3">
+          <Megaphone size={18} className="text-amber-600" />
+          <h2 className="font-semibold text-amber-800">ส่งประกาศถึงนักศึกษาทุกคน</h2>
+        </div>
+        <textarea
+          value={broadcastMsg}
+          onChange={e => setBroadcastMsg(e.target.value)}
+          rows={3}
+          className="input w-full text-sm resize-none mb-3"
+          placeholder="พิมพ์ข้อความประกาศ..."
+        />
+        <div className="flex items-center justify-between">
+          <p className="text-xs text-amber-700">ข้อความจะปรากฏในแจ้งเตือน (🔔) ของนักศึกษาทุกคนทันที</p>
+          <button
+            id="broadcast-btn"
+            onClick={handleBroadcast}
+            disabled={broadcastLoading || !broadcastMsg.trim()}
+            className={`btn-sm flex items-center gap-2 font-semibold transition-all ${
+              broadcastSent
+                ? 'bg-green-500 text-white'
+                : 'bg-amber-500 hover:bg-amber-600 text-white'
+            } rounded-lg px-4 py-2 disabled:opacity-60`}
+          >
+            {broadcastLoading ? (
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : broadcastSent ? (
+              <><Check size={14} /> ส่งแล้ว!</>
+            ) : (
+              <><Megaphone size={14} /> ส่งประกาศ</>
+            )}
           </button>
         </div>
       </div>
