@@ -43,6 +43,7 @@ export default function StudentEditPanel({ studentId, onSaved, compact = false }
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [liveUpdated, setLiveUpdated] = useState(false)
 
   // Reference data
   const [supervisors, setSupervisors] = useState([])
@@ -107,6 +108,25 @@ export default function StudentEditPanel({ studentId, onSaved, compact = false }
       .then(({ data }) => setInstitutions(data || []))
   }, [fetchStudent])
 
+  // ---- Real-time sync: auto-refresh when student updates their own profile ----
+  useEffect(() => {
+    if (!studentId) return
+    const channel = supabase
+      .channel(`student-profile-${studentId}`)
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'users',
+        filter: `id=eq.${studentId}`,
+      }, () => {
+        fetchStudent()
+        setLiveUpdated(true)
+        setTimeout(() => setLiveUpdated(false), 6000)
+      })
+      .subscribe()
+    return () => supabase.removeChannel(channel)
+  }, [studentId, fetchStudent])
+
   // Load faculties when institution changes
   useEffect(() => {
     if (!form.institution_id) { setFaculties([]); return }
@@ -160,18 +180,46 @@ export default function StudentEditPanel({ studentId, onSaved, compact = false }
     }
 
     const { error } = await supabase.from('users').update(payload).eq('id', studentId)
-    setSaving(false)
 
     if (error) {
+      setSaving(false)
       toast.error('บันทึกล้มเหลว: ' + error.message)
-    } else {
-      toast.success('บันทึกข้อมูลนักศึกษาสำเร็จ!')
-      setSaved(true)
-      setTimeout(() => setSaved(false), 2000)
-      fetchStudent()
-      if (onSaved) onSaved()
+      return
     }
+
+    // Generate retroactive attendance if internship dates & work times are provided
+    if (
+      form.internship_start_date &&
+      form.internship_end_date &&
+      form.work_start_time &&
+      form.work_end_time
+    ) {
+      try {
+        const { data: recordsCreated, error: rpcErr } = await supabase.rpc('generate_retroactive_attendance', {
+          p_user_id: studentId,
+          p_start_date: form.internship_start_date,
+          p_end_date: form.internship_end_date,
+          p_start_time: form.work_start_time + ':00',
+          p_end_time: form.work_end_time + ':00',
+        })
+        if (rpcErr) {
+          console.error('Retroactive attendance error:', rpcErr)
+        } else if (recordsCreated > 0) {
+          toast.success(`สร้างประวัติการลงเวลาย้อนหลัง ${recordsCreated} วัน (จ.–ศ.) ให้นักศึกษาแล้ว`)
+        }
+      } catch (err) {
+        console.error('RPC error:', err)
+      }
+    }
+
+    setSaving(false)
+    toast.success('บันทึกข้อมูลนักศึกษาสำเร็จ!')
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2000)
+    fetchStudent()
+    if (onSaved) onSaved()
   }
+
 
   if (loading) {
     return (
@@ -205,6 +253,15 @@ export default function StudentEditPanel({ studentId, onSaved, compact = false }
           <RefreshCw size={13} /> รีเฟรช
         </button>
       </div>
+
+      {/* Live update banner */}
+      {liveUpdated && (
+        <div className="flex items-center gap-2 px-4 py-2.5 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm font-medium animate-fade-in">
+          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
+          นักศึกษาเพิ่งอัปเดตข้อมูลของตัวเองแล้ว — ฟอร์มถูกโหลดใหม่อัตโนมัติ ✅
+        </div>
+      )}
+
 
       {/* Form grid */}
       <div className="space-y-6">
