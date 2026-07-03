@@ -311,7 +311,6 @@ export default function StudentDashboard() {
     if (hour >= 22) toast('⚠️ คุณกำลังเข้างานหลัง 22:00 น.', { icon: '⚠️', duration: 5000 })
 
     setClockLoading(true)
-    const todayStr = format(now, 'yyyy-MM-dd')
 
     // Double-check no existing record
     const { data: existing } = await supabase
