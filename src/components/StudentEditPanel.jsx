@@ -188,8 +188,8 @@ export default function StudentEditPanel({ studentId, onSaved, compact = false }
       const [startH, startM] = form.work_start_time.split(':').map(Number)
       const [endH, endM] = form.work_end_time.split(':').map(Number)
       const totalMinutes = (endH * 60 + endM) - (startH * 60 + startM)
-      hoursPerDay = (totalMinutes / 60) - 1 // Assume 1 hour lunch break
-      if (hoursPerDay < 0) hoursPerDay = 8
+      hoursPerDay = (totalMinutes / 60) // Do not subtract lunch break
+      if (hoursPerDay <= 0) hoursPerDay = 8
     }
 
     const total = Math.round(workingDays * hoursPerDay)
