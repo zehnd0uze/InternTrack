@@ -225,31 +225,20 @@ export default function AdminDashboard() {
     if (!broadcastMsg.trim()) return
     setBroadcastLoading(true)
     try {
-      // Fetch all active students
-      const { data: students, error: fetchErr } = await supabase
-        .from('users')
-        .select('id')
-        .eq('role', 'student')
-        .eq('is_active', true)
-      if (fetchErr) throw fetchErr
+      const res = await fetch('/api/send-broadcast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: '📢 ประกาศจากระบบ',
+          body: broadcastMsg.trim(),
+          target_role: 'student',
+        }),
+      })
 
-      if (!students || students.length === 0) {
-        toast('ไม่มีนักศึกษาในระบบ', { icon: 'ℹ️' })
-        return
-      }
+      const result = await res.json()
+      if (!res.ok) throw new Error(result.error || 'ส่งไม่สำเร็จ')
 
-      // Insert notification for each student
-      const rows = students.map(s => ({
-        user_id: s.id,
-        message: broadcastMsg.trim(),
-        type: 'announcement',
-        is_read: false,
-      }))
-
-      const { error: insertErr } = await supabase.from('notifications').insert(rows)
-      if (insertErr) throw insertErr
-
-      toast.success(`ส่งแจ้งเตือนถึง ${students.length} คน สำเร็จ! ✅`)
+      toast.success(`ส่ง Push Notification สำเร็จ! 📲 (${result.sent ?? 0} อุปกรณ์)`)
       setBroadcastSent(true)
       setTimeout(() => setBroadcastSent(false), 5000)
     } catch (err) {
@@ -259,6 +248,7 @@ export default function AdminDashboard() {
       setBroadcastLoading(false)
     }
   }
+
 
   return (
     <div className="space-y-6 animate-fade-in">
