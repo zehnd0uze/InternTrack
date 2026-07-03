@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
 import { th } from 'date-fns/locale'
@@ -21,6 +21,7 @@ export default function SupervisorStudentDetail() {
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
   const [activeTab, setActiveTab] = useState('attendance')
+  const [liveUpdated, setLiveUpdated] = useState(false)
   const ROWS = 15
 
   const fetchData = useCallback(async () => {
@@ -42,6 +43,25 @@ export default function SupervisorStudentDetail() {
 
   useEffect(() => { fetchData() }, [fetchData])
 
+  // Real-time: auto-refresh when student updates their profile
+  useEffect(() => {
+    if (!studentId) return
+    const channel = supabase
+      .channel(`supervisor-student-${studentId}`)
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'users',
+        filter: `id=eq.${studentId}`,
+      }, () => {
+        fetchData()
+        setLiveUpdated(true)
+        setTimeout(() => setLiveUpdated(false), 6000)
+      })
+      .subscribe()
+    return () => supabase.removeChannel(channel)
+  }, [studentId, fetchData])
+
   const formatTime = dt => dt ? format(new Date(dt), 'HH:mm', { locale: th }) : '-'
   const formatDate = dt => dt ? format(new Date(dt), 'd MMM yyyy', { locale: th }) : '-'
 
@@ -58,6 +78,42 @@ export default function SupervisorStudentDetail() {
           <p className="text-sm text-gray-400">{student?.email}</p>
         </div>
       </div>
+
+      {liveUpdated && (
+        <div className="flex items-center gap-2 px-4 py-2.5 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm font-medium animate-fade-in">
+          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
+          นักศึกษาเพิ่งอัปเดตข้อมูลของตัวเองแล้ว — โหลดข้อมูลใหม่อัตโนมัติ ✅
+        </div>
+      )}
+
+      {/* Internship info from student profile */}
+      {!loading && student && (student.internship_start_date || student.work_start_time) && (
+        <div className="card border-l-4 border-primary-400">
+          <div className="flex items-center gap-2 mb-3">
+            <Calendar size={16} className="text-primary-600" />
+            <h2 className="font-semibold text-content text-sm">ข้อมูลที่นักศึกษากรอกเอง</h2>
+            <span className="ml-auto text-xs text-green-600 font-medium bg-green-50 px-2 py-0.5 rounded-full">ซิงค์อัตโนมัติ</span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+            <div>
+              <p className="text-xs text-gray-400 mb-0.5">วันเริ่มฝึกงาน</p>
+              <p className="font-medium text-content">{student.internship_start_date ? formatDate(student.internship_start_date) : '—'}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-400 mb-0.5">วันสิ้นสุดฝึกงาน</p>
+              <p className="font-medium text-content">{student.internship_end_date ? formatDate(student.internship_end_date) : '—'}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-400 mb-0.5">เวลาเข้างาน</p>
+              <p className="font-medium text-content">{student.work_start_time ? student.work_start_time.slice(0,5) + ' น.' : '—'}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-400 mb-0.5">เวลาเลิกงาน</p>
+              <p className="font-medium text-content">{student.work_end_time ? student.work_end_time.slice(0,5) + ' น.' : '—'}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {!loading && student && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
