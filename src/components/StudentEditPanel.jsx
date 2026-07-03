@@ -156,6 +156,47 @@ export default function StudentEditPanel({ studentId, onSaved, compact = false }
     }
   }, [student, faculties, majors.length])
 
+  // ---- Calculate Target Hours ----
+  const calculateTargetHours = () => {
+    if (!form.internship_start_date || !form.internship_end_date) {
+      toast.error('กรุณาระบุวันที่เริ่มและสิ้นสุดฝึกงานก่อนคำนวณ')
+      return
+    }
+
+    const start = new Date(form.internship_start_date)
+    const end = new Date(form.internship_end_date)
+    
+    if (end < start) {
+      toast.error('วันที่สิ้นสุดต้องไม่ก่อนวันที่เริ่ม')
+      return
+    }
+
+    // Calculate working days (Mon-Fri)
+    let workingDays = 0
+    const current = new Date(start)
+    while (current <= end) {
+      const dayOfWeek = current.getDay()
+      if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+        workingDays++
+      }
+      current.setDate(current.getDate() + 1)
+    }
+
+    // Calculate hours per day
+    let hoursPerDay = 8
+    if (form.work_start_time && form.work_end_time) {
+      const [startH, startM] = form.work_start_time.split(':').map(Number)
+      const [endH, endM] = form.work_end_time.split(':').map(Number)
+      const totalMinutes = (endH * 60 + endM) - (startH * 60 + startM)
+      hoursPerDay = (totalMinutes / 60) - 1 // Assume 1 hour lunch break
+      if (hoursPerDay < 0) hoursPerDay = 8
+    }
+
+    const total = Math.round(workingDays * hoursPerDay)
+    set('target_hours', total)
+    toast.success(`คำนวณได้ ${total} ชั่วโมง (${workingDays} วัน วันละ ${hoursPerDay.toFixed(1)} ชม.)`, { icon: '🧮' })
+  }
+
   // ---- Save ----
   const handleSave = async () => {
     if (!form.full_name.trim()) { toast.error('กรุณากรอกชื่อ-นามสกุล'); return }
@@ -364,12 +405,22 @@ export default function StudentEditPanel({ studentId, onSaved, compact = false }
             <Field label="วันที่สิ้นสุดฝึกงาน" half>
               <input type="date" value={form.internship_end_date} onChange={e => set('internship_end_date', e.target.value)} className="input text-sm" />
             </Field>
-            <Field label="เป้าหมายชั่วโมงทั้งหมด (ชม.)" half>
+            <div className="col-span-2 sm:col-span-1">
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-medium text-content-muted">เป้าหมายชั่วโมงทั้งหมด (ชม.)</label>
+                <button
+                  type="button"
+                  onClick={calculateTargetHours}
+                  className="text-[10px] bg-primary-50 text-primary-600 hover:bg-primary-100 px-2 py-0.5 rounded-full font-medium transition-colors"
+                >
+                  คำนวณอัตโนมัติ
+                </button>
+              </div>
               <div className="relative">
                 <Target size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                 <input type="number" min={1} value={form.target_hours} onChange={e => set('target_hours', e.target.value)} className="input pl-8 text-sm" />
               </div>
-            </Field>
+            </div>
             <div className="col-span-2 grid grid-cols-2 gap-3">
               <Field label="เวลาเข้างานปกติ" half>
                 <div className="relative">
