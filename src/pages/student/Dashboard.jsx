@@ -339,22 +339,30 @@ export default function StudentDashboard() {
 
     // Check for missed previous working day
     const prevDateStr = getPreviousWorkingDay(now)
-    const { data: prevRecord } = await supabase
-      .from('attendance')
-      .select('id')
-      .eq('user_id', effectiveUserId)
-      .eq('date', prevDateStr)
-      .maybeSingle()
 
-    if (!prevRecord) {
-      setClockLoading(false)
-      setMissedAttId(null)
-      setMissedDate(prevDateStr)
-      setMissedCheckInTime(profile?.work_start_time ? profile.work_start_time.slice(0, 5) : '')
-      setMissedCheckOutTime(profile?.work_end_time ? profile.work_end_time.slice(0, 5) : '')
-      setMissedLogText('')
-      setMissedCheckInModal(true)
-      return
+    // Skip the previous-day check if that day is before the student's internship start date
+    // (e.g. student just updated their profile today and internship starts today or later)
+    const internshipStart = profile?.internship_start_date || null
+    const prevDayBeforeInternship = internshipStart && prevDateStr < internshipStart
+
+    if (!prevDayBeforeInternship) {
+      const { data: prevRecord } = await supabase
+        .from('attendance')
+        .select('id')
+        .eq('user_id', effectiveUserId)
+        .eq('date', prevDateStr)
+        .maybeSingle()
+
+      if (!prevRecord) {
+        setClockLoading(false)
+        setMissedAttId(null)
+        setMissedDate(prevDateStr)
+        setMissedCheckInTime(profile?.work_start_time ? profile.work_start_time.slice(0, 5) : '')
+        setMissedCheckOutTime(profile?.work_end_time ? profile.work_end_time.slice(0, 5) : '')
+        setMissedLogText('')
+        setMissedCheckInModal(true)
+        return
+      }
     }
 
     const { error } = await supabase.from('attendance').insert({
