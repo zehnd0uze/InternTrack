@@ -110,14 +110,14 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
         {!collapsed && (
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 flex-shrink-0 rounded-lg flex items-center justify-center overflow-hidden">
-              <img src="/favicon.svg" alt="Logo" className="w-full h-full object-cover" />
+              <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
             </div>
             <span className="text-sidebar-fg font-bold text-lg tracking-tight">TernieTrack</span>
           </div>
         )}
         {collapsed && (
           <div className="w-8 h-8 flex-shrink-0 rounded-lg flex items-center justify-center overflow-hidden">
-            <img src="/favicon.svg" alt="Logo" className="w-full h-full object-cover" />
+            <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
           </div>
         )}
 
