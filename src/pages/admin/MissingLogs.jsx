@@ -470,16 +470,16 @@ export default function MissingLogs() {
       )}
 
       {/* Delete Modal */}
-      <ConfirmModal
-        isOpen={!!deletingId}
-        onClose={() => setDeletingId(null)}
-        onConfirm={handleDelete}
-        title="ลบข้อมูล"
-        message="คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลนี้? การกระทำนี้ไม่สามารถยกเลิกได้"
-        confirmText="ลบข้อมูล"
-        isDanger={true}
-        loading={isDeleting}
-      />
+      {!!deletingId && (
+        <ConfirmModal
+          onCancel={() => setDeletingId(null)}
+          onConfirm={handleDelete}
+          title="ลบข้อมูล"
+          message="คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลนี้? การกระทำนี้ไม่สามารถยกเลิกได้"
+          confirmLabel="ลบข้อมูล"
+          danger={true}
+        />
+      )}
     </div>
   )
 }
