@@ -93,7 +93,7 @@ export default function MentorStudentDetail() {
     } else {
       dateObj = new Date(dt)
     }
-    const dayName = format(dateObj, 'EEEE', { locale: th }).replace('วัน', '')
+    const dayName = format(dateObj, 'E', { locale: th })
     return `${dayName} ${format(dateObj, 'd MMM yyyy', { locale: th })}`
   }
 
