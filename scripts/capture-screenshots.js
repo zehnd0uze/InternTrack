@@ -90,6 +90,10 @@ export const supabase = {
       data = mockPlacements;
     } else if (table === 'leave_requests') {
       data = mockLeaves;
+    } else if (table === 'missing_attendance') {
+      data = [
+        { id: 'm1', student_id: 'mock-student-1', date: '2026-07-08', missing_type: 'both', note: 'ทำงานเว็บแอป', time_in: '08:00', time_out: '17:00', users: mockStudents[0] }
+      ];
     }
 
     let chainData = data;
@@ -121,6 +125,46 @@ export const supabase = {
 };
 `;
 
+// Helper to inject styled focus circles on elements
+const highlightElement = async (page, selector, textMatch = null) => {
+  await page.evaluate((sel, text) => {
+    let el;
+    if (text) {
+      const elements = Array.from(document.querySelectorAll(sel));
+      el = elements.find(e => e.textContent.includes(text));
+    } else {
+      el = document.querySelector(sel);
+    }
+    if (!el) return;
+
+    // Check if highlight overlay already exists, remove it
+    const existing = document.getElementById('manual-highlight-overlay');
+    if (existing) existing.remove();
+
+    const rect = el.getBoundingClientRect();
+    const highlight = document.createElement('div');
+    highlight.id = 'manual-highlight-overlay';
+    highlight.style.position = 'absolute';
+    highlight.style.left = (window.scrollX + rect.left - 4) + 'px';
+    highlight.style.top = (window.scrollY + rect.top - 4) + 'px';
+    highlight.style.width = (rect.width + 8) + 'px';
+    highlight.style.height = (rect.height + 8) + 'px';
+    highlight.style.border = '4px dashed #ef4444'; // Red dashed line
+    highlight.style.borderRadius = '8px';
+    highlight.style.zIndex = '999999';
+    highlight.style.pointerEvents = 'none';
+    highlight.style.boxShadow = '0 0 0 9999px rgba(0, 0, 0, 0.45)'; // Dim everything else
+    document.body.appendChild(highlight);
+  }, selector, textMatch);
+};
+
+const clearHighlight = async (page) => {
+  await page.evaluate(() => {
+    const el = document.getElementById('manual-highlight-overlay');
+    if (el) el.remove();
+  });
+};
+
 async function capture() {
   // Backup original supabase.js
   if (fs.existsSync(supabasePath)) {
@@ -148,13 +192,21 @@ async function capture() {
     await page.goto(`${APP_URL}/student?mockRole=student`);
     await page.waitForSelector('.bg-sidebar');
     await delay(3000); 
+
+    // Highlight clock-in
+    await highlightElement(page, '#clock-in-btn');
     await page.screenshot({ path: join(OUTPUT_DIR, 'student_dashboard.png') });
+    await clearHighlight(page);
 
     console.log('Opening Student Edit Log Modal...');
     await page.waitForSelector('table tbody tr:first-child button');
     await page.click('table tbody tr:first-child button');
     await delay(1500);
+
+    // Highlight submit inside modal
+    await highlightElement(page, 'button', 'บันทึก');
     await page.screenshot({ path: join(OUTPUT_DIR, 'student_edit_log_modal.png') });
+    await clearHighlight(page);
     
     await page.keyboard.press('Escape');
     await delay(500);
@@ -162,7 +214,9 @@ async function capture() {
     await page.goto(`${APP_URL}/student/leave`);
     await page.waitForSelector('.bg-sidebar');
     await delay(1500);
+    await highlightElement(page, 'button', 'ส่งคำขอลา');
     await page.screenshot({ path: join(OUTPUT_DIR, 'student_leave_request.png') });
+    await clearHighlight(page);
 
     await page.goto(`${APP_URL}/student/schedule`);
     await page.waitForSelector('.bg-sidebar');
@@ -184,7 +238,9 @@ async function capture() {
     await page.goto(`${APP_URL}/mentor/leave`);
     await page.waitForSelector('.bg-sidebar');
     await delay(1500);
+    await highlightElement(page, 'button', 'อนุมัติ');
     await page.screenshot({ path: join(OUTPUT_DIR, 'mentor_leave_approvals.png') });
+    await clearHighlight(page);
 
     await page.goto(`${APP_URL}/mentor/schedule`);
     await page.waitForSelector('.bg-sidebar');
@@ -224,6 +280,27 @@ async function capture() {
     await page.waitForSelector('.bg-sidebar');
     await delay(1500);
     await page.screenshot({ path: join(OUTPUT_DIR, 'admin_data_manager.png') });
+
+    // Click 3rd tab, log in and highlight "+ เพิ่มข้อมูลใหม่"
+    console.log('Accessing Missing Logs tab...');
+    await page.evaluate(() => {
+      // Find the tab button containing FileWarning icon or text
+      const buttons = Array.from(document.querySelectorAll('nav button'));
+      const missingLogsTab = buttons.find(b => b.textContent.includes('เวลาที่ขาดหาย'));
+      if (missingLogsTab) missingLogsTab.click();
+    });
+    await delay(1000);
+
+    // Enter Password
+    await page.waitForSelector('input[type="password"]');
+    await page.type('input[type="password"]', 'admin123');
+    await page.click('button[type="submit"]');
+    await delay(2000);
+
+    // Highlight Add button
+    await highlightElement(page, 'button', 'เพิ่มข้อมูลใหม่');
+    await page.screenshot({ path: join(OUTPUT_DIR, 'admin_missing_logs_tab.png') });
+    await clearHighlight(page);
 
     console.log('Navigating to Student dashboard in Admin view-as mode...');
     await page.goto(`${APP_URL}/student?mockRole=admin`);
