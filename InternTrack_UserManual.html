@@ -3,145 +3,181 @@
       xmlns="http://www.w3.org/TR/REC-html40">
 <head>
 <meta charset="utf-8">
-<title>คู่มือการใช้งานระบบ InternTrack (ฉบับสมบูรณ์)</title>
+<title>คู่มือการใช้งานระบบ TernieTrack</title>
 <style>
-  body { font-family: 'Sarabun', 'Cordia New', 'Tahoma', sans-serif; line-height: 1.6; padding: 40px; color: #333; }
-  h1 { color: #1e3a8a; text-align: center; margin-bottom: 5px; }
-  h2 { color: #2563eb; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; margin-top: 40px; page-break-after: avoid; }
-  h3 { color: #3b82f6; margin-top: 25px; page-break-after: avoid; }
-  h4 { color: #475569; margin-top: 15px; }
-  p, li { margin-bottom: 10px; font-size: 16pt; }
-  ul, ol { margin-bottom: 15px; margin-left: 20px; }
-  .subtitle { text-align: center; color: #64748b; font-size: 18pt; margin-bottom: 40px; }
-  .toc { background-color: #f8fafc; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 40px; }
-  .toc-title { font-weight: bold; font-size: 18pt; margin-bottom: 15px; color: #1e293b; }
-  .note { background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 12px; margin: 15px 0; font-size: 14pt; }
-  .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 12pt; font-weight: bold; }
-  .badge-student { background-color: #dbeafe; color: #1e40af; }
-  .badge-mentor { background-color: #dcfce7; color: #166534; }
-  .badge-supervisor { background-color: #f3e8ff; color: #6b21a8; }
-  .badge-admin { background-color: #fee2e2; color: #991b1b; }
+  body {
+    font-family: 'Sarabun', 'Cordia New', 'Tahoma', sans-serif;
+    line-height: 1.6;
+    padding: 40px;
+    color: #2d3748;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 28pt;
+    color: #1a365d;
+    text-align: center;
+    margin-top: 50px;
+    margin-bottom: 30px;
+    font-weight: bold;
+  }
+  h2 {
+    font-size: 20pt;
+    color: #2b6cb0;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 10px;
+    font-weight: bold;
+  }
+  h3 {
+    font-size: 16pt;
+    color: #2d3748;
+    margin-top: 25px;
+    margin-bottom: 15px;
+    font-weight: bold;
+  }
+  p, li {
+    font-size: 14pt;
+    margin-bottom: 12px;
+  }
+  ul, ol {
+    margin-bottom: 20px;
+    padding-left: 20px;
+  }
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 20px auto;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+  }
+  .note {
+    background-color: #f7fafc;
+    border-left: 4px solid #cbd5e0;
+    padding: 15px;
+    margin: 20px 0;
+    font-size: 13pt;
+  }
+  .highlight-note {
+    background-color: #fffaf0;
+    border-left: 4px solid #dd6b20;
+    padding: 15px;
+    margin: 20px 0;
+    font-size: 13pt;
+  }
 </style>
 </head>
 <body>
 
-  <h1>คู่มือการใช้งานระบบ InternTrack</h1>
-  <div class="subtitle">ระบบบันทึกเวลาและติดตามการฝึกงาน (Comprehensive User Manual)</div>
+  <h1>คู่มือการใช้งานระบบ TernieTrack<br>(Internship Time Tracking System)</h1>
 
-  <div class="toc">
-    <div class="toc-title">สารบัญ (Table of Contents)</div>
-    <ol>
-      <li><a href="#student">สำหรับนักศึกษา (Student)</a></li>
-      <li><a href="#mentor">สำหรับพี่เลี้ยง (Mentor)</a></li>
-      <li><a href="#supervisor">สำหรับอาจารย์นิเทศ (Supervisor)</a></li>
-      <li><a href="#admin">สำหรับผู้ดูแลระบบ (Admin)</a></li>
-    </ol>
-  </div>
-
-  <!-- STUDENT SECTION -->
-  <h2 id="student"><span class="badge badge-student">ส่วนที่ 1</span> การใช้งานสำหรับนักศึกษา (Student)</h2>
-  <p>ระบบสำหรับนักศึกษาถูกออกแบบมาเพื่อใช้ในการบันทึกเวลาเข้า-ออกงาน ส่งสรุปงานประจำวัน และจัดการการลา</p>
-
-  <h3>1. แดชบอร์ดและบันทึกเวลา (Dashboard & Time Tracking)</h3>
-  <ul>
-    <li><strong>การเช็คอิน (Check In):</strong> เมื่อมาถึงสถานที่ฝึกงาน ให้เข้าสู่ระบบและกดปุ่ม "เข้างาน" ที่หน้าแดชบอร์ด ระบบจะบันทึกเวลาปัจจุบันโดยอัตโนมัติ</li>
-    <li><strong>การเช็คเอาท์ (Check Out) & บันทึกประจำวัน:</strong> เมื่อเลิกงาน ให้กดปุ่ม "ออกงาน" ระบบจะบังคับให้กรอก <strong>"บันทึกประจำวัน" (Daily Log)</strong> เพื่อสรุปว่าวันนี้ทำงานอะไรไปบ้าง จากนั้นจึงจะสามารถบันทึกเวลาออกงานได้</li>
-    <li><strong>สรุปข้อมูล:</strong> หน้าแดชบอร์ดจะแสดงเวลาเข้า-ออก, จำนวนชั่วโมงที่ทำได้ในวันนี้, และชั่วโมงสะสมทั้งหมด</li>
-  </ul>
-
-  <h3>2. การลางาน (Leave Request)</h3>
-  <ul>
-    <li>ไปที่เมนู <strong>"ลางาน"</strong> เพื่อดูประวัติการลาและสถานะการอนุมัติ</li>
-    <li>คลิก <strong>"+ ยื่นใบลา"</strong> เลือกประเภทการลา (ลาป่วย/ลากิจ), ระบุวันที่, และเหตุผลที่ลา จากนั้นกดส่งคำขอ</li>
-    <li>คำขอจะถูกส่งไปยัง "พี่เลี้ยง" (Mentor) เพื่อทำการอนุมัติ</li>
-  </ul>
-
-  <h3>3. พิมพ์รายงาน (Print Log)</h3>
-  <ul>
-    <li>นักศึกษาสามารถพิมพ์สรุปบันทึกการทำงานเป็นไฟล์ PDF เพื่อส่งอาจารย์หรือเก็บเป็นหลักฐานได้ โดยไปที่เมนูโปรไฟล์หรือกดปุ่มพิมพ์รายงาน ระบบจะจัดฟอร์มให้อัตโนมัติ</li>
-  </ul>
-
-  <hr style="border: 1px solid #e2e8f0; margin: 40px 0;">
-
-  <!-- MENTOR SECTION -->
-  <h2 id="mentor"><span class="badge badge-mentor">ส่วนที่ 2</span> การใช้งานสำหรับพี่เลี้ยง (Mentor)</h2>
-  <p>ระบบสำหรับพนักงานพี่เลี้ยง มีไว้เพื่อติดตามการทำงาน ตรวจสอบบันทึกประจำวัน และอนุมัติการลาของนักศึกษาในความดูแล</p>
-
-  <h3>1. แดชบอร์ด (Dashboard)</h3>
-  <ul>
-    <li>แสดงภาพรวมของนักศึกษาในความดูแล (ใครมาทำงานบ้าง, ใครขาด, ใครลา)</li>
-    <li>แสดงชั่วโมงรวมของนักศึกษาแต่ละคน เพื่อประเมินความคืบหน้า</li>
-  </ul>
-
-  <h3>2. การฝึกงาน (Internships)</h3>
-  <ul>
-    <li>ดูรายชื่อนักศึกษาทั้งหมดที่อยู่ในความดูแล</li>
-    <li>คลิกที่ชื่อนักศึกษาเพื่อดูรายละเอียด <strong>"บันทึกประจำวัน"</strong> และ <strong>"เวลาเข้า-ออกงาน"</strong> ของนักศึกษาคนนั้นในแต่ละวัน</li>
-  </ul>
-
-  <h3>3. อนุมัติการลา (Leave Approvals)</h3>
-  <ul>
-    <li>ไปที่เมนู <strong>"อนุมัติการลา"</strong> เพื่อดูคำขอลาทั้งหมดของนักศึกษา</li>
-    <li>พี่เลี้ยงสามารถตรวจสอบเหตุผล และกดปุ่ม <strong>"อนุมัติ"</strong> หรือ <strong>"ปฏิเสธ"</strong> ได้ทันที</li>
-    <li>เมื่ออนุมัติแล้ว ระบบจะแจ้งเตือนไปยังนักศึกษาโดยอัตโนมัติ</li>
-  </ul>
-
-  <hr style="border: 1px solid #e2e8f0; margin: 40px 0;">
-
-  <!-- SUPERVISOR SECTION -->
-  <h2 id="supervisor"><span class="badge badge-supervisor">ส่วนที่ 3</span> การใช้งานสำหรับอาจารย์นิเทศ (Supervisor)</h2>
-  <p>ระบบสำหรับอาจารย์นิเทศ เน้นไปที่การดูรายงานสรุป (Report) และประเมินการทำงานของนักศึกษาในภาพรวม</p>
-
-  <h3>1. แดชบอร์ดและรายงาน (Dashboard & Report)</h3>
-  <ul>
-    <li>ดูภาพรวมของนักศึกษาทั้งหมดในความดูแลของตนเอง</li>
-    <li>เมนู <strong>"รายงาน"</strong> สามารถดูสถิติการเข้างาน, จำนวนวันที่ลา, และเปอร์เซ็นต์ความก้าวหน้าของชั่วโมงการฝึกงาน</li>
-  </ul>
-
-  <h3>2. รายละเอียดนักศึกษา (Student Detail)</h3>
-  <ul>
-    <li>อาจารย์สามารถเจาะลึกดูข้อมูลของนักศึกษาเป็นรายบุคคล เพื่ออ่าน <strong>"บันทึกประจำวัน" (Daily Logs)</strong> ที่นักศึกษาส่งเข้ามาทุกวัน ใช้ประกอบการให้คะแนนหรือการนิเทศก์</li>
-  </ul>
-
-  <hr style="border: 1px solid #e2e8f0; margin: 40px 0;">
-
-  <!-- ADMIN SECTION -->
-  <h2 id="admin"><span class="badge badge-admin">ส่วนที่ 4</span> การใช้งานสำหรับผู้ดูแลระบบ (Admin)</h2>
-  <p>ผู้ดูแลระบบมีสิทธิสูงสุดในการจัดการตั้งค่าระบบ, เพิ่มผู้ใช้งาน, จัดสรรนักศึกษา, และแก้ไขข้อมูลดิบในกรณีฉุกเฉิน</p>
-
-  <h3>1. จัดการผู้ใช้งาน (Users & Institutions)</h3>
-  <ul>
-    <li><strong>จัดการสถานศึกษา:</strong> เพิ่มชื่อมหาวิทยาลัย/วิทยาลัย เข้าไปในระบบ</li>
-    <li><strong>ผู้ใช้งาน:</strong> เพิ่ม/แก้ไข/ระงับบัญชีผู้ใช้งาน (นักศึกษา, พี่เลี้ยง, อาจารย์) และรีเซ็ตรหัสผ่าน</li>
-  </ul>
-
-  <h3>2. การจัดสรรนักศึกษา (Placements)</h3>
-  <ul>
-    <li>เมนูสำหรับจับคู่ (Assign) นักศึกษา ให้กับ <strong>"พี่เลี้ยง"</strong> และ <strong>"อาจารย์นิเทศ"</strong></li>
-    <li>หากไม่ทำการจับคู่ พี่เลี้ยงและอาจารย์นิเทศจะไม่เห็นข้อมูลของนักศึกษา</li>
-  </ul>
-
-  <h3>3. การจัดการข้อมูลและการแก้ไขเวลาพิเศษ (Data Manager)</h3>
-  <p>เมนู <strong>"จัดการข้อมูล"</strong> (Data Manager) ใช้สำหรับแก้ไขข้อมูลในกรณีที่ระบบมีปัญหา หรือนักศึกษาลืมบันทึกเวลา โดยแบ่งเป็น 3 แท็บหลัก:</p>
+  <h2>1. บทนำ (Introduction)</h2>
+  <p>ระบบ TernieTrack ถูกพัฒนาขึ้นเพื่อบริหารจัดการและติดตามเวลาการปฏิบัติงานของนักศึกษาฝึกงาน โดยลดขั้นตอนการใช้เอกสารแบบดั้งเดิม ผู้ใช้งานสามารถบันทึกเวลาการปฏิบัติงาน เขียนบันทึกประจำวัน และส่งขออนุมัติชั่วโมงการทำงานผ่านระบบออนไลน์ได้</p>
+  
+  <p>ระบบประกอบด้วยผู้ใช้งาน 4 ระดับ ได้แก่:</p>
   <ol>
-    <li><strong>แท็บการเข้างาน:</strong> สำหรับแก้ไขเวลาเข้า-ออกงานตรงๆ ในฐานข้อมูล หรือลบข้อมูลขยะทิ้ง</li>
-    <li><strong>แท็บบันทึกประจำวัน:</strong> สำหรับแก้ไขข้อความบันทึกประจำวัน</li>
-    <li><strong>แท็บเวลาที่ขาดหาย (Missing Logs - ฟีเจอร์พิเศษ):</strong> 
-      <ul>
-        <li>เมื่อคลิกแท็บนี้ ระบบจะถามรหัสผ่าน ให้ใส่รหัส: <span class="code" style="color:#ef4444; font-weight:bold;">admin123</span></li>
-        <li>เป็นระบบช่วย <strong>"เพิ่ม"</strong> เวลาที่ขาดหายไป โดยแอดมินเพียงแค่เลือกชื่อนักศึกษา ระบุวันที่ และระบุเวลาที่ลืมเข้า/ออก</li>
-        <li>เมื่อกดบันทึก ระบบจะคำนวณชั่วโมงชดเชยและนำไปใส่ในแท็บการเข้างานให้โดยอัตโนมัติ <em>(แนะนำให้ใช้วิธีนี้แทนการกรอกข้อมูลเองในแท็บการเข้างาน)</em></li>
-      </ul>
-    </li>
+    <li><strong>นักศึกษา (Student):</strong> ผู้ใช้งานหลักในการบันทึกเวลาปฏิบัติงานและส่งรายงาน</li>
+    <li><strong>พี่เลี้ยง (Mentor):</strong> ตัวแทนจากสถานประกอบการ ทำหน้าที่ตรวจสอบและอนุมัติการทำงาน</li>
+    <li><strong>อาจารย์นิเทศ (Supervisor):</strong> ตัวแทนจากสถานศึกษา ทำหน้าที่ติดตามความคืบหน้าของนักศึกษา</li>
+    <li><strong>ผู้ดูแลระบบ (Admin):</strong> ผู้บริหารจัดการสิทธิ์ผู้ใช้งานและข้อมูลระบบ</li>
+  </ol>
+
+  <h2>2. การเริ่มต้นใช้งานระบบ (Getting Started)</h2>
+  
+  <h3>2.1 การลงทะเบียนเข้าใช้งาน (Registration)</h3>
+  <ol>
+    <li>ไปที่หน้าแรกของระบบและเลือกเมนู <strong>"สมัครสมาชิก" (Register)</strong></li>
+    <li>กรอกข้อมูลส่วนบุคคล ได้แก่ <strong>ชื่อ-นามสกุล, อีเมล</strong> และกำหนด <strong>รหัสผ่าน</strong></li>
+    <li>กดยืนยันการสมัครสมาชิก</li>
   </ol>
   <div class="note">
-    <strong>ข้อควรระวัง:</strong> การแก้ไขในหน้า Data Manager จะมีผลโดยตรงต่อฐานข้อมูลจริง กรุณาตรวจสอบให้แน่ใจก่อนกดบันทึกเสมอ
+    *(หมายเหตุ: บัญชีที่ลงทะเบียนใหม่จะได้รับสิทธิ์เริ่มต้นเป็น "นักศึกษา" เสมอ)*
   </div>
 
-  <h3>4. มุมมองแบบนักศึกษา (View As Student)</h3>
+  <h3>2.2 การเข้าสู่ระบบ (Login)</h3>
+  <ol>
+    <li>ไปที่เมนู <strong>"เข้าสู่ระบบ" (Login)</strong></li>
+    <li>ระบุอีเมลและรหัสผ่านที่ได้ลงทะเบียนไว้</li>
+    <li>เมื่อเข้าสู่ระบบสำเร็จ ระบบจะแสดงหน้าแดชบอร์ดตามระดับสิทธิ์ของผู้ใช้งาน</li>
+  </ol>
+
+  <h2>3. คู่มือสำหรับนักศึกษา (Student)</h2>
+
+  <h3>3.1 การบันทึกเวลาเข้า-ออกงาน (Time Attendance)</h3>
   <ul>
-    <li>แอดมินและอาจารย์ สามารถใช้ฟีเจอร์นี้ที่มุมซ้ายล่าง เพื่อจำลองหน้าจอของตนเองให้กลายเป็นหน้าจอของนักศึกษา เพื่อช่วยเหลือหรืออธิบายวิธีการใช้งานให้นักศึกษาดูได้</li>
+    <li>เมื่อถึงสถานประกอบการ ให้คลิกปุ่ม <strong>"เช็คอินเข้างาน"</strong> (แสดงในรูปไฮไลท์สีแดง)</li>
+    <li>เมื่อสิ้นสุดการปฏิบัติงานในแต่ละวัน ให้คลิกปุ่ม <strong>"เช็คเอาท์เลิกงาน"</strong></li>
   </ul>
+  <img src="public/manual_images/student_dashboard.png" alt="Student Dashboard">
+
+  <h3>3.2 การเขียนบันทึกการปฏิบัติงานประจำวัน (Daily Log)</h3>
+  <p>หลังจากบันทึกเวลาเข้างานเรียบร้อยแล้ว นักศึกษาต้องกรอกแบบฟอร์มสรุปรายละเอียดงานที่ทำ ความรู้สึก และกดบันทึก</p>
+  <img src="public/manual_images/student_edit_log_modal.png" alt="Student Edit Log Modal">
+
+  <h3>3.3 การยื่นคำร้องขอลาหยุด (Leave Request)</h3>
+  <p>ไปที่เมนู <strong>"แจ้งลา ป่วย/กิจ"</strong> กรอกข้อมูลและประเภทการลาให้ครบถ้วน จากนั้นกด <strong>"ส่งคำขอลา"</strong> เพื่อส่งให้พี่เลี้ยงพิจารณา</p>
+  <img src="public/manual_images/student_leave_request.png" alt="Student Leave Request">
+
+  <h3>3.4 ตารางการปฏิบัติงาน (Schedule)</h3>
+  <p>ตรวจสอบและกำหนดปฏิทินงาน กิจกรรมต่างๆ ที่ได้รับมอบหมาย</p>
+  <img src="public/manual_images/student_schedule.png" alt="Student Schedule">
+
+  <h3>3.5 การจัดการข้อมูลส่วนตัว (Profile)</h3>
+  <p>อัปเดตข้อมูล รหัสผ่าน หรือรูปภาพส่วนตัวในเมนูโปรไฟล์</p>
+  <img src="public/manual_images/student_profile.png" alt="Student Profile">
+
+  <h2>4. คู่มือสำหรับพี่เลี้ยง (Mentor)</h2>
+
+  <h3>4.1 แดชบอร์ดภาพรวม (Dashboard)</h3>
+  <p>ตรวจสอบสถิติ จำนวนชั่วโมง และภาพรวมนักศึกษาทั้งหมดในความดูแล</p>
+  <img src="public/manual_images/mentor_dashboard.png" alt="Mentor Dashboard">
+
+  <h3>4.2 การอนุมัติคำร้องขอลา (Leave Approvals)</h3>
+  <p>ตรวจสอบประวัติการยื่นคำขอลาหยุดของนักศึกษา และคลิกปุ่ม <strong>"อนุมัติ"</strong> หรือ <strong>"ปฏิเสธ"</strong></p>
+  <img src="public/manual_images/mentor_leave_approvals.png" alt="Mentor Leave Approvals">
+
+  <h3>4.3 การกำหนดตารางงาน (Schedule)</h3>
+  <p>มอบหมายงาน นัดหมาย หรือจองตารางงานให้นักศึกษา</p>
+  <img src="public/manual_images/mentor_schedule.png" alt="Mentor Schedule">
+
+  <h2>5. คู่มือสำหรับอาจารย์นิเทศ (Supervisor)</h2>
+
+  <h3>5.1 แดชบอร์ดภาพรวม (Dashboard)</h3>
+  <p>ติดตามความก้าวหน้าการฝึกงานของนักศึกษาในความรับผิดชอบ</p>
+  <img src="public/manual_images/supervisor_dashboard.png" alt="Supervisor Dashboard">
+
+  <h3>5.2 การออกรายงานผล (Reports)</h3>
+  <p>พิมพ์สถิติสรุปเวลาการปฏิบัติงานของนักศึกษา เพื่อนำไปใช้เป็นข้อมูลประกอบการประเมินวิชาการ</p>
+  <img src="public/manual_images/supervisor_report.png" alt="Supervisor Report">
+
+  <h2>6. คู่มือสำหรับผู้ดูแลระบบ (Admin)</h2>
+
+  <h3>6.1 แดชบอร์ดภาพรวมระบบ (Dashboard)</h3>
+  <p>ดูสถานะของเซิร์ฟเวอร์ จำนวนผู้ใช้งาน และกิจกรรมทั้งหมดของระบบ</p>
+  <img src="public/manual_images/admin_dashboard.png" alt="Admin Dashboard">
+
+  <h3>6.2 การจัดการผู้ใช้งาน (User Management)</h3>
+  <p>เพิ่ม แก้ไข ลบ หรือจัดการผู้ใช้งานทั้งหมดในระบบ</p>
+  <img src="public/manual_images/admin_users.png" alt="Admin Users">
+
+  <h3>6.3 การจัดสรรข้อมูลการฝึกงาน (Placements)</h3>
+  <p>จับคู่นักศึกษาฝึกงานกับพี่เลี้ยงในสถานประกอบการและอาจารย์นิเทศ</p>
+  <img src="public/manual_images/admin_placements.png" alt="Admin Placements">
+
+  <h3>6.4 การแก้ไขข้อมูลการเข้างาน (Attendance Edit)</h3>
+  <p>กรณีที่ต้องการแก้ไขข้อมูลการเข้างานดิบย้อนหลัง สามารถใช้โหมด View As และเข้าไปแก้ไขในประวัติได้โดยตรง</p>
+  <img src="public/manual_images/admin_edit_log_modal.png" alt="Admin Edit Log Modal">
+
+  <h3>6.5 การจัดการฐานข้อมูลและบันทึกเวลาที่ขาดหาย (Data Manager & Missing Logs)</h3>
+  <p>ไปที่เมนู <strong>"จัดการข้อมูล"</strong> เลือกแท็บ <strong>"เวลาที่ขาดหาย"</strong> กรอกรหัสผ่าน <strong>`admin123`</strong> และคลิกปุ่ม <strong>"+ เพิ่มข้อมูลใหม่"</strong> เพื่อบันทึกเวลาในส่วนที่นักศึกษาลืมบันทึกย้อนหลัง ข้อมูลจะวิ่งเข้าระบบหลักและคำนวณชั่วโมงโดยอัตโนมัติ</p>
+  <img src="public/manual_images/admin_data_manager.png" alt="Admin Data Manager">
+  <div style="page-break-before: always;"></div>
+  <img src="public/manual_images/admin_missing_logs_tab.png" alt="Admin Missing Logs Tab">
+
+  <hr>
+  <p style="text-align: center; color: #718096; font-size: 11pt;">*เอกสารฉบับนี้ถูกจัดทำขึ้นเพื่อเป็นแนวทางประกอบการใช้งานระบบ TernieTrack สำหรับผู้ใช้งานทุกระดับ*</p>
 
 </body>
 </html>
