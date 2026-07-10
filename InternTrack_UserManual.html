@@ -1,0 +1,147 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<title>คู่มือการใช้งานระบบ InternTrack (ฉบับสมบูรณ์)</title>
+<style>
+  body { font-family: 'Sarabun', 'Cordia New', 'Tahoma', sans-serif; line-height: 1.6; padding: 40px; color: #333; }
+  h1 { color: #1e3a8a; text-align: center; margin-bottom: 5px; }
+  h2 { color: #2563eb; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; margin-top: 40px; page-break-after: avoid; }
+  h3 { color: #3b82f6; margin-top: 25px; page-break-after: avoid; }
+  h4 { color: #475569; margin-top: 15px; }
+  p, li { margin-bottom: 10px; font-size: 16pt; }
+  ul, ol { margin-bottom: 15px; margin-left: 20px; }
+  .subtitle { text-align: center; color: #64748b; font-size: 18pt; margin-bottom: 40px; }
+  .toc { background-color: #f8fafc; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 40px; }
+  .toc-title { font-weight: bold; font-size: 18pt; margin-bottom: 15px; color: #1e293b; }
+  .note { background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 12px; margin: 15px 0; font-size: 14pt; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 12pt; font-weight: bold; }
+  .badge-student { background-color: #dbeafe; color: #1e40af; }
+  .badge-mentor { background-color: #dcfce7; color: #166534; }
+  .badge-supervisor { background-color: #f3e8ff; color: #6b21a8; }
+  .badge-admin { background-color: #fee2e2; color: #991b1b; }
+</style>
+</head>
+<body>
+
+  <h1>คู่มือการใช้งานระบบ InternTrack</h1>
+  <div class="subtitle">ระบบบันทึกเวลาและติดตามการฝึกงาน (Comprehensive User Manual)</div>
+
+  <div class="toc">
+    <div class="toc-title">สารบัญ (Table of Contents)</div>
+    <ol>
+      <li><a href="#student">สำหรับนักศึกษา (Student)</a></li>
+      <li><a href="#mentor">สำหรับพี่เลี้ยง (Mentor)</a></li>
+      <li><a href="#supervisor">สำหรับอาจารย์นิเทศ (Supervisor)</a></li>
+      <li><a href="#admin">สำหรับผู้ดูแลระบบ (Admin)</a></li>
+    </ol>
+  </div>
+
+  <!-- STUDENT SECTION -->
+  <h2 id="student"><span class="badge badge-student">ส่วนที่ 1</span> การใช้งานสำหรับนักศึกษา (Student)</h2>
+  <p>ระบบสำหรับนักศึกษาถูกออกแบบมาเพื่อใช้ในการบันทึกเวลาเข้า-ออกงาน ส่งสรุปงานประจำวัน และจัดการการลา</p>
+
+  <h3>1. แดชบอร์ดและบันทึกเวลา (Dashboard & Time Tracking)</h3>
+  <ul>
+    <li><strong>การเช็คอิน (Check In):</strong> เมื่อมาถึงสถานที่ฝึกงาน ให้เข้าสู่ระบบและกดปุ่ม "เข้างาน" ที่หน้าแดชบอร์ด ระบบจะบันทึกเวลาปัจจุบันโดยอัตโนมัติ</li>
+    <li><strong>การเช็คเอาท์ (Check Out) & บันทึกประจำวัน:</strong> เมื่อเลิกงาน ให้กดปุ่ม "ออกงาน" ระบบจะบังคับให้กรอก <strong>"บันทึกประจำวัน" (Daily Log)</strong> เพื่อสรุปว่าวันนี้ทำงานอะไรไปบ้าง จากนั้นจึงจะสามารถบันทึกเวลาออกงานได้</li>
+    <li><strong>สรุปข้อมูล:</strong> หน้าแดชบอร์ดจะแสดงเวลาเข้า-ออก, จำนวนชั่วโมงที่ทำได้ในวันนี้, และชั่วโมงสะสมทั้งหมด</li>
+  </ul>
+
+  <h3>2. การลางาน (Leave Request)</h3>
+  <ul>
+    <li>ไปที่เมนู <strong>"ลางาน"</strong> เพื่อดูประวัติการลาและสถานะการอนุมัติ</li>
+    <li>คลิก <strong>"+ ยื่นใบลา"</strong> เลือกประเภทการลา (ลาป่วย/ลากิจ), ระบุวันที่, และเหตุผลที่ลา จากนั้นกดส่งคำขอ</li>
+    <li>คำขอจะถูกส่งไปยัง "พี่เลี้ยง" (Mentor) เพื่อทำการอนุมัติ</li>
+  </ul>
+
+  <h3>3. พิมพ์รายงาน (Print Log)</h3>
+  <ul>
+    <li>นักศึกษาสามารถพิมพ์สรุปบันทึกการทำงานเป็นไฟล์ PDF เพื่อส่งอาจารย์หรือเก็บเป็นหลักฐานได้ โดยไปที่เมนูโปรไฟล์หรือกดปุ่มพิมพ์รายงาน ระบบจะจัดฟอร์มให้อัตโนมัติ</li>
+  </ul>
+
+  <hr style="border: 1px solid #e2e8f0; margin: 40px 0;">
+
+  <!-- MENTOR SECTION -->
+  <h2 id="mentor"><span class="badge badge-mentor">ส่วนที่ 2</span> การใช้งานสำหรับพี่เลี้ยง (Mentor)</h2>
+  <p>ระบบสำหรับพนักงานพี่เลี้ยง มีไว้เพื่อติดตามการทำงาน ตรวจสอบบันทึกประจำวัน และอนุมัติการลาของนักศึกษาในความดูแล</p>
+
+  <h3>1. แดชบอร์ด (Dashboard)</h3>
+  <ul>
+    <li>แสดงภาพรวมของนักศึกษาในความดูแล (ใครมาทำงานบ้าง, ใครขาด, ใครลา)</li>
+    <li>แสดงชั่วโมงรวมของนักศึกษาแต่ละคน เพื่อประเมินความคืบหน้า</li>
+  </ul>
+
+  <h3>2. การฝึกงาน (Internships)</h3>
+  <ul>
+    <li>ดูรายชื่อนักศึกษาทั้งหมดที่อยู่ในความดูแล</li>
+    <li>คลิกที่ชื่อนักศึกษาเพื่อดูรายละเอียด <strong>"บันทึกประจำวัน"</strong> และ <strong>"เวลาเข้า-ออกงาน"</strong> ของนักศึกษาคนนั้นในแต่ละวัน</li>
+  </ul>
+
+  <h3>3. อนุมัติการลา (Leave Approvals)</h3>
+  <ul>
+    <li>ไปที่เมนู <strong>"อนุมัติการลา"</strong> เพื่อดูคำขอลาทั้งหมดของนักศึกษา</li>
+    <li>พี่เลี้ยงสามารถตรวจสอบเหตุผล และกดปุ่ม <strong>"อนุมัติ"</strong> หรือ <strong>"ปฏิเสธ"</strong> ได้ทันที</li>
+    <li>เมื่ออนุมัติแล้ว ระบบจะแจ้งเตือนไปยังนักศึกษาโดยอัตโนมัติ</li>
+  </ul>
+
+  <hr style="border: 1px solid #e2e8f0; margin: 40px 0;">
+
+  <!-- SUPERVISOR SECTION -->
+  <h2 id="supervisor"><span class="badge badge-supervisor">ส่วนที่ 3</span> การใช้งานสำหรับอาจารย์นิเทศ (Supervisor)</h2>
+  <p>ระบบสำหรับอาจารย์นิเทศ เน้นไปที่การดูรายงานสรุป (Report) และประเมินการทำงานของนักศึกษาในภาพรวม</p>
+
+  <h3>1. แดชบอร์ดและรายงาน (Dashboard & Report)</h3>
+  <ul>
+    <li>ดูภาพรวมของนักศึกษาทั้งหมดในความดูแลของตนเอง</li>
+    <li>เมนู <strong>"รายงาน"</strong> สามารถดูสถิติการเข้างาน, จำนวนวันที่ลา, และเปอร์เซ็นต์ความก้าวหน้าของชั่วโมงการฝึกงาน</li>
+  </ul>
+
+  <h3>2. รายละเอียดนักศึกษา (Student Detail)</h3>
+  <ul>
+    <li>อาจารย์สามารถเจาะลึกดูข้อมูลของนักศึกษาเป็นรายบุคคล เพื่ออ่าน <strong>"บันทึกประจำวัน" (Daily Logs)</strong> ที่นักศึกษาส่งเข้ามาทุกวัน ใช้ประกอบการให้คะแนนหรือการนิเทศก์</li>
+  </ul>
+
+  <hr style="border: 1px solid #e2e8f0; margin: 40px 0;">
+
+  <!-- ADMIN SECTION -->
+  <h2 id="admin"><span class="badge badge-admin">ส่วนที่ 4</span> การใช้งานสำหรับผู้ดูแลระบบ (Admin)</h2>
+  <p>ผู้ดูแลระบบมีสิทธิสูงสุดในการจัดการตั้งค่าระบบ, เพิ่มผู้ใช้งาน, จัดสรรนักศึกษา, และแก้ไขข้อมูลดิบในกรณีฉุกเฉิน</p>
+
+  <h3>1. จัดการผู้ใช้งาน (Users & Institutions)</h3>
+  <ul>
+    <li><strong>จัดการสถานศึกษา:</strong> เพิ่มชื่อมหาวิทยาลัย/วิทยาลัย เข้าไปในระบบ</li>
+    <li><strong>ผู้ใช้งาน:</strong> เพิ่ม/แก้ไข/ระงับบัญชีผู้ใช้งาน (นักศึกษา, พี่เลี้ยง, อาจารย์) และรีเซ็ตรหัสผ่าน</li>
+  </ul>
+
+  <h3>2. การจัดสรรนักศึกษา (Placements)</h3>
+  <ul>
+    <li>เมนูสำหรับจับคู่ (Assign) นักศึกษา ให้กับ <strong>"พี่เลี้ยง"</strong> และ <strong>"อาจารย์นิเทศ"</strong></li>
+    <li>หากไม่ทำการจับคู่ พี่เลี้ยงและอาจารย์นิเทศจะไม่เห็นข้อมูลของนักศึกษา</li>
+  </ul>
+
+  <h3>3. การจัดการข้อมูลและการแก้ไขเวลาพิเศษ (Data Manager)</h3>
+  <p>เมนู <strong>"จัดการข้อมูล"</strong> (Data Manager) ใช้สำหรับแก้ไขข้อมูลในกรณีที่ระบบมีปัญหา หรือนักศึกษาลืมบันทึกเวลา โดยแบ่งเป็น 3 แท็บหลัก:</p>
+  <ol>
+    <li><strong>แท็บการเข้างาน:</strong> สำหรับแก้ไขเวลาเข้า-ออกงานตรงๆ ในฐานข้อมูล หรือลบข้อมูลขยะทิ้ง</li>
+    <li><strong>แท็บบันทึกประจำวัน:</strong> สำหรับแก้ไขข้อความบันทึกประจำวัน</li>
+    <li><strong>แท็บเวลาที่ขาดหาย (Missing Logs - ฟีเจอร์พิเศษ):</strong> 
+      <ul>
+        <li>เมื่อคลิกแท็บนี้ ระบบจะถามรหัสผ่าน ให้ใส่รหัส: <span class="code" style="color:#ef4444; font-weight:bold;">admin123</span></li>
+        <li>เป็นระบบช่วย <strong>"เพิ่ม"</strong> เวลาที่ขาดหายไป โดยแอดมินเพียงแค่เลือกชื่อนักศึกษา ระบุวันที่ และระบุเวลาที่ลืมเข้า/ออก</li>
+        <li>เมื่อกดบันทึก ระบบจะคำนวณชั่วโมงชดเชยและนำไปใส่ในแท็บการเข้างานให้โดยอัตโนมัติ <em>(แนะนำให้ใช้วิธีนี้แทนการกรอกข้อมูลเองในแท็บการเข้างาน)</em></li>
+      </ul>
+    </li>
+  </ol>
+  <div class="note">
+    <strong>ข้อควรระวัง:</strong> การแก้ไขในหน้า Data Manager จะมีผลโดยตรงต่อฐานข้อมูลจริง กรุณาตรวจสอบให้แน่ใจก่อนกดบันทึกเสมอ
+  </div>
+
+  <h3>4. มุมมองแบบนักศึกษา (View As Student)</h3>
+  <ul>
+    <li>แอดมินและอาจารย์ สามารถใช้ฟีเจอร์นี้ที่มุมซ้ายล่าง เพื่อจำลองหน้าจอของตนเองให้กลายเป็นหน้าจอของนักศึกษา เพื่อช่วยเหลือหรืออธิบายวิธีการใช้งานให้นักศึกษาดูได้</li>
+  </ul>
+
+</body>
+</html>

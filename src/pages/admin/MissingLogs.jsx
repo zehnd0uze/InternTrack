@@ -189,41 +189,7 @@ export default function MissingLogs() {
         } catch { return null; }
       }
 
-      // Prepare payload for missing_attendance
-      const missingPayload = {
-        date: formDate,
-        missing_type: formType,
-        time_in: formTimeIn || null,
-        time_out: formTimeOut || null,
-        note: formNote
-      }
-
-      if (editingRecord) {
-        const { error } = await supabase
-          .from('missing_attendance')
-          .update(missingPayload)
-          .eq('id', editingRecord.id)
-
-        if (error) throw error
-        toast.success('อัปเดตข้อมูลสำเร็จ')
-      } else {
-        const { error } = await supabase
-          .from('missing_attendance')
-          .insert({
-            student_id: formStudentId,
-            ...missingPayload
-          })
-
-        if (error) {
-           if (error.code === '23505') {
-               throw new Error('มีข้อมูลการลืมบันทึกเวลาของนักศึกษาคนนี้ในวันที่ระบุแล้ว')
-           }
-           throw error
-        }
-        toast.success('เพิ่มข้อมูลสำเร็จ')
-      }
-
-      // Sync with actual attendance table
+      // Prepare payload for attendance sync
       let existingAtt = null;
       const { data: attData } = await supabase
         .from('attendance')
@@ -270,6 +236,12 @@ export default function MissingLogs() {
          if (logError) throw new Error('บันทึกหมายเหตุลง daily log ล้มเหลว: ' + logError.message);
       }
 
+      // ลบร่องรอย (Remove trace) - If editing an old record, delete it from missing_attendance so it disappears
+      if (editingRecord) {
+         await supabase.from('missing_attendance').delete().eq('id', editingRecord.id)
+      }
+
+      toast.success('บันทึกข้อมูลเข้าสู่ระบบหลักสำเร็จ')
       setIsModalOpen(false)
       fetchData()
     } catch (err) {

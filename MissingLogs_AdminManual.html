@@ -1,0 +1,76 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<title>คู่มือการใช้งานระบบจัดการเวลาพิเศษ (Missing Logs)</title>
+<style>
+  body { font-family: 'Sarabun', 'Cordia New', 'Tahoma', sans-serif; line-height: 1.6; padding: 40px; color: #333; }
+  h1 { color: #1e3a8a; text-align: center; margin-bottom: 20px; }
+  h2 { color: #2563eb; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; margin-top: 30px; }
+  h3 { color: #3b82f6; margin-top: 20px; }
+  p { margin-bottom: 15px; font-size: 16pt; }
+  ul, ol { font-size: 16pt; margin-bottom: 15px; }
+  li { margin-bottom: 8px; }
+  .alert { background-color: #fef3c7; border-left: 5px solid #f59e0b; padding: 15px; margin: 20px 0; font-size: 14pt; }
+  .code { background-color: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 14pt; color: #ef4444; }
+</style>
+</head>
+<body>
+
+  <h1>คู่มือการใช้งานระบบจัดการเวลาพิเศษ<br>(Secret Missing Logs Manager)</h1>
+  
+  <p><strong>สำหรับ:</strong> ผู้ดูแลระบบ (Admin)<br>
+  <strong>ระบบ:</strong> InternTrack</p>
+
+  <h2>1. บทนำ (Introduction)</h2>
+  <p>ระบบจัดการเวลาพิเศษเป็นฟีเจอร์ที่ถูกซ่อนไว้ (Secret Feature) สำหรับผู้ดูแลระบบ เพื่อใช้ในการเพิ่มหรือแก้ไขเวลาเข้า-ออกงานให้กับนักศึกษาในกรณีที่นักศึกษา <strong>"ลืมบันทึกเวลา"</strong> (Missing Logs) โดยระบบนี้จะทำการคำนวณชั่วโมงการทำงานและอัปเดตลงในฐานข้อมูลการเข้างาน (Attendance) และสมุดบันทึกประจำวัน (Daily Logs) โดยอัตโนมัติ</p>
+
+  <h2>2. การเตรียมความพร้อมฐานข้อมูล (Database Setup)</h2>
+  <div class="alert">
+    <strong>⚠️ ข้อควรระวัง:</strong> หากยังไม่ได้รันคำสั่ง SQL เหล่านี้ใน Supabase ระบบจะไม่สามารถใช้งานได้
+  </div>
+  <p>ผู้ดูแลระบบต้องนำไฟล์ Migration ไปรันใน Supabase SQL Editor ตามลำดับดังนี้:</p>
+  <ul>
+    <li>รันไฟล์ <span class="code">022_missing_attendance.sql</span> เพื่อสร้างตารางสำหรับเก็บประวัติการลืมบันทึกเวลา</li>
+    <li>รันไฟล์ <span class="code">023_add_time_to_missing.sql</span> เพื่อเพิ่มคอลัมน์เวลาเข้า-ออกงานลงในตาราง</li>
+  </ul>
+
+  <h2>3. วิธีการเข้าถึงระบบ (How to Access)</h2>
+  <p>เนื่องจากเป็นฟีเจอร์ลับ จะไม่มีเมนูแสดงในแถบด้านข้าง (Sidebar) วิธีการเข้าถึงมีดังนี้:</p>
+  <ol>
+    <li>เข้าสู่ระบบด้วยบัญชี <strong>ผู้ดูแลระบบ (Admin)</strong></li>
+    <li>ไปที่เมนู <strong>"จัดการข้อมูล"</strong> (Data Manager) จากแถบเมนูด้านซ้าย</li>
+    <li>คลิกที่แท็บที่ 3 ซึ่งมีชื่อว่า <strong>"เวลาที่ขาดหาย"</strong> (ไอคอนรูปไฟล์มีเครื่องหมายตกใจ)</li>
+    <li>ระบบจะแสดงหน้าต่างให้ใส่รหัสผ่าน ให้พิมพ์รหัสผ่าน: <span class="code">admin123</span></li>
+    <li>คลิก <strong>"ยืนยัน"</strong> ระบบจะปลดล็อกและแสดงตารางจัดการเวลาพิเศษทันที (รหัสผ่านจะจำไว้จนกว่าจะออกจากระบบ)</li>
+  </ol>
+
+  <h2>4. วิธีการใช้งาน (How to Use)</h2>
+  
+  <h3>4.1 การเพิ่มข้อมูลเวลาที่ขาดหาย (Add Missing Log)</h3>
+  <ul>
+    <li>คลิกปุ่ม <strong>"+ เพิ่มข้อมูลใหม่"</strong> มุมขวาบน</li>
+    <li>เลือกชื่อ <strong>นักศึกษา</strong> ที่ต้องการเพิ่มเวลา</li>
+    <li>ระบุ <strong>วันที่</strong> ที่นักศึกษาลืมบันทึกเวลา</li>
+    <li>เลือก <strong>ประเภท</strong> (ลืมเข้างาน, ลืมออกงาน, หรือ ลืมทั้งเข้าและออกงาน)</li>
+    <li>ระบุ <strong>เวลาเข้างาน</strong> และ/หรือ <strong>เวลาออกงาน</strong> ตามความเป็นจริง</li>
+    <li>ใส่ <strong>หมายเหตุ</strong> (เช่น "ระบบมีปัญหา", "นักศึกษาลืมสแกน")</li>
+    <li>คลิก <strong>"บันทึก"</strong></li>
+  </ul>
+  <p><em>* เมื่อบันทึกสำเร็จ ระบบจะนำเวลาเข้า-ออกไปคำนวณชั่วโมงทำงานและอัปเดตในแท็บ "การเข้างาน" ทันที รวมถึงนำหมายเหตุไปใส่ใน "บันทึกประจำวัน" ของนักศึกษาคนนั้นในวันดังกล่าว</em></p>
+
+  <h3>4.2 การแก้ไขข้อมูล (Edit Data)</h3>
+  <ul>
+    <li>ในตารางเวลาที่ขาดหาย ให้คลิกที่ไอคอน <strong>"ดินสอ"</strong> ด้านขวาสุดของรายการที่ต้องการแก้ไข</li>
+    <li>แก้ไขเวลาหรือหมายเหตุตามต้องการ แล้วกด <strong>"บันทึก"</strong> ระบบจะอัปเดตข้อมูลทั้งในหน้าต่างนี้และในตารางการเข้างานจริง</li>
+  </ul>
+
+  <h3>4.3 การลบข้อมูล (Delete Data)</h3>
+  <ul>
+    <li>คลิกที่ไอคอน <strong>"ถังขยะสีแดง"</strong> ด้านขวาสุดของรายการ</li>
+    <li>ระบบจะถามเพื่อยืนยันการลบ เมื่อกดยืนยัน ข้อมูลในประวัติการลืมบันทึกเวลาจะถูกลบออก (หมายเหตุ: การลบในหน้านี้จะ<strong>ไม่</strong>ได้ลบประวัติการเข้างานจริงในแท็บ "การเข้างาน" หากต้องการลบเวลาเข้างานจริง ต้องไปลบที่แท็บ "การเข้างาน" ด้วย)</li>
+  </ul>
+
+</body>
+</html>
