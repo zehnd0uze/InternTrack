@@ -104,12 +104,23 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
     toast.success(`สลับไปยังโหมด ${ROLE_LABELS[alternateRole] || alternateRole}`)
   }
 
+  const handleSecretAccess = () => {
+    if (activeRole === 'admin') {
+      navigate('/admin/missing-logs')
+      toast.success('🤫 เปิดระบบจัดการเวลาพิเศษ')
+    }
+  }
+
   return (
     <div className="h-full bg-sidebar flex flex-col border-r border-sidebar-border">
       {/* Header */}
       <div className={`flex items-center h-16 border-b border-sidebar-border ${collapsed ? 'justify-center px-1 gap-1' : 'justify-between px-4'}`}>
         {!collapsed && (
-          <div className="flex items-center gap-2.5">
+          <div 
+            className="flex items-center gap-2.5 cursor-pointer select-none" 
+            onDoubleClick={handleSecretAccess}
+            title="TernieTrack"
+          >
             <div className="w-8 h-8 flex-shrink-0 rounded-lg flex items-center justify-center overflow-hidden">
               <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
             </div>
@@ -117,7 +128,11 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
           </div>
         )}
         {collapsed && (
-          <div className="w-8 h-8 flex-shrink-0 rounded-lg flex items-center justify-center overflow-hidden">
+          <div 
+            className="w-8 h-8 flex-shrink-0 rounded-lg flex items-center justify-center overflow-hidden cursor-pointer select-none"
+            onDoubleClick={handleSecretAccess}
+            title="TernieTrack"
+          >
             <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
           </div>
         )}
