@@ -20,6 +20,9 @@ const mockUser = {
   role: mockRole,
   is_active: true,
   target_hours: 240,
+  institution_id: 'mock-institution-id',
+  work_start_time: '08:00',
+  internship_start_date: todayStr,
 };
 
 const mockStudents = [
