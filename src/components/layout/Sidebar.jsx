@@ -46,7 +46,6 @@ const NAV_ITEMS = {
     { to: '/admin/report', label: 'รายงานระบบ', icon: BarChart3 },
     { to: '/admin/data', label: 'จัดการข้อมูล', icon: Database },
     { to: '/admin/alerts', label: 'ระบบแจ้งเตือน', icon: Bell },
-    { to: '/admin/missing-logs', label: 'บันทึกเวลาที่ขาดหาย', icon: FileWarning },
   ],
   mentor: [
     { to: '/mentor', label: 'แดชบอร์ด', icon: LayoutDashboard, end: true },
