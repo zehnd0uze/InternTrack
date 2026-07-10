@@ -32,6 +32,9 @@ const mockUser = {
   role: mockRole,
   is_active: true,
   target_hours: 240,
+  institution_id: 'mock-institution-id',
+  work_start_time: '08:00',
+  internship_start_date: todayStr,
 };
 
 const mockStudents = [
@@ -185,6 +188,11 @@ async function capture() {
   // Pipe console messages and errors for debugging
   page.on('console', msg => console.log('BROWSER LOG:', msg.text()));
   page.on('pageerror', err => console.log('BROWSER ERROR:', err.toString()));
+
+  // Bypass the What's New changelog modal
+  await page.evaluateOnNewDocument(() => {
+    localStorage.setItem('whatsNew_dismissed_v1.7.1', 'true');
+  });
 
   try {
     // --- 1. STUDENT ---
