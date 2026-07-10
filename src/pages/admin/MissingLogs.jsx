@@ -10,6 +10,18 @@ import { supabase } from '../../lib/supabase'
 import { SkeletonTable } from '../../components/ui/Skeleton'
 import ConfirmModal from '../../components/ui/ConfirmModal'
 
+function formatThaiDate(dt) {
+  if (!dt) return '-'
+  let dateObj
+  if (typeof dt === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dt)) {
+    dateObj = new Date(dt + 'T12:00:00')
+  } else {
+    dateObj = new Date(dt)
+  }
+  const dayName = format(dateObj, 'EEEE', { locale: th }).replace('วัน', '')
+  return `${dayName} ${format(dateObj, 'd MMM yyyy', { locale: th })}`
+}
+
 // ---- Shared filter components ----
 function UserSelect({ users, value, onChange }) {
   const [open, setOpen] = useState(false)
@@ -360,7 +372,7 @@ export default function MissingLogs() {
                         <div className="text-xs text-gray-500">{rec.users.student_code || 'ไม่มีรหัส'}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {format(new Date(rec.date), 'dd MMM yyyy', { locale: th })}
+                        {formatThaiDate(rec.date)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-semibold ${

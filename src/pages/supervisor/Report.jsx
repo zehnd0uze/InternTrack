@@ -92,7 +92,17 @@ export default function SupervisorReport() {
   }
 
   const formatTime = dt => dt ? format(new Date(dt), 'HH:mm', { locale: th }) : '-'
-  const formatDateThai = dt => dt ? format(new Date(dt), 'd MMM yyyy', { locale: th }) : '-'
+  const formatDateThai = dt => {
+    if (!dt) return '-'
+    let dateObj
+    if (typeof dt === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dt)) {
+      dateObj = new Date(dt + 'T12:00:00')
+    } else {
+      dateObj = new Date(dt)
+    }
+    const dayName = format(dateObj, 'EEEE', { locale: th }).replace('วัน', '')
+    return `${dayName} ${format(dateObj, 'd MMM yyyy', { locale: th })}`
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">

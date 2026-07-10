@@ -29,7 +29,14 @@ function formatThaiTime(dt) {
 
 function formatThaiDate(dt) {
   if (!dt) return '-'
-  return format(new Date(dt), 'd MMM yyyy', { locale: th })
+  let dateObj
+  if (typeof dt === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dt)) {
+    dateObj = new Date(dt + 'T12:00:00')
+  } else {
+    dateObj = new Date(dt)
+  }
+  const dayName = format(dateObj, 'EEEE', { locale: th }).replace('วัน', '')
+  return `${dayName} ${format(dateObj, 'd MMM yyyy', { locale: th })}`
 }
 
 function toLocalDatetimeInput(dtStr) {
