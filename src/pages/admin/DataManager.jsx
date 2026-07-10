@@ -3,16 +3,18 @@ import { format } from 'date-fns'
 import { th } from 'date-fns/locale'
 import {
   Database, Clock, BookOpen, Search,
-  Edit2, Trash2, X, Save, RefreshCw, Calendar, Filter, ChevronDown, User
+  Edit2, Trash2, X, Save, RefreshCw, Calendar, Filter, ChevronDown, User, FileWarning
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { supabase } from '../../lib/supabase'
 import { SkeletonTable } from '../../components/ui/Skeleton'
 import ConfirmModal from '../../components/ui/ConfirmModal'
+import MissingLogs from './MissingLogs'
 
 const TABS = [
   { id: 'attendance', label: 'การเข้างาน', icon: Clock },
   { id: 'logs', label: 'บันทึกประจำวัน', icon: BookOpen },
+  { id: 'missing', label: 'เวลาที่ขาดหาย', icon: FileWarning },
 ]
 
 // ---- Shared filter components ----
@@ -626,6 +628,48 @@ function DailyLogsTab() {
   )
 }
 
+function SecretTabWrapper({ children }) {
+  const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem('secretUnlocked') === 'true')
+  const [pwd, setPwd] = useState('')
+
+  if (unlocked) return children
+
+  const onSubmit = (e) => {
+    e.preventDefault()
+    if (pwd === 'admin123') {
+      sessionStorage.setItem('secretUnlocked', 'true')
+      setUnlocked(true)
+      toast.success('ปลดล็อกคุณสมบัติพิเศษสำเร็จ')
+    } else {
+      toast.error('รหัสผ่านไม่ถูกต้อง')
+      setPwd('')
+    }
+  }
+
+  return (
+    <div className="bg-card border border-border rounded-xl p-8 max-w-md mx-auto mt-8 shadow-sm">
+      <div className="text-center mb-6">
+        <div className="w-12 h-12 bg-red-100 text-danger rounded-full flex items-center justify-center mx-auto mb-3">
+          <FileWarning size={24} />
+        </div>
+        <h3 className="text-lg font-bold text-content">ระบบจัดการเวลาพิเศษ</h3>
+        <p className="text-sm text-content-muted mt-1">กรุณาระบุรหัสผ่านเพื่อเข้าใช้งานส่วนนี้</p>
+      </div>
+      <form onSubmit={onSubmit} className="space-y-4">
+        <input 
+          type="password" 
+          value={pwd} 
+          onChange={e=>setPwd(e.target.value)} 
+          placeholder="รหัสผ่าน" 
+          className="input w-full text-center tracking-widest"
+          autoFocus
+        />
+        <button type="submit" className="btn btn-primary w-full justify-center">ยืนยัน</button>
+      </form>
+    </div>
+  )
+}
+
 
 // ----- Main Component -----
 export default function AdminDataManager() {
@@ -670,9 +714,16 @@ export default function AdminDataManager() {
       </div>
 
       {/* Tab Content */}
-      <div>
+      <div className="pt-2">
         {activeTab === 'attendance' && <AttendanceTab />}
         {activeTab === 'logs' && <DailyLogsTab />}
+        {activeTab === 'missing' && (
+          <SecretTabWrapper>
+            <div className="pt-2">
+              <MissingLogs />
+            </div>
+          </SecretTabWrapper>
+        )}
       </div>
     </div>
   )

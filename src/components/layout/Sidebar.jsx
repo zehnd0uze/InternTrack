@@ -47,7 +47,6 @@ const NAV_ITEMS = {
     { to: '/admin/report', label: 'รายงานระบบ', icon: BarChart3 },
     { to: '/admin/data', label: 'จัดการข้อมูล', icon: Database },
     { to: '/admin/alerts', label: 'ระบบแจ้งเตือน', icon: Bell },
-    { to: '/admin/missing-logs', label: 'บันทึกเวลาที่ขาดหาย', icon: FileWarning, requirePassword: true },
   ],
   mentor: [
     { to: '/mentor', label: 'แดชบอร์ด', icon: LayoutDashboard, end: true },
@@ -79,9 +78,6 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
   const navigate = useNavigate()
   const items = NAV_ITEMS[role] || []
   const { isSubscribed, subscribeUser, unsubscribeUser } = useWebPush(user)
-  
-  const [pendingSecretRoute, setPendingSecretRoute] = useState(null)
-  const [secretPassword, setSecretPassword] = useState('')
 
   // Calculate unread counts by type
   const unreadLeaves = notifications.filter(n => !n.is_read && n.type === 'leave_request').length
@@ -109,42 +105,12 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
     toast.success(`สลับไปยังโหมด ${ROLE_LABELS[alternateRole] || alternateRole}`)
   }
 
-  const handleSecretAccess = () => {
-    if (activeRole === 'admin') {
-      const unlocked = sessionStorage.getItem('secretUnlocked')
-      if (unlocked) {
-        navigate('/admin/missing-logs')
-        toast.success('🤫 เปิดระบบจัดการเวลาพิเศษ')
-      } else {
-        setPendingSecretRoute('/admin/missing-logs')
-      }
-    }
-  }
-
-  const handlePasswordSubmit = (e) => {
-    e.preventDefault()
-    if (secretPassword === 'admin123') { // Simple password check
-      sessionStorage.setItem('secretUnlocked', 'true')
-      navigate(pendingSecretRoute)
-      setPendingSecretRoute(null)
-      setSecretPassword('')
-      toast.success('ปลดล็อกคุณสมบัติพิเศษแล้ว')
-    } else {
-      toast.error('รหัสผ่านไม่ถูกต้อง')
-      setSecretPassword('')
-    }
-  }
-
   return (
     <div className="h-full bg-sidebar flex flex-col border-r border-sidebar-border">
       {/* Header */}
       <div className={`flex items-center h-16 border-b border-sidebar-border ${collapsed ? 'justify-center px-1 gap-1' : 'justify-between px-4'}`}>
         {!collapsed && (
-          <div 
-            className="flex items-center gap-2.5 cursor-pointer select-none" 
-            onDoubleClick={handleSecretAccess}
-            title="TernieTrack"
-          >
+          <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 flex-shrink-0 rounded-lg flex items-center justify-center overflow-hidden">
               <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
             </div>
@@ -152,11 +118,7 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
           </div>
         )}
         {collapsed && (
-          <div 
-            className="w-8 h-8 flex-shrink-0 rounded-lg flex items-center justify-center overflow-hidden cursor-pointer select-none"
-            onDoubleClick={handleSecretAccess}
-            title="TernieTrack"
-          >
+          <div className="w-8 h-8 flex-shrink-0 rounded-lg flex items-center justify-center overflow-hidden">
             <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
           </div>
         )}
@@ -193,34 +155,24 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
         {!collapsed && items.length > 0 && (
           <p className="px-3 text-xs font-bold tracking-wider text-sidebar-muted mb-3 mt-2 uppercase">Menu</p>
         )}
-        {items.map(({ to, label, icon: Icon, end, requirePassword }) => {
+        {items.map(({ to, label, icon: Icon, end }) => {
           let badgeCount = 0
           if (label === 'อนุมัติการลา') badgeCount = unreadLeaves
 
-          const linkProps = {
-            key: to,
-            to: to,
-            end: end,
-            className: ({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 group ${
-                isActive
-                  ? 'bg-sidebar-active text-sidebar-active-fg font-semibold shadow-sm'
-                  : 'text-sidebar-muted hover:text-sidebar-fg hover:bg-sidebar-hover hover:translate-x-1'
-              } ${collapsed ? 'justify-center' : ''}`,
-            title: collapsed ? label : undefined,
-            onClick: (e) => {
-              if (requirePassword) {
-                const unlocked = sessionStorage.getItem('secretUnlocked')
-                if (!unlocked) {
-                  e.preventDefault()
-                  setPendingSecretRoute(to)
-                }
-              }
-            }
-          }
-
           return (
-            <NavLink {...linkProps}>
+            <NavLink
+              key={to}
+              to={to}
+              end={end}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 group ${
+                  isActive
+                    ? 'bg-sidebar-active text-sidebar-active-fg font-semibold shadow-sm'
+                    : 'text-sidebar-muted hover:text-sidebar-fg hover:bg-sidebar-hover hover:translate-x-1'
+                } ${collapsed ? 'justify-center' : ''}`
+              }
+              title={collapsed ? label : undefined}
+            >
               <Icon size={18} className="flex-shrink-0" />
               {!collapsed && <span className="truncate">{label}</span>}
               {!collapsed && badgeCount > 0 && (
@@ -307,47 +259,6 @@ export default function Sidebar({ role, collapsed, onToggle, mobile }) {
           )}
         </div>
       </div>
-      
-      {/* Password Prompt Modal */}
-      {pendingSecretRoute && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
-          <div className="bg-card w-full max-w-sm rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-surface">
-              <h3 className="text-lg font-bold text-content">ระบุรหัสผ่าน</h3>
-              <button
-                onClick={() => setPendingSecretRoute(null)}
-                className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-lg transition-colors"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <form onSubmit={handlePasswordSubmit} className="p-6 space-y-4">
-              <div>
-                <input
-                  type="password"
-                  placeholder="รหัสผ่านสำหรับคุณสมบัติพิเศษ"
-                  value={secretPassword}
-                  onChange={e => setSecretPassword(e.target.value)}
-                  className="input w-full"
-                  autoFocus
-                />
-              </div>
-              <div className="flex justify-end gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setPendingSecretRoute(null)}
-                  className="btn btn-secondary"
-                >
-                  ยกเลิก
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  ยืนยัน
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
