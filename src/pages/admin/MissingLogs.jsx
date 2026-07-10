@@ -101,6 +101,8 @@ export default function MissingLogs() {
   // Form states
   const [formDate, setFormDate] = useState(format(new Date(), 'yyyy-MM-dd'))
   const [formType, setFormType] = useState('check_in')
+  const [formTimeIn, setFormTimeIn] = useState('')
+  const [formTimeOut, setFormTimeOut] = useState('')
   const [formNote, setFormNote] = useState('')
   const [formStudentId, setFormStudentId] = useState('')
   const [saving, setSaving] = useState(false)
@@ -150,6 +152,8 @@ export default function MissingLogs() {
     setEditingRecord(null)
     setFormDate(format(new Date(), 'yyyy-MM-dd'))
     setFormType('both')
+    setFormTimeIn('')
+    setFormTimeOut('')
     setFormNote('')
     setFormStudentId('')
     setIsModalOpen(true)
@@ -159,6 +163,8 @@ export default function MissingLogs() {
     setEditingRecord(rec)
     setFormDate(rec.date)
     setFormType(rec.missing_type)
+    setFormTimeIn(rec.time_in ? rec.time_in.substring(0,5) : '')
+    setFormTimeOut(rec.time_out ? rec.time_out.substring(0,5) : '')
     setFormNote(rec.note || '')
     setFormStudentId(rec.student_id)
     setIsModalOpen(true)
@@ -173,14 +179,29 @@ export default function MissingLogs() {
 
     setSaving(true)
     try {
+      const combineToIso = (dateStr, timeStr) => {
+        if (!dateStr || !timeStr) return null;
+        try {
+          const [year, month, day] = dateStr.split('-');
+          const [hours, minutes] = timeStr.split(':');
+          const d = new Date(year, month - 1, day, hours, minutes);
+          return d.toISOString();
+        } catch { return null; }
+      }
+
+      // Prepare payload for missing_attendance
+      const missingPayload = {
+        date: formDate,
+        missing_type: formType,
+        time_in: formTimeIn || null,
+        time_out: formTimeOut || null,
+        note: formNote
+      }
+
       if (editingRecord) {
         const { error } = await supabase
           .from('missing_attendance')
-          .update({
-            date: formDate,
-            missing_type: formType,
-            note: formNote
-          })
+          .update(missingPayload)
           .eq('id', editingRecord.id)
 
         if (error) throw error
@@ -190,9 +211,7 @@ export default function MissingLogs() {
           .from('missing_attendance')
           .insert({
             student_id: formStudentId,
-            date: formDate,
-            missing_type: formType,
-            note: formNote
+            ...missingPayload
           })
 
         if (error) {
@@ -203,6 +222,54 @@ export default function MissingLogs() {
         }
         toast.success('เพิ่มข้อมูลสำเร็จ')
       }
+
+      // Sync with actual attendance table
+      let existingAtt = null;
+      const { data: attData } = await supabase
+        .from('attendance')
+        .select('*')
+        .eq('user_id', formStudentId)
+        .eq('date', formDate)
+        .maybeSingle();
+
+      if (attData) {
+         existingAtt = attData;
+      }
+      
+      const newCheckIn = formTimeIn ? combineToIso(formDate, formTimeIn) : existingAtt?.check_in;
+      const newCheckOut = formTimeOut ? combineToIso(formDate, formTimeOut) : existingAtt?.check_out;
+
+      let hoursWorked = null;
+      if (newCheckIn && newCheckOut) {
+          const ms = new Date(newCheckOut) - new Date(newCheckIn);
+          let h = ms / (1000 * 60 * 60);
+          if (h > 4) h -= 1; // standard 1 hour lunch break
+          hoursWorked = Math.max(0, h).toFixed(2);
+      }
+
+      const { error: attError, data: upsertedAtt } = await supabase
+        .from('attendance')
+        .upsert({
+           user_id: formStudentId,
+           date: formDate,
+           check_in: newCheckIn || combineToIso(formDate, "00:00"), // fallback for not-null constraint
+           check_out: newCheckOut,
+           hours_worked: hoursWorked || existingAtt?.hours_worked
+        }, { onConflict: 'user_id, date' })
+        .select().single();
+
+      if (attError) throw new Error('บันทึกลง log การเข้างานล้มเหลว: ' + attError.message);
+
+      if (formNote && upsertedAtt) {
+         const { error: logError } = await supabase.from('daily_logs').upsert({
+             user_id: formStudentId,
+             attendance_id: upsertedAtt.id,
+             date: formDate,
+             log_text: formNote
+         }, { onConflict: 'attendance_id' })
+         if (logError) throw new Error('บันทึกหมายเหตุลง daily log ล้มเหลว: ' + logError.message);
+      }
+
       setIsModalOpen(false)
       fetchData()
     } catch (err) {
@@ -435,6 +502,34 @@ export default function MissingLogs() {
                   </select>
                 </div>
               </div>
+
+              {(formType === 'check_in' || formType === 'both') && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-semibold text-content block">เวลาเข้างาน</label>
+                    <input
+                      type="time"
+                      value={formTimeIn}
+                      onChange={e => setFormTimeIn(e.target.value)}
+                      className="input w-full"
+                    />
+                  </div>
+                </div>
+              )}
+              
+              {(formType === 'check_out' || formType === 'both') && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-semibold text-content block">เวลาออกงาน</label>
+                    <input
+                      type="time"
+                      value={formTimeOut}
+                      onChange={e => setFormTimeOut(e.target.value)}
+                      className="input w-full"
+                    />
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-1.5">
                 <label className="text-sm font-semibold text-content block">หมายเหตุ</label>
