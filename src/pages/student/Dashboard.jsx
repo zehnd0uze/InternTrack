@@ -14,6 +14,7 @@ import { format as formatDate } from 'date-fns'
 import * as XLSX from 'xlsx'
 import { useTimeAlerts } from '../../hooks/useTimeAlerts'
 import { useWebPush } from '../../hooks/useWebPush'
+import { calcHoursWorked, getPreviousWorkingDay, isWorkingDay, hasApprovedLeave, clockIn, clockOut } from '../../lib/attendance'
 // ---- Helpers ----
 function formatElapsed(seconds) {
   const h = Math.floor(seconds / 3600)
@@ -52,14 +53,6 @@ const STATUS_MAP = {
   pending:  { label: 'รอการอนุมัติ', cls: 'badge-warning' },
   rejected: { label: 'ถูกปฏิเสธ', cls: 'badge-danger' },
   none:     { label: 'ยังไม่ส่ง', cls: 'badge-gray' },
-}
-
-function getPreviousWorkingDay(date = new Date()) {
-  const d = new Date(date)
-  do {
-    d.setDate(d.getDate() - 1)
-  } while (d.getDay() === 0 || d.getDay() === 6) // Skip Sunday(0) and Saturday(6)
-  return format(d, 'yyyy-MM-dd')
 }
 
 export default function StudentDashboard() {
@@ -371,7 +364,8 @@ export default function StudentDashboard() {
         .eq('date', prevDateStr)
         .maybeSingle()
 
-      if (!prevRecord) {
+      // An approved leave covers the gap — don't force a fake check-in
+      if (!prevRecord && !(await hasApprovedLeave(effectiveUserId, prevDateStr))) {
         setClockLoading(false)
         setMissedAttId(null)
         setMissedDate(prevDateStr)
@@ -383,15 +377,11 @@ export default function StudentDashboard() {
       }
     }
 
-    const { error } = await supabase.from('attendance').insert({
-      user_id: effectiveUserId,
-      check_in: now.toISOString(),
-      date: todayStr,
-    })
+    const { error } = await clockIn(effectiveUserId)
 
     setClockLoading(false)
     if (error) {
-      toast.error('เช็คอินล้มเหลว กรุณาลองใหม่')
+      toast.error(error.code === '23505' ? 'คุณได้เช็คอินวันนี้แล้ว' : 'เช็คอินล้มเหลว กรุณาลองใหม่')
     } else {
       toast.success('เช็คอินสำเร็จ!')
       fetchToday()
@@ -449,17 +439,8 @@ export default function StudentDashboard() {
       return
     }
 
-    const lunchDeduct = diffHours > 4 ? 1 : 0
-    const hoursWorked = Math.max(0, diffHours - lunchDeduct)
-
     setClockLoading(true)
-    const { error } = await supabase
-      .from('attendance')
-      .update({
-        check_out: now.toISOString(),
-        hours_worked: parseFloat(hoursWorked.toFixed(2)),
-      })
-      .eq('id', today.id)
+    const { data: saved, error } = await clockOut(today)
 
     setClockLoading(false)
     clearInterval(timerRef.current)
@@ -467,8 +448,10 @@ export default function StudentDashboard() {
     if (error) {
       toast.error('เช็คเอาท์ล้มเหลว กรุณาลองใหม่')
     } else {
-      const msg = lunchDeduct > 0
-        ? `เช็คเอาท์สำเร็จ! ทำงาน ${hoursWorked.toFixed(1)} ชั่วโมง (หักพัก 1 ชม.)`
+      const hoursWorked = parseFloat(saved?.hours_worked ?? calcHoursWorked(today.check_in, now) ?? 0)
+      const lunchDeduct = diffHours - hoursWorked
+      const msg = lunchDeduct > 0.01
+        ? `เช็คเอาท์สำเร็จ! ทำงาน ${hoursWorked.toFixed(1)} ชั่วโมง (หักพัก ${Math.round(lunchDeduct * 60)} นาที)`
         : `เช็คเอาท์สำเร็จ! ทำงาน ${hoursWorked.toFixed(1)} ชั่วโมง`
       toast.success(msg)
       fetchToday()
@@ -547,11 +530,7 @@ export default function StudentDashboard() {
       const tIn = editCheckIn ? new Date(editCheckIn) : null
       const tOut = editCheckOut ? new Date(editCheckOut) : null
 
-      if (tIn && tOut) {
-         const diffHours = (tOut - tIn) / 3600000
-         const lunchDeduct = diffHours > 4 ? 1 : 0
-         hoursWorked = Math.max(0, diffHours - lunchDeduct)
-      }
+      if (tIn && tOut) hoursWorked = calcHoursWorked(tIn, tOut) || 0
       
       const payload = {}
       payload.check_in = tIn ? tIn.toISOString() : null
@@ -597,9 +576,7 @@ export default function StudentDashboard() {
       if (tOut <= tIn) {
         toast.error('เวลาออกต้องมากกว่าเวลาเข้า'); return;
       }
-      const diffHours = (tOut - tIn) / 3600000
-      const lunchDeduct = diffHours > 4 ? 1 : 0
-      hoursWorked = Math.max(0, diffHours - lunchDeduct)
+      hoursWorked = calcHoursWorked(tIn, tOut)
     }
 
     setMissedSaving(true)
@@ -674,23 +651,25 @@ export default function StudentDashboard() {
     let count = 0
     let curr = new Date(start)
     while (curr <= end) {
-      const day = curr.getDay()
-      if (day >= 1 && day <= 5) count++
+      if (isWorkingDay(format(curr, 'yyyy-MM-dd'))) count++
       curr.setDate(curr.getDate() + 1)
     }
     targetDays = count > 0 ? count : 1 // prevent 0
     
-    const [h1, m1] = profile.work_start_time.split(':').map(Number)
-    const [h2, m2] = profile.work_end_time.split(':').map(Number)
-    let dailyHours = (h2 + m2/60) - (h1 + m1/60)
-    if (dailyHours < 0) dailyHours += 24
-    if (dailyHours > 4) dailyHours -= 1
+    const dayIn = new Date(`2000-01-01T${profile.work_start_time}`)
+    const dayOut = new Date(`2000-01-01T${profile.work_end_time}`)
+    if (dayOut <= dayIn) dayOut.setDate(dayOut.getDate() + 1)
+    const dailyHours = calcHoursWorked(dayIn, dayOut) || 0
     
     targetHours = targetDays * Math.max(0, dailyHours)
     if (targetHours === 0) targetHours = 1 // prevent division by zero
   }
 
   const progressPct = Math.min(100, (stats.totalHours / targetHours) * 100)
+
+  const lunchMinutes = today?.check_out && today?.hours_worked != null
+    ? Math.round(((new Date(today.check_out) - new Date(today.check_in)) / 3600000 - parseFloat(today.hours_worked)) * 60)
+    : 0
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -713,78 +692,74 @@ export default function StudentDashboard() {
       {loading ? (
         <SkeletonCard className="h-48" />
       ) : (
-        <div className={`card border-2 transition-all duration-300 ${
-          clockStatus === 'working' ? 'border-success/30 bg-green-50/30' :
-          clockStatus === 'done'    ? 'border-border' :
-                                      'border-primary-100'
-        }`}>
-          <div className="flex flex-col sm:flex-row items-center gap-6">
-            {/* Status */}
-            <div className="flex flex-col items-center gap-2 min-w-[140px]">
-              <div className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 ${
-                clockStatus === 'working' ? 'bg-success/10 clock-pulse' :
-                clockStatus === 'done'    ? 'bg-surface-hover' :
-                                           'bg-primary-50'
+        <section
+          aria-label="สถานะการลงเวลาวันนี้"
+          className={`card relative overflow-hidden transition-colors duration-300 ${
+            clockStatus === 'working' ? 'border-success/40' : ''
+          }`}
+        >
+          {clockStatus === 'working' && (
+            <div aria-hidden className="absolute inset-x-0 top-0 h-1 bg-success" />
+          )}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-6">
+            {/* Status + timer */}
+            <div className="flex items-center gap-4 flex-1 min-w-0">
+              <div className={`shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center ${
+                clockStatus === 'working' ? 'bg-success/10 text-success' :
+                clockStatus === 'done'    ? 'bg-surface-hover text-content-muted' :
+                                           'bg-primary-500/10 text-primary-600 dark:text-primary-300'
               }`}>
-                {clockStatus === 'working' && <Clock size={32} className="text-success" />}
-                {clockStatus === 'done'    && <CheckCircle size={32} className="text-gray-400" />}
-                {clockStatus === 'none'    && <Clock size={32} className="text-primary-400" />}
+                {clockStatus === 'done' ? <CheckCircle size={28} /> : <Clock size={28} />}
               </div>
-
-              <div className="text-center">
-                <p className={`font-bold text-lg ${
-                  clockStatus === 'working' ? 'text-success' :
-                  clockStatus === 'done'    ? 'text-content-muted' :
-                                             'text-gray-400'
-                }`}>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-wider text-content-muted">
                   {clockStatus === 'working' ? 'กำลังทำงาน' :
                    clockStatus === 'done'    ? 'เลิกงานแล้ว' :
-                                              'ยังไม่เริ่ม'}
+                                              'ยังไม่เริ่มงาน'}
                 </p>
                 {clockStatus === 'working' && (
-                  <p className="text-2xl font-mono font-bold text-success mt-1">
+                  <p className="text-3xl font-bold text-content tabular-nums leading-tight">
                     {formatElapsed(elapsed)}
                   </p>
+                )}
+                {clockStatus === 'done' && today?.hours_worked != null && (
+                  <p className="text-3xl font-bold text-content tabular-nums leading-tight">
+                    {parseFloat(today.hours_worked).toFixed(1)} <span className="text-base font-medium text-content-muted">ชม.</span>
+                  </p>
+                )}
+                {clockStatus === 'none' && (
+                  <p className="text-base text-content-muted mt-0.5">กดเช็คอินเมื่อเริ่มงาน ระบบจะบันทึกเวลาจากเซิร์ฟเวอร์</p>
+                )}
+
+                {today?.check_in && (
+                  <dl className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                    <div className="flex gap-1.5">
+                      <dt className="text-content-muted">เข้า</dt>
+                      <dd className="font-semibold text-content tabular-nums">{formatThaiTime(today.check_in)}</dd>
+                    </div>
+                    {today?.check_out && (
+                      <div className="flex gap-1.5">
+                        <dt className="text-content-muted">ออก</dt>
+                        <dd className="font-semibold text-content tabular-nums">{formatThaiTime(today.check_out)}</dd>
+                      </div>
+                    )}
+                    {lunchMinutes > 0 && (
+                      <div className="text-content-muted">หักพัก {lunchMinutes} นาที</div>
+                    )}
+                  </dl>
                 )}
               </div>
             </div>
 
-            {/* Info */}
-            <div className="flex-1 space-y-2 text-sm text-center sm:text-left">
-              {today?.check_in && (
-                <div className="flex items-center justify-center sm:justify-start gap-2 text-content-muted">
-                  <span className="font-medium text-content-muted">เวลาเข้า:</span>
-                  <span className="font-semibold text-content">{formatThaiTime(today.check_in)}</span>
-                </div>
-              )}
-              {today?.check_out && (
-                <div className="flex items-center justify-center sm:justify-start gap-2 text-content-muted">
-                  <span className="font-medium text-content-muted">เวลาออก:</span>
-                  <span className="font-semibold text-content">{formatThaiTime(today.check_out)}</span>
-                </div>
-              )}
-              {today?.hours_worked && (
-                <div className="flex items-center justify-center sm:justify-start gap-2">
-                  <span className="font-medium text-content-muted">ชั่วโมงวันนี้:</span>
-                  <span className="font-semibold text-success">{parseFloat(today.hours_worked).toFixed(1)} ชม.</span>
-                  {parseFloat(today.hours_worked) > 4 && (
-                    <span className="text-xs text-gray-400">(หักพัก 1 ชม.)</span>
-                  )}
-                </div>
-              )}
-              {clockStatus === 'none' && (
-                <p className="text-gray-400 italic">ยังไม่มีข้อมูลการเข้างานวันนี้ กดปุ่มเช็คอินเพื่อเริ่ม</p>
-              )}
-            </div>
-
-            {/* Button */}
-            <div>
+            {/* Action */}
+            <div className="sm:shrink-0">
               {clockStatus === 'none' && (
                 <button
                   id="clock-in-btn"
                   onClick={handleClockIn}
                   disabled={clockLoading}
-                  className="btn-success btn-xl clock-pulse disabled:opacity-60 min-w-[140px]"
+                  aria-busy={clockLoading}
+                  className="btn-success btn-xl w-full sm:w-auto sm:min-w-[160px]"
                 >
                   {clockLoading ? (
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -798,7 +773,8 @@ export default function StudentDashboard() {
                   id="clock-out-btn"
                   onClick={() => setClockOutModal(true)}
                   disabled={clockLoading}
-                  className="btn-danger btn-xl clock-pulse-red disabled:opacity-60 min-w-[140px]"
+                  aria-busy={clockLoading}
+                  className="btn-danger btn-xl w-full sm:w-auto sm:min-w-[160px]"
                 >
                   {clockLoading ? (
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -808,14 +784,13 @@ export default function StudentDashboard() {
                 </button>
               )}
               {clockStatus === 'done' && (
-                <div className="text-center text-gray-400">
-                  <CheckCircle size={32} className="mx-auto mb-1" />
-                  <p className="text-sm font-medium">เสร็จสิ้นวันนี้</p>
-                </div>
+                <span className="badge-success text-sm px-3 py-1 gap-1">
+                  <CheckCircle size={14} /> เสร็จสิ้นวันนี้
+                </span>
               )}
             </div>
           </div>
-        </div>
+        </section>
       )}
 
       {/* ---- Badges Section ---- */}
@@ -862,13 +837,13 @@ export default function StudentDashboard() {
                 <span className="ml-2 text-content-muted font-normal hidden sm:inline">({stats.totalDays || 0} / {targetDays} วัน)</span>
               </span>
             </div>
-            <div className="progress-bar mb-2">
+            <div className="progress-bar mb-2" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progressPct)} aria-label="ความคืบหน้าชั่วโมงสะสม">
               <div
                 className="progress-fill bg-gradient-to-r from-primary-600 to-primary-400"
                 style={{ width: `${progressPct}%` }}
               />
             </div>
-            <div className="flex justify-between text-xs text-gray-400">
+            <div className="flex justify-between text-xs text-content-muted tabular-nums">
               <span>{progressPct.toFixed(1)}% สำเร็จ</span>
               <span>เหลืออีก {Math.max(0, targetHours - stats.totalHours).toFixed(1)} ชม.</span>
             </div>
@@ -876,27 +851,19 @@ export default function StudentDashboard() {
 
           {/* Stat Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="stat-card border-l-4 border-primary-500">
-              <div className="flex items-center gap-2">
-                <Clock size={16} className="text-primary-500" />
-                <span className="stat-label">ชั่วโมงสัปดาห์นี้</span>
+            {[
+              { icon: Clock,    label: 'ชั่วโมงสัปดาห์นี้', value: stats.weekHours.toFixed(1), unit: 'ชม.', tone: 'bg-primary-500/10 text-primary-600 dark:text-primary-300' },
+              { icon: Calendar, label: 'วันที่เข้าเดือนนี้', value: stats.monthDays, unit: 'วัน', tone: 'bg-success/10 text-success' },
+              { icon: Target,   label: 'ชั่วโมงคงเหลือ', value: Math.max(0, targetHours - stats.totalHours).toFixed(1), unit: 'ชม.', tone: 'bg-warning/10 text-warning' },
+            ].map(({ icon: Icon, label, value, unit, tone }) => (
+              <div key={label} className="stat-card">
+                <div className="flex items-center gap-2">
+                  <span className={`w-8 h-8 rounded-lg flex items-center justify-center ${tone}`}><Icon size={16} /></span>
+                  <span className="stat-label">{label}</span>
+                </div>
+                <span className="stat-value">{value} <span className="text-sm font-normal text-content-muted">{unit}</span></span>
               </div>
-              <span className="stat-value">{stats.weekHours.toFixed(1)} <span className="text-sm font-normal text-gray-400">ชม.</span></span>
-            </div>
-            <div className="stat-card border-l-4 border-success">
-              <div className="flex items-center gap-2">
-                <Calendar size={16} className="text-success" />
-                <span className="stat-label">วันที่เข้าเดือนนี้</span>
-              </div>
-              <span className="stat-value">{stats.monthDays} <span className="text-sm font-normal text-gray-400">วัน</span></span>
-            </div>
-            <div className="stat-card border-l-4 border-warning">
-              <div className="flex items-center gap-2">
-                <Target size={16} className="text-warning" />
-                <span className="stat-label">ชั่วโมงคงเหลือ</span>
-              </div>
-              <span className="stat-value">{Math.max(0, targetHours - stats.totalHours).toFixed(1)} <span className="text-sm font-normal text-gray-400">ชม.</span></span>
-            </div>
+            ))}
           </div>
         </>
       )}

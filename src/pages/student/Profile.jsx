@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { User, Mail, Save, Lock, Eye, EyeOff, ShieldCheck, Image as ImageIcon, Clock, GraduationCap, Building2, BookOpen } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { supabase } from '../../lib/supabase'
+import { generateRetroactiveAttendance } from '../../lib/attendance'
 import { useAuth } from '../../contexts/AuthContext'
 
 export default function StudentProfile() {
@@ -134,13 +135,7 @@ export default function StudentProfile() {
       // 3. Generate retroactive attendance if dates are provided
       if (isStudent && internshipStartDate && internshipEndDate && workStartTime && workEndTime) {
         try {
-          const { data: recordsCreated, error: rpcErr } = await supabase.rpc('generate_retroactive_attendance', {
-            p_user_id: user.id,
-            p_start_date: internshipStartDate,
-            p_end_date: internshipEndDate,
-            p_start_time: workStartTime + ':00',
-            p_end_time: workEndTime + ':00'
-          })
+          const { data: recordsCreated, error: rpcErr } = await generateRetroactiveAttendance({ userId: user.id, startDate: internshipStartDate, endDate: internshipEndDate, startTime: workStartTime + ':00', endTime: workEndTime + ':00' })
           if (rpcErr) console.error('Error generating attendance:', rpcErr)
           else if (recordsCreated > 0) {
             toast.success(`สร้างประวัติการลงเวลาย้อนหลังสำเร็จ จำนวน ${recordsCreated} วัน (จันทร์-ศุกร์)`)

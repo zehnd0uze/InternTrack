@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Clock, Save, GraduationCap, Building2, BookOpen, ChevronRight, Check } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { supabase } from '../lib/supabase'
+import { generateRetroactiveAttendance } from '../lib/attendance'
 
 const STEPS = [
   { id: 'institution', title: 'สถาบันการศึกษา', icon: Building2, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
@@ -73,13 +74,7 @@ export default function OnboardingWizard({ user, profile, onComplete }) {
       if (error) throw error
       
       // Generate retroactive attendance
-      await supabase.rpc('generate_retroactive_attendance', {
-        p_user_id: user.id,
-        p_start_date: internshipStartDate,
-        p_end_date: internshipEndDate,
-        p_start_time: startTime + ':00',
-        p_end_time: endTime + ':00'
-      })
+      await generateRetroactiveAttendance({ userId: user.id, startDate: internshipStartDate, endDate: internshipEndDate, startTime: startTime + ':00', endTime: endTime + ':00' })
       
       toast.success('บันทึกข้อมูลสำเร็จ! ยินดีต้อนรับสู่ระบบ 🎉')
       if (onComplete) onComplete()

@@ -62,7 +62,7 @@
     --text-sidebar-activeFg: #ffffff;
     --border-sidebar: #1d2939;
 
-    --color-background: #000000;
+    --color-background: #0b0f17;
     --color-card: #101828;
     --color-content: #f2f4f7;
     --color-content-muted: #98a2b3;
@@ -87,6 +87,21 @@
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-semibold text-content;
+  }
+
+  /* Visible keyboard focus everywhere (buttons previously had none) */
+  :focus-visible {
+    outline: 2px solid theme('colors.primary.500');
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
@@ -152,7 +167,7 @@
   }
 
   .stat-card .stat-value {
-    @apply text-2xl font-bold text-content;
+    @apply text-2xl font-bold text-content tabular-nums;
   }
 
   /* Form Elements */

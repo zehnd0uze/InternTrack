@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { supabase } from '../lib/supabase'
+import { generateRetroactiveAttendance } from '../lib/attendance'
 import { useAuth } from '../contexts/AuthContext'
 
 const SECTION = ({ title, icon: Icon, color = 'text-primary-600', children }) => (
@@ -236,13 +237,7 @@ export default function StudentEditPanel({ studentId, onSaved, compact = false }
       form.work_end_time
     ) {
       try {
-        const { data: recordsCreated, error: rpcErr } = await supabase.rpc('generate_retroactive_attendance', {
-          p_user_id: studentId,
-          p_start_date: form.internship_start_date,
-          p_end_date: form.internship_end_date,
-          p_start_time: form.work_start_time + ':00',
-          p_end_time: form.work_end_time + ':00',
-        })
+        const { data: recordsCreated, error: rpcErr } = await generateRetroactiveAttendance({ userId: studentId, startDate: form.internship_start_date, endDate: form.internship_end_date, startTime: form.work_start_time + ':00', endTime: form.work_end_time + ':00' })
         if (rpcErr) {
           console.error('Retroactive attendance error:', rpcErr)
         } else if (recordsCreated > 0) {
