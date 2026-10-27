@@ -14,6 +14,7 @@ import { format as formatDate } from 'date-fns'
 import * as XLSX from 'xlsx'
 import { useTimeAlerts } from '../../hooks/useTimeAlerts'
 import { useWebPush } from '../../hooks/useWebPush'
+import { loadHolidays } from '../../lib/holidays'
 import { calcHoursWorked, getPreviousWorkingDay, isWorkingDay, hasApprovedLeave, clockIn, clockOut } from '../../lib/attendance'
 // ---- Helpers ----
 function formatElapsed(seconds) {
@@ -290,7 +291,8 @@ export default function StudentDashboard() {
   useEffect(() => { fetchLog() }, [fetchLog])
 
   // ---- Clock In ----
-  const handleClockIn = async () => {
+  // skipPrevDayCheck: student confirmed the missed day was a day off
+  const handleClockIn = async ({ skipPrevDayCheck = false } = {}) => {
     if (isReadOnly && !isAdmin) { toast('โหมดดูอย่างเดียว — ไม่สามารถเช็คอินได้', { icon: '🔒' }); return }
     const now = new Date()
     const todayStr = format(now, 'yyyy-MM-dd')
@@ -348,7 +350,8 @@ export default function StudentDashboard() {
       return
     }
 
-    // Check for missed previous working day
+    // Check for missed previous working day (admin-managed holidays included)
+    await loadHolidays()
     const prevDateStr = getPreviousWorkingDay(now)
 
     // Skip the previous-day check if that day is before the student's internship start date
@@ -356,7 +359,7 @@ export default function StudentDashboard() {
     const internshipStart = profile?.internship_start_date || null
     const prevDayBeforeInternship = internshipStart && prevDateStr < internshipStart
 
-    if (!prevDayBeforeInternship) {
+    if (!prevDayBeforeInternship && !skipPrevDayCheck) {
       const { data: prevRecord } = await supabase
         .from('attendance')
         .select('id')
@@ -1152,6 +1155,20 @@ export default function StudentDashboard() {
                     value={missedLogText}
                     onChange={e => setMissedLogText(e.target.value)}
                   />
+                </div>
+              )}
+
+              {!missedAttId && !(isAdmin && isReadOnly) && missedDate < format(new Date(), 'yyyy-MM-dd') && (
+                <div className="rounded-lg border border-border bg-surface-hover p-3 text-sm">
+                  <p className="text-content-muted">วันนั้นเป็นวันหยุด (เช่น วันหยุดพิเศษ / วันพระ) หรือไม่ได้มาฝึกงาน?</p>
+                  <button
+                    type="button"
+                    onClick={() => { setMissedCheckInModal(false); handleClockIn({ skipPrevDayCheck: true }) }}
+                    disabled={missedSaving}
+                    className="mt-2 font-semibold text-primary-700 dark:text-primary-300 hover:underline"
+                  >
+                    ข้ามวันนี้ แล้วเช็คอินวันนี้เลย →
+                  </button>
                 </div>
               )}
 

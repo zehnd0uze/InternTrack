@@ -2,7 +2,7 @@
 // truth for hours_worked; these helpers mirror it for previews and fallbacks.
 import { format } from 'date-fns'
 import { supabase } from './supabase'
-import { isThaiHoliday, getThaiHolidays } from './holidays'
+import { isThaiHoliday, getThaiHolidays, loadHolidays } from './holidays'
 
 // Lunch: deduct up to 1h, only the part beyond 4h (no cliff at exactly 4h).
 export function calcHoursWorked(checkIn, checkOut) {
@@ -62,6 +62,7 @@ export async function generateRetroactiveAttendance({ userId, startDate, endDate
     p_start_time: startTime,
     p_end_time: endTime,
   }
+  await loadHolidays()
   const res = await supabase.rpc('generate_retroactive_attendance', {
     ...args, p_skip_dates: getHolidayDatesBetween(startDate, endDate),
   })

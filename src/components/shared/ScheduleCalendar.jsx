@@ -1,8 +1,8 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar'
 import { format, parse, startOfWeek, getDay } from 'date-fns'
 import { th as thLocale, enUS } from 'date-fns/locale'
-import { getThaiHolidays } from '../../lib/holidays'
+import { getThaiHolidays, loadHolidays, onHolidaysChange } from '../../lib/holidays'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 
 const locales = {
@@ -19,6 +19,12 @@ const localizer = dateFnsLocalizer({
 })
 
 export default function ScheduleCalendar({ events, onSelectEvent, onSelectSlot, view, onView, date, onNavigate }) {
+  // Re-render once admin-managed holidays arrive
+  const [holidayVersion, setHolidayVersion] = useState(0)
+  useEffect(() => {
+    loadHolidays()
+    return onHolidaysChange(() => setHolidayVersion(v => v + 1))
+  }, [])
   const messages = useMemo(() => ({
     allDay: 'ทั้งวัน',
     previous: 'ย้อนกลับ',
@@ -82,7 +88,7 @@ export default function ScheduleCalendar({ events, onSelectEvent, onSelectSlot, 
       }
     })
     return [...holidays, ...(events || [])]
-  }, [events, date])
+  }, [events, date, holidayVersion])
 
   return (
     <div className="h-[600px] w-full bg-card rounded-xl p-4 shadow-sm border border-border-light">

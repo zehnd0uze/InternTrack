@@ -20,6 +20,7 @@ import {
   RefreshCw,
   Bell,
   School,
+  CalendarOff,
   FileWarning
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
@@ -47,6 +48,7 @@ const NAV_ITEMS = {
     { to: '/admin/report', label: 'รายงานระบบ', icon: BarChart3 },
     { to: '/admin/data', label: 'จัดการข้อมูล', icon: Database },
     { to: '/admin/alerts', label: 'ระบบแจ้งเตือน', icon: Bell },
+    { to: '/admin/holidays', label: 'วันหยุด', icon: CalendarOff },
   ],
   mentor: [
     { to: '/mentor', label: 'แดชบอร์ด', icon: LayoutDashboard, end: true },

@@ -33,6 +33,7 @@ import AdminPlacements from '../pages/admin/Placements'
 import AdminDataManager from '../pages/admin/DataManager'
 import AdminAlerts from '../pages/admin/Alerts'
 import AdminInstitutions from '../pages/admin/Institutions'
+import AdminHolidays from '../pages/admin/Holidays'
 // Mentor pages
 import MentorDashboard from '../pages/mentor/Dashboard'
 import MentorLeaveApprovals from '../pages/mentor/LeaveApprovals'
@@ -184,6 +185,7 @@ export default function AppRouter() {
             <Route path="data" element={<AdminDataManager />} />
             <Route path="alerts" element={<AdminAlerts />} />
             <Route path="institutions" element={<AdminInstitutions />} />
+            <Route path="holidays" element={<AdminHolidays />} />
             <Route path="notifications" element={<NotificationsPage />} />
           </Route>
 
