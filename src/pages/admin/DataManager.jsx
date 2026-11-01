@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { formatHoursMinutes } from '../../lib/attendance'
 import { format } from 'date-fns'
 import { th } from 'date-fns/locale'
 import {
@@ -322,7 +323,7 @@ function AttendanceTab() {
                     {r.check_out ? getLocalTimeFromIso(r.check_out) : <span className="text-amber-400 text-xs">ยังไม่เช็คเอาท์</span>}
                   </td>
                   <td className="text-content-muted">
-                    {r.hours_worked ? `${parseFloat(r.hours_worked).toFixed(2)} ชม.` : <span className="text-gray-300">-</span>}
+                    {r.hours_worked ? formatHoursMinutes(r.hours_worked) : <span className="text-gray-300">-</span>}
                   </td>
                   <td>
                     <div className="flex gap-1.5">

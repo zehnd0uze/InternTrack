@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { useSearchParams } from 'react-router-dom'
 import { getThaiHolidays } from '../../lib/holidays'
+import { formatHoursMinutes } from '../../lib/attendance'
 
 function formatThaiTime(dt) {
   if (!dt) return '-'
@@ -186,7 +187,8 @@ export default function PrintableLog() {
       `}</style>
 
       {pages.map((pageData, pageIndex) => {
-        const pageHours = pageData.reduce((sum, row) => sum + parseFloat(row.hours_worked || 0), 0)
+        // Sum rounded minutes so the total matches the per-row values shown
+        const pageMinutes = pageData.reduce((sum, row) => sum + Math.round(parseFloat(row.hours_worked || 0) * 60), 0)
         const firstValidRow = pageData.find(row => row && row.date)
         const dateToUse = firstValidRow?.date || new Date().toISOString()
         const { semester, year } = getSemesterAndYear(dateToUse)
@@ -245,7 +247,7 @@ export default function PrintableLog() {
                   <th className="w-[15%]">วัน/เดือน/ปี</th>
                   <th className="w-[15%]">เวลาเข้างาน</th>
                   <th className="w-[15%]">เวลาเลิกงาน</th>
-                  <th className="w-[17%]">จำนวนชั่วโมง (ชม)</th>
+                  <th className="w-[17%]">จำนวนชั่วโมง</th>
                   <th className="w-[32%]">หมายเหตุ</th>
                 </tr>
               </thead>
@@ -276,7 +278,7 @@ export default function PrintableLog() {
                       <td>{formatThaiDateShort(row.date)}</td>
                       <td>{formatThaiTime(row.check_in)}</td>
                       <td>{formatThaiTime(row.check_out)}</td>
-                      <td>{row.hours_worked || '-'}</td>
+                      <td>{row.hours_worked ? formatHoursMinutes(row.hours_worked) : '-'}</td>
                       <td className="text-left text-xs px-2 truncate max-w-[200px]">{logText}</td>
                     </tr>
                   )
@@ -284,7 +286,7 @@ export default function PrintableLog() {
                 {/* Total Hours Row */}
                 <tr className="h-[28px] font-bold">
                   <td colSpan={4} className="text-center">รวมชั่วโมงหน้านี้</td>
-                  <td>{pageHours > 0 ? pageHours.toFixed(1) : ''}</td>
+                  <td>{pageMinutes > 0 ? formatHoursMinutes(pageMinutes / 60) : ''}</td>
                   <td></td>
                 </tr>
               </tbody>

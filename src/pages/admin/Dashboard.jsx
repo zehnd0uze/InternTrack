@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { formatHoursMinutes } from '../../lib/attendance'
 import { format, startOfWeek, subWeeks, addDays } from 'date-fns'
 import { th } from 'date-fns/locale'
 import {
@@ -350,7 +351,7 @@ export default function AdminDashboard() {
                 </div>
                 {a.hours_worked && (
                   <span className="text-xs font-semibold text-blue-600 flex-shrink-0">
-                    {parseFloat(a.hours_worked).toFixed(1)} ชม.
+                    {formatHoursMinutes(a.hours_worked)}
                   </span>
                 )}
                 {!a.check_out && (
@@ -402,7 +403,7 @@ export default function AdminDashboard() {
                           : <span className="badge badge-gray">ยังไม่เข้า</span>}
                     </td>
                     <td><ProgressBar pct={s.pct} /></td>
-                    <td className="font-semibold text-primary-700">{s.totalHours.toFixed(1)} <span className="text-xs text-gray-400">ชม.</span></td>
+                    <td className="font-semibold text-primary-700">{formatHoursMinutes(s.totalHours)}</td>
                     <td className="text-content-muted text-sm">{s.target_hours} ชม.</td>
                     <td>
                       <button
@@ -479,7 +480,7 @@ export default function AdminDashboard() {
               <YAxis tick={{ fontSize: 12, fill: '#6B7280' }} unit=" ชม." />
               <Tooltip
                 contentStyle={{ fontFamily: 'Inter, Sarabun, sans-serif', fontSize: 12, borderRadius: 8, border: '1px solid #E5E7EB' }}
-                formatter={(val) => [`${parseFloat(val).toFixed(1)} ชม.`]}
+                formatter={(val) => [formatHoursMinutes(val)]}
               />
               <Legend wrapperStyle={{ fontSize: 12, paddingTop: 16 }} />
               {chartStudents.map((s, i) => (

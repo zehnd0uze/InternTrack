@@ -13,6 +13,16 @@ export function calcHoursWorked(checkIn, checkOut) {
   return Math.round((diff - lunch) * 100) / 100
 }
 
+// Decimal hours (6.42) → "6 ชม. 25 นาที" for human-readable output.
+export function formatHoursMinutes(hours) {
+  const total = Math.round(parseFloat(hours || 0) * 60)
+  const h = Math.floor(total / 60)
+  const m = total % 60
+  if (m === 0) return `${h} ชม.`
+  if (h === 0) return `${m} นาที`
+  return `${h} ชม. ${m} นาที`
+}
+
 export function isWorkingDay(dateStr) {
   const day = new Date(`${dateStr}T00:00:00`).getDay()
   return day !== 0 && day !== 6 && !isThaiHoliday(dateStr)

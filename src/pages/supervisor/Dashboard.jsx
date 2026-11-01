@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { formatHoursMinutes } from '../../lib/attendance'
 import { format, startOfWeek, startOfMonth } from 'date-fns'
 import { th } from 'date-fns/locale'
 import { Users, UserCheck, Clock, AlertCircle, Search, Eye } from 'lucide-react'
@@ -179,12 +180,11 @@ export default function SupervisorDashboard() {
                     </td>
                     <td>{statusBadge(s.todayRecord)}</td>
                     <td>
-                      <span className="font-semibold text-content">{s.weekHours.toFixed(1)}</span>
-                      <span className="text-gray-400 text-xs"> ชม.</span>
+                      <span className="font-semibold text-content">{formatHoursMinutes(s.weekHours)}</span>
                     </td>
                     <td>
                       <div>
-                        <span className="font-semibold text-primary-700">{s.totalHours.toFixed(1)}</span>
+                        <span className="font-semibold text-primary-700">{formatHoursMinutes(s.totalHours)}</span>
                         <span className="text-gray-400 text-xs"> / {s.target_hours} ชม.</span>
                       </div>
                       <div className="w-24 h-1.5 bg-surface-hover rounded-full mt-1 overflow-hidden">
