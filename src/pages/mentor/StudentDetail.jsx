@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { formatHoursMinutes } from '../../lib/attendance'
 import { useParams, useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
 import { th } from 'date-fns/locale'
@@ -259,7 +260,7 @@ export default function MentorStudentDetail() {
               <span className="stat-label">ชั่วโมงสะสม (หน้านี้)</span>
             </div>
             <span className="stat-value">
-              {totalHours.toFixed(1)} <span className="text-sm text-gray-400">/ {student.target_hours} ชม.</span>
+              {formatHoursMinutes(totalHours)} <span className="text-sm text-gray-400">/ {student.target_hours} ชม.</span>
             </span>
           </div>
           <div className="stat-card border-l-4 border-success">
@@ -355,7 +356,7 @@ export default function MentorStudentDetail() {
                         <td>{formatTime(r.check_out)}</td>
                         <td>
                           {r.hours_worked
-                            ? <span className="font-semibold text-success">{parseFloat(r.hours_worked).toFixed(1)}</span>
+                            ? <span className="font-semibold text-success">{formatHoursMinutes(r.hours_worked)}</span>
                             : <span className="text-gray-400">-</span>
                           }
                         </td>

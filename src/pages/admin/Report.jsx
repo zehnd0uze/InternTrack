@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { formatHoursMinutes } from '../../lib/attendance'
 import { format } from 'date-fns'
 import { th } from 'date-fns/locale'
 import { BarChart3, Search, Download } from 'lucide-react'
@@ -162,8 +163,7 @@ export default function AdminReport() {
                     <tr key={r.id}>
                       <td className="font-medium text-content">{r.full_name}</td>
                       <td>
-                        <span className="font-semibold text-primary-700">{r.totalHours.toFixed(1)}</span>
-                        <span className="text-xs text-gray-400"> ชม.</span>
+                        <span className="font-semibold text-primary-700">{formatHoursMinutes(r.totalHours)}</span>
                       </td>
                       <td className="text-content-muted">{r.targetHours} ชม.</td>
                       <td>

@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { supabase } from '../../lib/supabase'
+import { calcHoursWorked } from '../../lib/attendance'
 import { SkeletonTable } from '../../components/ui/Skeleton'
 import ConfirmModal from '../../components/ui/ConfirmModal'
 
@@ -217,13 +218,8 @@ export default function MissingLogs() {
       const newCheckIn = formTimeIn ? combineToIso(formDate, formTimeIn) : existingAtt?.check_in;
       const newCheckOut = formTimeOut ? combineToIso(formDate, formTimeOut) : existingAtt?.check_out;
 
-      let hoursWorked = null;
-      if (newCheckIn && newCheckOut) {
-          const ms = new Date(newCheckOut) - new Date(newCheckIn);
-          let h = ms / (1000 * 60 * 60);
-          if (h > 4) h -= 1; // standard 1 hour lunch break
-          hoursWorked = Math.max(0, h).toFixed(2);
-      }
+      // Same lunch rule as the database (attendance_hours)
+      const hoursWorked = calcHoursWorked(newCheckIn, newCheckOut);
 
       const { error: attError, data: upsertedAtt } = await supabase
         .from('attendance')

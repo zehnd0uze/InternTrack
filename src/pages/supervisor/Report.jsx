@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { formatHoursMinutes } from '../../lib/attendance'
 import { format } from 'date-fns'
 import { th } from 'date-fns/locale'
 import { FileText, Download, Search } from 'lucide-react'
@@ -181,7 +182,7 @@ export default function SupervisorReport() {
                       <td>{formatTime(r.check_out)}</td>
                       <td>
                         {r.hours_worked
-                          ? <span className="font-semibold text-success">{parseFloat(r.hours_worked).toFixed(1)}</span>
+                          ? <span className="font-semibold text-success">{formatHoursMinutes(r.hours_worked)}</span>
                           : '-'}
                       </td>
                       <td className="max-w-xs">

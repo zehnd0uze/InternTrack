@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
+import { formatHoursMinutes } from '../../lib/attendance'
 import { 
   format, addMonths, subMonths, startOfMonth, endOfMonth, 
   startOfWeek, endOfWeek, isSameMonth, isSameDay, eachDayOfInterval 
@@ -201,7 +202,7 @@ export default function AttendanceCalendar() {
                     {record.hours_worked != null && (
                       <div className="text-xs font-semibold text-success flex items-center gap-1 bg-success/5 p-1 rounded border border-success/10">
                         <CheckCircle size={12} className="shrink-0" />
-                        <span className="truncate">{parseFloat(record.hours_worked).toFixed(1)} ชม.</span>
+                        <span className="truncate">{formatHoursMinutes(record.hours_worked)}</span>
                       </div>
                     )}
                   </>

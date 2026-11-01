@@ -15,7 +15,7 @@ import * as XLSX from 'xlsx'
 import { useTimeAlerts } from '../../hooks/useTimeAlerts'
 import { useWebPush } from '../../hooks/useWebPush'
 import { loadHolidays } from '../../lib/holidays'
-import { calcHoursWorked, getPreviousWorkingDay, isWorkingDay, hasApprovedLeave, clockIn, clockOut } from '../../lib/attendance'
+import { calcHoursWorked, formatHoursMinutes, getPreviousWorkingDay, isWorkingDay, hasApprovedLeave, clockIn, clockOut } from '../../lib/attendance'
 // ---- Helpers ----
 function formatElapsed(seconds) {
   const h = Math.floor(seconds / 3600)
@@ -454,8 +454,8 @@ export default function StudentDashboard() {
       const hoursWorked = parseFloat(saved?.hours_worked ?? calcHoursWorked(today.check_in, now) ?? 0)
       const lunchDeduct = diffHours - hoursWorked
       const msg = lunchDeduct > 0.01
-        ? `เช็คเอาท์สำเร็จ! ทำงาน ${hoursWorked.toFixed(1)} ชั่วโมง (หักพัก ${Math.round(lunchDeduct * 60)} นาที)`
-        : `เช็คเอาท์สำเร็จ! ทำงาน ${hoursWorked.toFixed(1)} ชั่วโมง`
+        ? `เช็คเอาท์สำเร็จ! ทำงาน ${formatHoursMinutes(hoursWorked)} (หักพัก ${Math.round(lunchDeduct * 60)} นาที)`
+        : `เช็คเอาท์สำเร็จ! ทำงาน ${formatHoursMinutes(hoursWorked)}`
       toast.success(msg)
       fetchToday()
       fetchStats()
@@ -727,7 +727,7 @@ export default function StudentDashboard() {
                 )}
                 {clockStatus === 'done' && today?.hours_worked != null && (
                   <p className="text-3xl font-bold text-content tabular-nums leading-tight">
-                    {parseFloat(today.hours_worked).toFixed(1)} <span className="text-base font-medium text-content-muted">ชม.</span>
+                    {formatHoursMinutes(today.hours_worked)}
                   </p>
                 )}
                 {clockStatus === 'none' && (
@@ -836,7 +836,7 @@ export default function StudentDashboard() {
                 <span className="font-semibold text-content">ความคืบหน้าชั่วโมงสะสม</span>
               </div>
               <span className="text-sm font-bold text-primary-700">
-                {stats.totalHours.toFixed(1)} / {targetHours.toFixed(1)} ชม.
+                {formatHoursMinutes(stats.totalHours)} / {formatHoursMinutes(targetHours)}
                 <span className="ml-2 text-content-muted font-normal hidden sm:inline">({stats.totalDays || 0} / {targetDays} วัน)</span>
               </span>
             </div>
@@ -848,16 +848,16 @@ export default function StudentDashboard() {
             </div>
             <div className="flex justify-between text-xs text-content-muted tabular-nums">
               <span>{progressPct.toFixed(1)}% สำเร็จ</span>
-              <span>เหลืออีก {Math.max(0, targetHours - stats.totalHours).toFixed(1)} ชม.</span>
+              <span>เหลืออีก {formatHoursMinutes(Math.max(0, targetHours - stats.totalHours))}</span>
             </div>
           </div>
 
           {/* Stat Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
-              { icon: Clock,    label: 'ชั่วโมงสัปดาห์นี้', value: stats.weekHours.toFixed(1), unit: 'ชม.', tone: 'bg-primary-500/10 text-primary-600 dark:text-primary-300' },
+              { icon: Clock,    label: 'ชั่วโมงสัปดาห์นี้', value: formatHoursMinutes(stats.weekHours), unit: '', tone: 'bg-primary-500/10 text-primary-600 dark:text-primary-300' },
               { icon: Calendar, label: 'วันที่เข้าเดือนนี้', value: stats.monthDays, unit: 'วัน', tone: 'bg-success/10 text-success' },
-              { icon: Target,   label: 'ชั่วโมงคงเหลือ', value: Math.max(0, targetHours - stats.totalHours).toFixed(1), unit: 'ชม.', tone: 'bg-warning/10 text-warning' },
+              { icon: Target,   label: 'ชั่วโมงคงเหลือ', value: formatHoursMinutes(Math.max(0, targetHours - stats.totalHours)), unit: '', tone: 'bg-warning/10 text-warning' },
             ].map(({ icon: Icon, label, value, unit, tone }) => (
               <div key={label} className="stat-card">
                 <div className="flex items-center gap-2">
@@ -1038,7 +1038,7 @@ export default function StudentDashboard() {
                           <td>{formatThaiTime(row.check_out)}</td>
                           <td>
                             {row.hours_worked
-                              ? <span className="font-semibold text-success">{parseFloat(row.hours_worked).toFixed(1)}</span>
+                              ? <span className="font-semibold text-success">{formatHoursMinutes(row.hours_worked)}</span>
                               : <span className="text-gray-400">-</span>
                             }
                           </td>
